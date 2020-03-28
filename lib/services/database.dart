@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:myapp/models/user.dart';
 
 class DatabaseService {
 
@@ -8,12 +9,30 @@ class DatabaseService {
   // collection reference
   final CollectionReference utilisateurCollection = Firestore.instance.collection('utilisateur');
 
-  Future<void> updateUserData(String identifiant, String numtel, int vitesse) async {
+  Future<void> updateUserData(String nom, String prenom, String identifiant, String numtel) async {
     return await utilisateurCollection.document(uid).setData({
-      'identifiant': identifiant,
+      'nom': nom,
+      'prenom' :prenom, 
+      'identifiant' :identifiant, 
       'numtel': numtel,
-      'vitesse': vitesse,
     });
   }
 
+  //user data from snapshot 
+   UserData _userDataFromSnapchot(DocumentSnapshot snapshot){
+     return UserData( 
+       uid: uid,
+       identifiant: snapshot.data['identifiant'],
+       nom: snapshot.data['nom'],
+       prenom: snapshot.data['prenom'], 
+       numtel: snapshot.data['numtel'], 
+       ); 
+     
+     }
+   
+    //get user stream 
+   Stream<UserData> get utilisateursDonnees{
+      return utilisateurCollection.document(uid).snapshots()
+      .map(_userDataFromSnapchot); 
+    }
 }

@@ -1,4 +1,3 @@
-import 'package:myapp/screens/authenticate/register.dart';
 import 'package:myapp/screens/authenticate/registerform.dart';
 import 'package:myapp/screens/authenticate/sign_in.dart';
 import 'package:flutter/material.dart';
