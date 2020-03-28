@@ -1,9 +1,9 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:projet_2cp/models/user.dart';
-import 'package:projet_2cp/services/auth.dart';
-import 'package:projet_2cp/services/database.dart';
+import 'package:myapp/models/user.dart';
+import 'package:myapp/services/auth.dart';
+import 'package:myapp/services/database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -29,9 +29,13 @@ class Home extends StatelessWidget {
                        
             /*MENU*/ 
             
-            body:  FloatingActionButton(onPressed: () => Scaffold.of(context).openDrawer(),),
-                              
-                        
+            body:  Material(
+                            elevation: 0,
+
+                             child: Builder(
+                                builder: (context) => FloatingActionButton(onPressed: () => Scaffold.of(context).openDrawer(),),
+                              ),
+                          ),
             drawer: Drawer(
                child: Column(
                          children: [

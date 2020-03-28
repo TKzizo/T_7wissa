@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:projet_2cp/screens/authenticate/forgot_pswd.dart';
-import 'package:projet_2cp/services/auth.dart';
+import 'package:myapp/screens/authenticate/forgot_pswd.dart';
+import 'package:myapp/services/auth.dart';
+
 
 class SignIn extends StatefulWidget {
 
