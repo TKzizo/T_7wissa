@@ -4,7 +4,6 @@ import 'package:myapp/services/auth.dart';
 import 'package:myapp/screens/authenticate/register.dart';
 
 
-
 class RegisterForm extends StatefulWidget {
 
   final Function toggleView;

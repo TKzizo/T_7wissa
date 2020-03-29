@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/authenticate/authenticate.dart';
-import 'package:myapp/screens/home/home.dart';
+import 'package:myapp/screens/home/map.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/models/user.dart';
-
 
 
 class Wrapper extends StatelessWidget {
@@ -17,7 +16,7 @@ class Wrapper extends StatelessWidget {
     if (user == null){
       return Authenticate();
     } else {
-      return Home();
+      return GMap();
     }
     
   }
