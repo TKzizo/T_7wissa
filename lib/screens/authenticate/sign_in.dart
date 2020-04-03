@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:myapp/screens/authenticate/forgot_pswd.dart';
 import 'package:myapp/services/auth.dart';
 import 'package:myapp/screens/home/map.dart';
+import 'package:myapp/screens/authenticate/signin_G.dart';
+
+
+
+
 
 class SignIn extends StatefulWidget {
 
@@ -77,7 +82,6 @@ class _SignInState extends State<SignIn> {
                     },
                   ),
                 ),
-
                 /*Champs Mot de passe*/
                 SizedBox(height: 20.0),
                 Material(
@@ -227,16 +231,16 @@ class _SignInState extends State<SignIn> {
   Widget _signInButton() {
     return OutlineButton(
       splashColor: Colors.grey,
-      onPressed: () async {
-        await googleSignIn.signInWithGoogle(); {
+      onPressed: () {
+        signInWithGoogle().whenComplete(() {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return GMap();
+                return MyHomePage();
               },
             ),
           );
-        }
+        });
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 0,
