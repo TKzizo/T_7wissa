@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:myapp/services/auth.dart';
 import 'package:provider/provider.dart';
 import 'models/user.dart';
+
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -12,8 +14,8 @@ class MyApp extends StatelessWidget {
     return StreamProvider<User>.value(
       value: AuthService().user, 
           child: MaterialApp(
-            debugShowCheckModeBanner:false
-        home: Wrapper(),
+            debugShowCheckedModeBanner: false,
+            home: Wrapper(),
       ),
     );
   }
