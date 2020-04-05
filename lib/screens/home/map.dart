@@ -31,7 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
   GoogleMapController _controller;
 
   static final CameraPosition initialLocation = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
+    target: LatLng(36.752887, 3.042048),
     zoom: 14.4746,
   );
 
@@ -56,9 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
           circleId: CircleId("car"),
           radius: newLocalData.accuracy,
           zIndex: 1,
-          strokeColor: Colors.blue,
+          strokeColor: Colors.deepOrange,
           center: latlng,
-          fillColor: Colors.blue.withAlpha(70));
+          fillColor: Colors.deepOrange.withAlpha(70));
     });
   }
 
@@ -129,10 +129,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
       ),
       floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.location_searching),
+          child: Icon(Icons.location_searching,),
           onPressed: () {
             getCurrentLocation();
-          }),
+          },
+        backgroundColor: Colors.deepOrangeAccent,
+          ),
 
       drawer: Drawer(
         child: Column(
