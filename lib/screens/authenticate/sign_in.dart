@@ -45,7 +45,7 @@ class _SignInState extends State<SignIn> {
                     fit: BoxFit.contain,
                   ),
                 ),
-                SizedBox(height: 50.0),
+                SizedBox(height: 5.0),
                 /*Champs Email*/
                 Material(
                   elevation: 6.5,
@@ -114,7 +114,7 @@ class _SignInState extends State<SignIn> {
 
 
                 /*Mot de passe oublié*/
-                SizedBox(height: 30),
+                SizedBox(height: 12),
                 Material(
 
                   child: FlatButton(
@@ -140,7 +140,7 @@ class _SignInState extends State<SignIn> {
                 /*Mot de passe oublié*/
 
                 /*CONNEXION*/
-                SizedBox(height: 50.0),
+                SizedBox(height: 30.0),
                 Material(
                   borderRadius: BorderRadius.circular(30.0),
                   color: Colors.deepOrange,
@@ -173,19 +173,20 @@ class _SignInState extends State<SignIn> {
                 ),
                 /*CONNEXION*/
                 /*Mot de passe oublié*/
-                ButtonBar(
-                  children: <Widget>[
-                    FlatButton(
-                      child: Text("Pas encore membre,",
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text("Pas encore membre,",
                         textAlign: TextAlign.left,
                         style: const TextStyle(
                             color: const Color(0xde3d3d3d),
                             fontWeight: FontWeight.w500,
                             fontFamily: "Roboto",
                             fontStyle:  FontStyle.normal,
-                            fontSize: 15.0
+                            fontSize: 14.0
                         ),
-                      ), onPressed: () {},
                     ),
                     FlatButton(
                       child:
@@ -195,13 +196,15 @@ class _SignInState extends State<SignIn> {
                             color: const Color(0xff00838f),
                             fontFamily: "Roboto-light",
                             fontStyle:  FontStyle.normal,
-                            fontSize: 17.0
+                            fontSize: 14.0
                         ),
                       ),
                       onPressed: () => widget.toggleView(),
                     ),
-                  ],
-                ),
+                  ], 
+                    ),
+                 
+              
                 SizedBox(height: 11),
 
 
