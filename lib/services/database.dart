@@ -12,27 +12,28 @@ class DatabaseService {
   Future<void> updateUserData(String nom, String prenom, String identifiant, String numtel) async {
     return await utilisateurCollection.document(uid).setData({
       'nom': nom,
-      'prenom' :prenom, 
-      'identifiant' :identifiant, 
+      'prenom' :prenom,
+      'identifiant' :identifiant,
       'numtel': numtel,
     });
   }
+  //database à mettre à jour
 
-  //user data from snapshot 
+  //user data from snapshot
    UserData _userDataFromSnapchot(DocumentSnapshot snapshot){
-     return UserData( 
+     return UserData(
        uid: uid,
        identifiant: snapshot.data['identifiant'],
        nom: snapshot.data['nom'],
-       prenom: snapshot.data['prenom'], 
-       numtel: snapshot.data['numtel'], 
-       ); 
-     
+       prenom: snapshot.data['prenom'],
+       numtel: snapshot.data['numtel'],
+       );
+
      }
-   
-    //get user stream 
+
+    //get user stream
    Stream<UserData> get utilisateursDonnees{
       return utilisateurCollection.document(uid).snapshots()
-      .map(_userDataFromSnapchot); 
+      .map(_userDataFromSnapchot);
     }
 }
