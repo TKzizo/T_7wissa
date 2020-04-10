@@ -56,9 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
           circleId: CircleId("car"),
           radius: newLocalData.accuracy,
           zIndex: 1,
-          strokeColor: Colors.deepOrange,
+          strokeColor: Colors.deepOrangeAccent,
           center: latlng,
-          fillColor: Colors.deepOrange.withAlpha(70));
+          fillColor: Colors.deepOrangeAccent.withAlpha(70));
     });
   }
 
