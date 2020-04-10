@@ -232,7 +232,7 @@ class _SignInState extends State<SignIn> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return GMap();
+                return MyHomePage();
               },
             ),
           );
