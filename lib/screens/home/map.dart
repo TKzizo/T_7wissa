@@ -4,13 +4,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/services/auth.dart';
 import 'package:myapp/services/database.dart';
 import 'package:provider/provider.dart';
 
-
+//this is an old version
 class GMap extends StatefulWidget {
   GMap({Key key}) : super(key: key);
 
