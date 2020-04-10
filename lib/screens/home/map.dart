@@ -11,6 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:myapp/services/auth.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:myapp/services/creationGroupe.dart';
 
 
 class MyHomePage extends StatefulWidget {
@@ -25,7 +26,15 @@ class _MyHomePageState extends State<MyHomePage> {
   final AuthService _auth = AuthService();
   final databaseReference = Firestore.instance;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+  String _selectedItem = '';
+  final _formKey = GlobalKey<FormState>(); //pour identifier le formulaire 
+  // text field state
+  String nom = '';
+  String lieu = '';
+  String error =''; 
+  String heure ='';
+  List<dynamic> listMembre = null;
+  String admin = '';
   StreamSubscription _locationSubscription;
   Location _locationTracker = Location();
   Marker marker;
@@ -144,7 +153,7 @@ Widget _mapWidget(){
       appBar: AppBar(
         backgroundColor: Colors.deepOrange,
         elevation: 0.0,
-        title: Text('Home'),
+        title: Text('Acceuil'),
 
       )  ,
       /*MENU*/
@@ -154,15 +163,15 @@ Widget _mapWidget(){
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           IconButton(icon: Icon(Icons.free_breakfast), onPressed: () {},),
-          IconButton(icon: Icon(Icons.message), onPressed: ()=> _onButtonPressed(),),
-          IconButton(icon: Icon(Icons.group ), onPressed: () {},),
+          IconButton(icon: Icon(Icons.message), onPressed: ()=> _onMessageButtonPressed(),),
+          IconButton(icon: Icon(Icons.group ), onPressed: () =>_onGroupButtonPressed(),),
           IconButton(icon: Icon(Icons.place), onPressed: () {},),
         ],
       ),
     ),
       body:   SlidingUpPanel(
        backdropEnabled: true,
-      panelBuilder: (ScrollController sc) => _scrollingList(sc),
+      panelBuilder: (ScrollController sc) => _scrollingmessagesList(sc),
      body: _mapWidget(),
       
        borderRadius: radius ,
@@ -243,7 +252,8 @@ Widget _mapWidget(){
 
 
   }
-_buildlistItem(BuildContext ctx,DocumentSnapshot document) {
+/*Messages  recues*/ 
+_buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
      return(ListTile(
     title: Text(
       document['sender']+":",
@@ -285,7 +295,8 @@ _buildlistItem(BuildContext ctx,DocumentSnapshot document) {
                       )
                   );
   }
-  Widget _scrollingList(ScrollController sc){
+  /*messages a envoyer*/ 
+  Widget _scrollingmessagesList(ScrollController sc){
   return Container(
   padding: EdgeInsets.symmetric(vertical:20.0,horizontal:40.0),
   child:
@@ -478,7 +489,7 @@ _buildlistItem(BuildContext ctx,DocumentSnapshot document) {
   ));
  
 }
-void _onButtonPressed(){
+void _onMessageButtonPressed(){
    
     showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -537,12 +548,11 @@ void _onButtonPressed(){
      itemExtent: 80.0,
      itemCount:snapshot.data.documents.length,
     itemBuilder: (ctx,index )=> (
-    _buildlistItem(ctx,snapshot.data.documents[index])),
+    _buildRecievedMessageslistItem(ctx,snapshot.data.documents[index])),
       );
     
      }
-         
-      )
+         )
     
        
       ) , 
@@ -559,5 +569,262 @@ void _onButtonPressed(){
         );
          
       }
+/*Groupes*/
+void _onGroupButtonPressed(){
+   
+    showModalBottomSheet(context: context, builder:(context){
+     return Container(
+        color: const Color(0xff737373),
+       width: 360,
+      height: 535,
+      child:Container(
+      decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+      borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(30) ,
+          topRight:  const Radius.circular(30) ,
+        ),
+      ),
+      
+       child: Stack(children: [
+  // ✏️ Headline 6 
+  PositionedDirectional(
+    top: 35,
+    start: 38,
+    child: 
+        SizedBox(
+      width: 77,
+      height: 26,
+      child: Text(
+      "Groupes ",
+      style: const TextStyle(
+          color:  const Color(0xde204f6f),
+          fontWeight: FontWeight.w500,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 19.0
+      ),
+      textAlign: TextAlign.left                
+      )),
+  ),
+     
+     Container( 
+     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     child: StreamBuilder(
+     stream: Firestore.instance.collection('groupe').snapshots(),
+     builder: (context,snapshot){
+     if (!snapshot.hasData) return const Text("aucun groupe",
+      style: const TextStyle(
+      color:  const Color(0xff3d3d3d),
+      fontWeight: FontWeight.w400,
+      fontFamily: "Roboto",
+      fontStyle:  FontStyle.normal,
+      fontSize: 17.0
+  ),
+  textAlign: TextAlign.left 
+     
+     
+     );
+   return  ListView.builder(
+     itemExtent: 80.0,
+     itemCount:snapshot.data.documents.length,
+    itemBuilder: (ctx,index )=> (
+    _buildlistItem(ctx,snapshot.data.documents[index])),
+      );
+    
+     }
+         
+      )
+    
+       
+      ) , 
+       PositionedDirectional(
+    top: 300,
+    start: 275,
+    child: 
+        SizedBox(
+      
+      child:FloatingActionButton(onPressed:()=>creeGroupe(),
+         child: Icon(Icons.add,
+         size: 40,
+         ),
+         backgroundColor: const Color(0xffff5722),
+         focusColor: Colors.white,
+         ),
+        ),
+  ),
+      
+      ]
+      )
+         
+          ),
+        
+          );
+          
+    
+        }
+        );
+         
+      }
+     _buildlistItem(BuildContext ctx,DocumentSnapshot document) {
+     return(ListTile(
+    title:Row (
+       
+        crossAxisAlignment: CrossAxisAlignment.start,
+       
+        children : <Widget>[
+       Text(
+      document['nom'],
+      style: const TextStyle(
+          color:  const Color(0xff3d3d3d),
+          fontWeight: FontWeight.w400,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 17.0
+      ),
+      textAlign: TextAlign.left                
+      ),
+      Spacer(flex:1,),
+     Text(
+                      "à : "+ document['destination'],
+                      style: const TextStyle(
+                          color:  const Color(0xff52bf90),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left              
+                      ),]),
+     subtitle :   Text(
+                      "Admin : "+ document['admin'],
+                      style: const TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left                
+                      ),
+         trailing:    IconButton(onPressed:()=> _quittergroupe(document.documentID),
+                         icon: Icon(
+                        Icons.arrow_forward,
+                         color:  const Color(0xffff5722),
+                        ),
+                      
+                         ),
+                         onTap:null, 
+                      )   
+                  );
+                    }
+                      _quittergroupe(docId) {
+            Firestore.instance.collection('groupe').document(docId).delete().catchError((e){
+              print(e);});
+              print('supp');
+            }
+            void creeGroupe(){
+    showModalBottomSheet(context: context, builder:(context){
+     return Container(
+        color: const Color(0xff737373),
+       width: 360,
+        height: 600,
+        child: Container(
+        decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+        borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(60) ,
+          topRight:  const Radius.circular(60) ,
+        ),
+        ),
+      child : Container(
+        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
+        child : Form(
+          key : _formKey,
+      child: Column( 
+        mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: 30.0),
+              TextFormField(
+                decoration: const InputDecoration(
+                 hintText: 'Nom du groupe',
+                  ),
+                validator: (val) => val.isEmpty ? 'Donner un nom ' : null,
+                onChanged: (val) {
+                  setState(() => nom = val);
+                },
+              ),
+              SizedBox(height: 15.0),
+              TextFormField(
+                decoration: const InputDecoration(
+                 hintText: 'Distination',
+                 suffixIcon: Icon (
+                            Icons.search, 
+                            color : Color(0xffff5722),
+                        ),
+                  ),
+                validator: (val) => val.isEmpty  ? 'Choisissez une distination' : null,
+                onChanged: (val) {
+                  setState(() => lieu = val);
+                },
+              ),
+              SizedBox(height: 15.0),
+              TextFormField(
+                decoration: const InputDecoration(
+                 hintText: 'Heure de deppart',
+                  ),
+                validator: (val) => val.isEmpty ? 'Donnez une heure de deppart' : null,
+                onChanged: (val) {
+                  setState(() => heure = val);
+                },
+              ),
+              Row(
+                 children: <Widget>[
+                   SizedBox(height: 80,),
+                   SizedBox(width: 100,),
+                   FlatButton.icon(
+                     icon: Icon(Icons.add_circle,color: Color(0xffff5722), size: 40,),
+                     label: Text("Ajoutez les membres"),
+                     onPressed: () => print(nom)
+                    ),
+                  ],      
+              ),
+              SizedBox(height: 20.0),
+              Material(
+                borderRadius: BorderRadius.circular(30.0),
+                color: Colors.deepOrange,
+                child: 
+                MaterialButton(
+                minWidth: 174,
+                height: 36,
+                child: 
+                Text("Crée le groupe",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      color:  const Color(0xffffffff),
+                      fontWeight: FontWeight.w500,
+                      fontFamily: "Roboto",
+                      fontStyle:  FontStyle.normal,
+                      fontSize: 16.0
+                  ),
+                ),
+                onPressed: () async {
+                  if(_formKey.currentState.validate()){ 
+                    CreationGroupeServises g = new CreationGroupeServises();
+                    g.creerGroupe(admin, lieu, heure, listMembre, nom);
+                  }
+                }
+              ),
+              ), 
+            ],
+          ),
+        ),
+      ),
+      )
+     );
+    }
+    );
+    
+  }
 
 }
