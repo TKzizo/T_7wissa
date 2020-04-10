@@ -571,7 +571,6 @@ void _onMessageButtonPressed(){
       }
 /*Groupes*/
 void _onGroupButtonPressed(){
-   
     showModalBottomSheet(context: context, builder:(context){
      return Container(
         color: const Color(0xff737373),
@@ -685,8 +684,7 @@ void _onGroupButtonPressed(){
       textAlign: TextAlign.left                
       ),
       Spacer(flex:1,),
-     Text(
-                      "à : "+ document['destination'],
+     Text(  "à : "+ document['destination'],
                       style: const TextStyle(
                           color:  const Color(0xff52bf90),
                           fontWeight: FontWeight.w400,
