@@ -162,7 +162,7 @@ Widget _mapWidget(){
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          IconButton(icon: Icon(Icons.free_breakfast), onPressed: () {},),
+          IconButton(icon: Icon(Icons.free_breakfast), onPressed: () => _onBreakButtonPressed(),),
           IconButton(icon: Icon(Icons.message), onPressed: ()=> _onMessageButtonPressed(),),
           IconButton(icon: Icon(Icons.group ), onPressed: () =>_onGroupButtonPressed(),),
           IconButton(icon: Icon(Icons.place), onPressed: () {},),
@@ -586,7 +586,6 @@ void _onGroupButtonPressed(){
       ),
       
        child: Stack(children: [
-  // ✏️ Headline 6 
   PositionedDirectional(
     top: 35,
     start: 38,
@@ -721,7 +720,7 @@ void _onGroupButtonPressed(){
               print(e);});
               print('supp');
             }
-            void creeGroupe(){
+void creeGroupe(){
     showModalBottomSheet(context: context, builder:(context){
      return Container(
         color: const Color(0xff737373),
@@ -824,5 +823,255 @@ void _onGroupButtonPressed(){
     );
     
   }
-
+  void _onBreakButtonPressed(){
+    showModalBottomSheet(context: context, builder:(context){
+     return Container(
+        color: const Color(0xff737373),
+       width: 360,
+      height: 535,
+      child:Container(
+      decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+      borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(30) ,
+          topRight:  const Radius.circular(30) ,
+        ),
+      ),
+      
+       child: Stack(children: [
+  PositionedDirectional(
+    top: 35,
+    start: 38,
+    child: 
+        SizedBox(
+      width: 10000,
+      height: 26,
+      child: Text(
+      "Ajouter un point de repos ",
+      style: const TextStyle(
+          color:  const Color(0xde204f6f),
+          fontWeight: FontWeight.w500,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 19.0
+      ),
+      textAlign: TextAlign.left                
+      )),
+  ),
+     
+     Container( 
+     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     child:Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 12,),
+                Material(
+                  elevation: 6.5,
+                  borderRadius: BorderRadius.circular(30.0),
+                  child:
+                  TextFormField(
+                    obscureText: false,
+                    //TEXT
+                    style: TextStyle(
+                        color:  Colors.grey[900],
+                        fontFamily: "Roboto",
+                        fontStyle:  FontStyle.normal,
+                        fontSize: 16.0
+                    ),
+                    //SHAPE
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                        hintText: "Lieu",
+                        suffixIcon: Icon (
+                          Icons.search,
+                          color:  Colors.deepOrange,
+                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
+                    ),
+                    //Validation de l'entrée
+                    validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
+                    onChanged: (val) {
+                      String lieu;
+                    setState(() => lieu = val);
+                    },
+                  ),
+                ),
+                SizedBox(height: 12,),
+                Material(
+                  elevation: 6.5,
+                  borderRadius: BorderRadius.circular(30.0),
+                  child:
+                  TextFormField(
+                    obscureText: false,
+                    //TEXT
+                    style: TextStyle(
+                        color:  Colors.grey[900],
+                        fontFamily: "Roboto",
+                        fontStyle:  FontStyle.normal,
+                        fontSize: 16.0
+                    ),
+                    //SHAPE
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 15.0),
+                        hintText: "heure",
+                        suffixIcon: Icon (
+                          Icons.timer,
+                          color:  Colors.deepOrange,
+                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
+                    ),
+                    //Validation de l'entrée
+                    validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
+                    onChanged: (val) {
+                      String heure;
+                    setState(() => heure= val);
+                    },
+                  ),
+                ),
+                 SizedBox(height: 40.0),
+                Material(
+                  borderRadius: BorderRadius.circular(30.0),
+                  color: Colors.deepOrange,
+                  child:
+                  MaterialButton(
+                      minWidth: 174,
+                      height: 36,
+                      child:
+                      Text("AJOUTER",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            color:  const Color(0xffffffff),
+                            fontWeight: FontWeight.w500,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 16.0
+                        ),
+                      ),
+                      onPressed: () {}
+                  ),
+                ),
+              ],
+            ),
+          ),
+       
+      ))
+       
+      
+      ]
+      )
+         
+          ),
+        
+          );
+          
+    
+        }
+        );
+         
+      }
+void planifierPause(){
+    showModalBottomSheet(context: context, builder:(context){
+     return Container(
+        color: const Color(0xff737373),
+       width: 360,
+        height: 600,
+        child: Container(
+        decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+        borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(60) ,
+          topRight:  const Radius.circular(60) ,
+        ),
+        ),
+      child : Container(
+        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
+        child : Form(
+          key : _formKey,
+      child: Column( 
+        mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: 30.0),
+              TextFormField(
+                decoration: const InputDecoration(
+                 hintText: 'Nom du groupe',
+                  ),
+                validator: (val) => val.isEmpty ? 'Donner un nom ' : null,
+                onChanged: (val) {
+                  setState(() => nom = val);
+                },
+              ),
+              SizedBox(height: 15.0),
+              TextFormField(
+                decoration: const InputDecoration(
+                 hintText: 'Distination',
+                 suffixIcon: Icon (
+                            Icons.search, 
+                            color : Color(0xffff5722),
+                        ),
+                  ),
+                validator: (val) => val.isEmpty  ? 'Choisissez une distination' : null,
+                onChanged: (val) {
+                  setState(() => lieu = val);
+                },
+              ),
+              SizedBox(height: 15.0),
+              TextFormField(
+                decoration: const InputDecoration(
+                 hintText: 'Heure de deppart',
+                  ),
+                validator: (val) => val.isEmpty ? 'Donnez une heure de deppart' : null,
+                onChanged: (val) {
+                  setState(() => heure = val);
+                },
+              ),
+              Row(
+                 children: <Widget>[
+                   SizedBox(height: 80,),
+                   SizedBox(width: 100,),
+                   FlatButton.icon(
+                     icon: Icon(Icons.add_circle,color: Color(0xffff5722), size: 40,),
+                     label: Text("Ajoutez les membres"),
+                     onPressed: () => print(nom)
+                    ),
+                  ],      
+              ),
+              SizedBox(height: 20.0),
+              Material(
+                borderRadius: BorderRadius.circular(30.0),
+                color: Colors.deepOrange,
+                child: 
+                MaterialButton(
+                minWidth: 174,
+                height: 36,
+                child: 
+                Text("Crée le groupe",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      color:  const Color(0xffffffff),
+                      fontWeight: FontWeight.w500,
+                      fontFamily: "Roboto",
+                      fontStyle:  FontStyle.normal,
+                      fontSize: 16.0
+                  ),
+                ),
+                onPressed: () async {
+                  if(_formKey.currentState.validate()){ 
+                    CreationGroupeServises g = new CreationGroupeServises();
+                    g.creerGroupe(admin, lieu, heure, listMembre, nom);
+                  }
+                }
+              ),
+              ), 
+            ],
+          ),
+        ),
+      ),
+      )
+     );
+    }
+    );
+    
+  }
 }

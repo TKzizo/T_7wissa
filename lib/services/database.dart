@@ -15,8 +15,10 @@ class DatabaseService {
       'prenom' :prenom, 
       'identifiant' :identifiant, 
       'numtel': numtel,
+      'uid': uid, 
     });
   }
+ 
 
   //user data from snapshot 
    UserData _userDataFromSnapchot(DocumentSnapshot snapshot){
