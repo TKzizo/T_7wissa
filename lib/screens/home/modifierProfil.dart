@@ -52,23 +52,8 @@ class _EditProfileViewState extends State<EditProfileView> {
         appBar: new AppBar(title: const Text('Modifier le profil'), 
          backgroundColor:  Color(0xFFFF5722),
            
-        actions: <Widget>[
-          new Container(
-              padding: const EdgeInsets.fromLTRB(0.0, 10.0, 5.0, 10.0),
-              child: new MaterialButton(
-                color: Color(0xFFFF7043),
-                textColor: themeData.secondaryHeaderColor,
-                child: new Text('Sauvegarder'),
-                 onPressed: () async {
-            
-            if(_formKey.currentState.validate() )
-                {   await DatabaseService(uid: user.uid).updateUserData(nom, prenom, utilisateur, phoneNumber);
-                
-                 }
-                  Navigator.pop(context);
-                },
-              ))
-        ]),
+       
+        ),
         body: StreamBuilder<UserData>(
           stream: DatabaseService(uid: user.uid).utilisateursDonnees,
           builder: (context,snapshot){
@@ -88,6 +73,10 @@ class _EditProfileViewState extends State<EditProfileView> {
 
            else{
               UserData userData =snapshot.data;
+           
+        
+        
+        
        return new Form(
           key : _formKey,
       child: SingleChildScrollView(
@@ -112,7 +101,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                  TextFormField(
                   initialValue: userData.prenom,
                    decoration: const InputDecoration(
-                   icon: Icon(Icons.person,color:  Colors.teal),
+                   icon: Icon(Icons.person,
+                   color:  Colors.teal),
                  
                    labelText: 'Prénom *',
                       ),
@@ -124,8 +114,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                 TextFormField(
                   initialValue: userData.identifiant,
                    decoration: const InputDecoration(
-                   
-                     icon: null,
+                   icon: Icon(null),
+                  
                    labelText: 'Nom d utilisateur  *',
                       ),
                   validator: (val) => val.isEmpty ? 'Donner votre nom d utilisateur ' : null,
@@ -136,7 +126,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                   TextFormField(
                   initialValue: userData.numtel,
                    decoration: const InputDecoration(
-                   icon: Icon(Icons.phone,color:  Colors.teal),
+                   icon: Icon(Icons.phone,
+                   color:  Colors.teal),
                    
                    labelText: 'Num de tél *',
                       ),
@@ -147,7 +138,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                   TextFormField(
                   initialValue: userData.identifiant,
                    decoration: const InputDecoration(
-                   icon: Icon(Icons.mail,color:  Colors.teal),
+                   icon: Icon(Icons.mail,
+                   color:  Colors.teal),
                    
                    labelText: 'Email *',
                       ),
@@ -158,7 +150,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                   TextFormField(
                    obscureText: true,
                    decoration: const InputDecoration(
-                   icon: Icon(Icons.vpn_key,color:  Colors.teal),
+                   icon: Icon(Icons.vpn_key,
+                   color:  Colors.teal),
                    hintText: 'entrer votre mot de passe',
                    labelText: 'Mot de passe actuel *',
                       ),
@@ -170,7 +163,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                    controller: _pass,
                    obscureText: true,
                    decoration: const InputDecoration(
-                   icon: Icon(Icons.remove_red_eye,color:  Colors.teal),
+                   icon: Icon(Icons.remove_red_eye,
+                   color:  Colors.teal),
                    hintText: 'entrer votre nouveau mot de passe',
                    labelText: 'Nouveau mot de passe *',
                       ),
@@ -222,7 +216,27 @@ class _EditProfileViewState extends State<EditProfileView> {
                   ),
 
                   /*Mot de passe oublié*/
-                
+                 Container(
+                padding: const EdgeInsets.fromLTRB(0.0, 10.0, 5.0, 10.0),
+                child: new MaterialButton(
+                  color: Color(0xFFFF7043),
+                  textColor: themeData.secondaryHeaderColor,
+                  child: new Text('Sauvegarder'),
+                   onPressed: () async {
+              
+               if(_formKey.currentState.validate() )
+                  {   await DatabaseService(uid: user.uid).updateUserData(
+                     nom ??userData.nom,
+                     prenom??userData.prenom,
+                     phoneNumber??userData.numtel,
+                     utilisateur??userData.identifiant,
+
+                  );
+                  
+                   }
+                    Navigator.pop(context);
+                  },
+                ))
                  
               ],
             ),

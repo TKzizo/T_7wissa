@@ -847,7 +847,7 @@ void creeGroupe(){
       width: 1000,
       height: 26,
       child: Text(
-      "Ajouter un point de repos ",
+      "Vos invitations ",
       style: const TextStyle(
           color:  const Color(0xde204f6f),
           fontWeight: FontWeight.w500,
@@ -1534,7 +1534,7 @@ void list_invitations(){
                   );
                     }//buildItem
                       _refuserInvitation(docId) {
-            Firestore.instance.collection('invitaion').document(docId).delete().catchError((e){
+            Firestore.instance.collection('invitation').document(docId).delete().catchError((e){
               print(e);});
               print('supp');
 
