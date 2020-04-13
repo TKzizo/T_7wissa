@@ -13,6 +13,8 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:myapp/services/creationGroupe.dart';
 
+import 'modifierProfil.dart';
+
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -821,6 +823,125 @@ void creeGroupe(){
     );
     
   }
+    void _onInvitationConfirmationPressed(DocumentSnapshot document){
+      showModalBottomSheet(context: context, builder:(context){
+     return Container(
+        color: const Color(0xff737373),
+       width: 360,
+      height: 240,
+      child:Container(
+      decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+      borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(30) ,
+          topRight:  const Radius.circular(30) ,
+        ),
+      ),
+      
+       child: Stack(children: [
+  PositionedDirectional(
+    top: 35,
+    start: 38,
+    child: 
+        SizedBox(
+      width: 1000,
+      height: 26,
+      child: Text(
+      "Ajouter un point de repos ",
+      style: const TextStyle(
+          color:  const Color(0xde204f6f),
+          fontWeight: FontWeight.w500,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 19.0
+      ),
+      textAlign: TextAlign.left                
+      )),
+  ),
+     
+     Container( 
+     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     child:Form(
+     
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 20,), 
+                Text('Voulez vous confirmer ? ',
+                textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            color:  Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 19.0
+                        ),),
+                 SizedBox(height: 10.0),
+                Row(children: <Widget>[
+                  SizedBox(width: 20,),
+                   Material( borderRadius: BorderRadius.circular(30.0),
+                  color: Colors.deepOrange,
+                  child:
+
+                  MaterialButton(
+                      minWidth: 100,
+                      height: 36,
+                      child:
+                      Text("OUI",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            color:  const Color(0xffffffff),
+                            fontWeight: FontWeight.w500,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 16.0
+                        ),
+                      ),
+                      onPressed: () {_refuserInvitation(document.documentID); Navigator.of(context).pop();}
+                  ),
+                ),
+                SizedBox(width: 65,height: 70,),
+                      Material( borderRadius: BorderRadius.circular(30.0),
+                  color: Colors.deepOrange,
+                  child:
+                  MaterialButton(
+                      minWidth: 100,
+                      height: 36,
+                      child:
+                      Text("NON",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            color:  const Color(0xffffffff),
+                            fontWeight: FontWeight.w500,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 16.0
+                        ),
+                      ),
+                      onPressed: () {Navigator.of(context).pop();}
+                  ),
+                ),
+                ],),
+            
+              ],
+            ),
+          ),
+       
+      ))
+       
+      
+      ]
+      )
+         
+          ),
+        
+          );
+          
+    
+        }
+        );
+         
+  }
   void _onBreakConfirmationPressed(){
       showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -1088,7 +1209,7 @@ void creeGroupe(){
         );
          
       }
-      void _onParametrePressed(){
+void _onParametrePressed(){
     showModalBottomSheet(context: context, builder:(context){
       final user = Provider.of<User>(context);
      return Container(
@@ -1109,8 +1230,8 @@ void creeGroupe(){
     start: 38,
     child: 
         SizedBox(
-      width: 77,
-      height: 26,
+      width:360,
+      height: 28,
       child: Text(
       "Paramètre du compte  ",
       style: const TextStyle(
@@ -1167,6 +1288,10 @@ void creeGroupe(){
                           fontSize: 14.0
                       ),
                       textAlign: TextAlign.left
+                  
+                  
+                  
+                  
                   ),
               
                 ),
@@ -1205,11 +1330,29 @@ void creeGroupe(){
              
 
    ),
+   
+   ]
+
+   );
+   }
+     )
+
+                  
+   ),
     const SizedBox(height: 30),
-        FlatButton(
-          onPressed: () {},
+     PositionedDirectional(
+    top: 300,
+    start:100,
+       child:  FlatButton(
+          onPressed: () {
+
+             Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => EditProfileView()),
+                      );
+          },
           textColor: Colors.white,
-          padding: const EdgeInsets.all(0.0),
+         
           child: Container(
             decoration: const BoxDecoration(
                borderRadius:  BorderRadius.all(Radius.circular(18)),
@@ -1225,7 +1368,7 @@ void creeGroupe(){
             child: const Text(
               'Modifier le profil',
                style: const TextStyle(
-                          color:  const Color(0xffffff),
+                         
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
@@ -1234,15 +1377,16 @@ void creeGroupe(){
                       textAlign: TextAlign.left),
           ),
         ),
-   ]
-   );
-   }
-     )           
-   ),
+    )
       ]
    ),
-   )  
+   
+   )
+      
       );
+      
+      
+
     }
      );
 }
@@ -1356,7 +1500,7 @@ void list_invitations(){
                       ),
                       //textAlign: TextAlign.left              
                       ),
-                      IconButton(onPressed:()=> _refuserInvitation(document.documentID),
+                      IconButton(onPressed:()=> _onInvitationConfirmationPressed(document) /*_refuserInvitation(document.documentID)*/,
                          icon: Icon(
                         Icons.cancel,
                          color:  const Color(0xffff5722),
@@ -1364,7 +1508,7 @@ void list_invitations(){
                         ),
                       
                          ),
-                         IconButton(onPressed:()=> _refuserInvitation(document.documentID),//a changer
+                         IconButton(onPressed:()=>  _onInvitationConfirmationPressed(document),//a changer
                          icon: Icon(
                         Icons.check_circle,
                          color:  const Color(0xff13ef81),
