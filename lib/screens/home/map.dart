@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:myapp/models/user.dart';
@@ -42,6 +43,30 @@ class _MyHomePageState extends State<MyHomePage> {
   Marker marker;
   Circle circle;
   GoogleMapController _controller;
+   Position position;
+String searchAddr;
+double poslat;
+double poslong; 
+
+
+
+
+
+searchandNavigate() {
+    Geolocator().placemarkFromAddress(searchAddr).then((result) {
+      _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+          target:
+              LatLng(result[0].position.latitude, result[0].position.longitude),
+          zoom: 12.0
+          )
+
+          ));
+          poslat = result[0].position.latitude;
+          poslong = result[0].position.longitude; 
+    });
+    
+    
+  }
 
   static final CameraPosition initialLocation = CameraPosition(
     target: LatLng(36.752887, 3.042048),
@@ -1102,95 +1127,116 @@ void creeGroupe(){
      child:Form(
           key: _formKey,
           child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                SizedBox(height: 12,),
-                Material(
-                  elevation: 6.5,
-                  borderRadius: BorderRadius.circular(30.0),
-                  child:
-                  TextFormField(
-                    obscureText: false,
-                    //TEXT
-                    style: TextStyle(
-                        color:  Colors.grey[900],
-                        fontFamily: "Roboto",
-                        fontStyle:  FontStyle.normal,
-                        fontSize: 16.0
-                    ),
-                    //SHAPE
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-                        hintText: "Lieu",
-                        suffixIcon: Icon (
-                          Icons.search,
-                          color:  Colors.deepOrange,
-                        ),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
-                    ),
-                    //Validation de l'entrée
-                    validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
-                    onChanged: (val) {
-                      String lieu;
-                    setState(() => lieu = val);
-                    },
-                  ),
-                ),
-                SizedBox(height: 12,),
-                Material(
-                  elevation: 6.5,
-                  borderRadius: BorderRadius.circular(30.0),
-                  child:
-                  TextFormField(
-                    obscureText: false,
-                    //TEXT
-                    style: TextStyle(
-                        color:  Colors.grey[900],
-                        fontFamily: "Roboto",
-                        fontStyle:  FontStyle.normal,
-                        fontSize: 16.0
-                    ),
-                    //SHAPE
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 15.0),
-                        hintText: "Heure",
-                        suffixIcon: Icon (
-                          Icons.timer,
-                          color:  Colors.deepOrange,
-                        ),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
-                    ),
-                    //Validation de l'entrée
-                    validator: (val) => val.isEmpty ? 'Entrez l''heure' : null,
-                    onChanged: (val) {
-                      String heure;
-                    setState(() => heure= val);
-                    },
-                  ),
-                ),
-                 SizedBox(height: 40.0),
-                Material(
-                  borderRadius: BorderRadius.circular(30.0),
-                  color: Colors.deepOrange,
-                  child:
-                  MaterialButton(
-                      minWidth: 174,
-                      height: 36,
-                      child:
-                      Text("AJOUTER",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            color:  const Color(0xffffffff),
-                            fontWeight: FontWeight.w500,
-                            fontFamily: "Roboto",
-                            fontStyle:  FontStyle.normal,
-                            fontSize: 16.0
-                        ),
+            child:SingleChildScrollView(
+                          child: Column(
+                children: <Widget>[
+                  SizedBox(height: 12,),
+                 Material(
+                    elevation: 6.5,
+                    borderRadius: BorderRadius.circular(30.0),
+                    child:
+                    TextFormField(
+                      obscureText: false,
+                      //TEXT
+                      style: TextStyle(
+                          color:  Colors.grey[900],
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 16.0
                       ),
-                      onPressed: ()=> _onBreakConfirmationPressed(),
+                      //SHAPE
+                         
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                          hintText: "Entrez une adresse ",
+                         suffixIcon: IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: searchandNavigate,
+                        iconSize: 30.0),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
+                      ),
+                      //Validation de l'entrée
+                      validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
+                       onChanged: (val) {
+                  setState(() {
+                    searchAddr = val;
+                    
+                  });
+                },
+                    ),
                   ),
-                ),
-              ],
+           /*TextField(
+                decoration: InputDecoration(
+                    hintText: 'Enter Address',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
+                    suffixIcon: IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: searchandNavigate,
+                        iconSize: 30.0)),
+                onChanged: (val) {
+                  setState(() {
+                    searchAddr = val;
+                    
+                  });
+                },
+              ),*/
+                  SizedBox(height: 12,),
+                  Material(
+                    elevation: 6.5,
+                    borderRadius: BorderRadius.circular(30.0),
+                    child:
+                    TextFormField(
+                      obscureText: false,
+                      //TEXT
+                      style: TextStyle(
+                          color:  Colors.grey[900],
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 16.0
+                      ),
+                      //SHAPE
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 15.0),
+                          hintText: "Heure",
+                          suffixIcon: Icon (
+                            Icons.timer,
+                            color:  Colors.deepOrange,
+                          ),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
+                      ),
+                      //Validation de l'entrée
+                      validator: (val) => val.isEmpty ? 'Entrez l''heure' : null,
+                      onChanged: (val) {
+                        String heure;
+                      setState(() => heure= val);
+                      },
+                    ),
+                  ),
+                   SizedBox(height: 40.0),
+                  Material(
+                    borderRadius: BorderRadius.circular(30.0),
+                    color: Colors.deepOrange,
+                    child:
+                    MaterialButton(
+                        minWidth: 174,
+                        height: 36,
+                        child:
+                        Text("AJOUTER",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              color:  const Color(0xffffffff),
+                              fontWeight: FontWeight.w500,
+                              fontFamily: "Roboto",
+                              fontStyle:  FontStyle.normal,
+                              fontSize: 16.0
+                          ),
+                        ),
+                        onPressed: ()=> _onBreakConfirmationPressed(),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
        

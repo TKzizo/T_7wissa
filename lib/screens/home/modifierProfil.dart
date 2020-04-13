@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:myapp/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/models/user.dart';
@@ -34,7 +36,7 @@ class _EditProfileViewState extends State<EditProfileView> {
     super.initState();
     initUser();
   }
-
+ 
   initUser() async {
     user1 = await _auth.currentUser();
     setState(() {});
