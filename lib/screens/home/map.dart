@@ -162,10 +162,10 @@ Widget _mapWidget(){
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          IconButton(icon: Icon(Icons.free_breakfast), onPressed: () => _onBreakButtonPressed(),),
-          IconButton(icon: Icon(Icons.message), onPressed: ()=> _onMessageButtonPressed(),),
-          IconButton(icon: Icon(Icons.group ), onPressed: () =>_onGroupButtonPressed(),),
-          IconButton(icon: Icon(Icons.place), onPressed: () {},),
+          IconButton(icon: Icon(Icons.free_breakfast ), color:Colors.teal[600], onPressed: () => _onBreakButtonPressed(),),
+          IconButton(icon: Icon(Icons.message), color:Colors.teal[600], onPressed: ()=> _onMessageButtonPressed(),),
+          IconButton(icon: Icon(Icons.group ),  color:Colors.teal[600],onPressed: () =>_onGroupButtonPressed(),),
+          IconButton(icon: Icon(Icons.place),  color:Colors.teal[600],onPressed: () =>list_invitations(),),
         ],
       ),
     ),
@@ -212,22 +212,20 @@ Widget _mapWidget(){
               flex: 2,
               child: ListView(children: [
                 ListTile(
-                  leading: Icon(Icons.settings, color: Colors.greenAccent,),
+                  leading: Icon(Icons.settings, color:Colors.teal[300], ),
                   title: Text('Paramètres du compte'),
                   onTap: () async {
-                    Navigator.of(context).pop();
-
-                  },
+                   _onParametrePressed();                },
                 ),
                 ListTile(
-                  leading: Icon(Icons.info,color: Colors.greenAccent, ),
+                  leading: Icon(Icons.info, color:Colors.teal[300], ),
                   title: Text("Aide"),
                   onTap: () {
                     Navigator.of(context).pop();
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.share,color: Colors.greenAccent,),
+                  leading: Icon(Icons.share, color:Colors.teal[300], ),
                   title: Text("Partager l'application"),
                   onTap: () {
                     Navigator.of(context).pop();
@@ -235,7 +233,7 @@ Widget _mapWidget(){
                 ),
                 SizedBox(height: 12,),
                 ListTile(
-                  leading: Icon(Icons.done_outline, color: Colors.greenAccent,),
+                  leading: Icon(Icons.done_outline,color:Colors.teal[300], ),
                   title: Text("Déconnexion"),
                   onTap: () async {
                     await _auth.signOut();
@@ -823,6 +821,125 @@ void creeGroupe(){
     );
     
   }
+  void _onBreakConfirmationPressed(){
+      showModalBottomSheet(context: context, builder:(context){
+     return Container(
+        color: const Color(0xff737373),
+       width: 360,
+      height: 240,
+      child:Container(
+      decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+      borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(30) ,
+          topRight:  const Radius.circular(30) ,
+        ),
+      ),
+      
+       child: Stack(children: [
+  PositionedDirectional(
+    top: 35,
+    start: 38,
+    child: 
+        SizedBox(
+      width: 1000,
+      height: 26,
+      child: Text(
+      "Ajouter un point de repos ",
+      style: const TextStyle(
+          color:  const Color(0xde204f6f),
+          fontWeight: FontWeight.w500,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 19.0
+      ),
+      textAlign: TextAlign.left                
+      )),
+  ),
+     
+     Container( 
+     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     child:Form(
+     
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 20,), 
+                Text('Voulez vous confirmer ? ',
+                textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            color:  Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 19.0
+                        ),),
+                 SizedBox(height: 10.0),
+                Row(children: <Widget>[
+                  SizedBox(width: 20,),
+                   Material( borderRadius: BorderRadius.circular(30.0),
+                  color: Colors.deepOrange,
+                  child:
+
+                  MaterialButton(
+                      minWidth: 100,
+                      height: 36,
+                      child:
+                      Text("OUI",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            color:  const Color(0xffffffff),
+                            fontWeight: FontWeight.w500,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 16.0
+                        ),
+                      ),
+                      onPressed: () {Navigator.of(context).pop();}
+                  ),
+                ),
+                SizedBox(width: 65,height: 70,),
+                      Material( borderRadius: BorderRadius.circular(30.0),
+                  color: Colors.deepOrange,
+                  child:
+                  MaterialButton(
+                      minWidth: 100,
+                      height: 36,
+                      child:
+                      Text("NON",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            color:  const Color(0xffffffff),
+                            fontWeight: FontWeight.w500,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 16.0
+                        ),
+                      ),
+                      onPressed: () {Navigator.of(context).pop();}
+                  ),
+                ),
+                ],),
+            
+              ],
+            ),
+          ),
+       
+      ))
+       
+      
+      ]
+      )
+         
+          ),
+        
+          );
+          
+    
+        }
+        );
+         
+  }
   void _onBreakButtonPressed(){
     showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -915,7 +1032,7 @@ void creeGroupe(){
                     //SHAPE
                     decoration: InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 15.0),
-                        hintText: "heure",
+                        hintText: "Heure",
                         suffixIcon: Icon (
                           Icons.timer,
                           color:  Colors.deepOrange,
@@ -923,7 +1040,7 @@ void creeGroupe(){
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
                     ),
                     //Validation de l'entrée
-                    validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
+                    validator: (val) => val.isEmpty ? 'Entrez l''heure' : null,
                     onChanged: (val) {
                       String heure;
                     setState(() => heure= val);
@@ -949,7 +1066,7 @@ void creeGroupe(){
                             fontSize: 16.0
                         ),
                       ),
-                      onPressed: () {}
+                      onPressed: ()=> _onBreakConfirmationPressed(),
                   ),
                 ),
               ],
@@ -971,8 +1088,9 @@ void creeGroupe(){
         );
          
       }
-void planifierPause(){
+      void _onParametrePressed(){
     showModalBottomSheet(context: context, builder:(context){
+      final user = Provider.of<User>(context);
      return Container(
         color: const Color(0xff737373),
        width: 360,
@@ -985,93 +1103,296 @@ void planifierPause(){
           topRight:  const Radius.circular(60) ,
         ),
         ),
-      child : Container(
-        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
-        child : Form(
-          key : _formKey,
-      child: Column( 
-        mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(height: 30.0),
-              TextFormField(
-                decoration: const InputDecoration(
-                 hintText: 'Nom du groupe',
-                  ),
-                validator: (val) => val.isEmpty ? 'Donner un nom ' : null,
-                onChanged: (val) {
-                  setState(() => nom = val);
-                },
-              ),
-              SizedBox(height: 15.0),
-              TextFormField(
-                decoration: const InputDecoration(
-                 hintText: 'Distination',
-                 suffixIcon: Icon (
-                            Icons.search, 
-                            color : Color(0xffff5722),
-                        ),
-                  ),
-                validator: (val) => val.isEmpty  ? 'Choisissez une distination' : null,
-                onChanged: (val) {
-                  setState(() => lieu = val);
-                },
-              ),
-              SizedBox(height: 15.0),
-              TextFormField(
-                decoration: const InputDecoration(
-                 hintText: 'Heure de deppart',
-                  ),
-                validator: (val) => val.isEmpty ? 'Donnez une heure de deppart' : null,
-                onChanged: (val) {
-                  setState(() => heure = val);
-                },
-              ),
-              Row(
-                 children: <Widget>[
-                   SizedBox(height: 80,),
-                   SizedBox(width: 100,),
-                   FlatButton.icon(
-                     icon: Icon(Icons.add_circle,color: Color(0xffff5722), size: 40,),
-                     label: Text("Ajoutez les membres"),
-                     onPressed: () => print(nom)
-                    ),
-                  ],      
-              ),
-              SizedBox(height: 20.0),
-              Material(
-                borderRadius: BorderRadius.circular(30.0),
-                color: Colors.deepOrange,
-                child: 
-                MaterialButton(
-                minWidth: 174,
-                height: 36,
-                child: 
-                Text("Crée le groupe",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      color:  const Color(0xffffffff),
-                      fontWeight: FontWeight.w500,
-                      fontFamily: "Roboto",
-                      fontStyle:  FontStyle.normal,
-                      fontSize: 16.0
-                  ),
+      child: Stack(children: [
+  PositionedDirectional(
+    top: 35,
+    start: 38,
+    child: 
+        SizedBox(
+      width: 77,
+      height: 26,
+      child: Text(
+      "Paramètre du compte  ",
+      style: const TextStyle(
+          color:  const Color(0xde204f6f),
+          fontWeight: FontWeight.w500,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 19.0
+      ),
+      textAlign: TextAlign.left                
+      )),
+  ),
+     
+     Container( 
+     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     child: StreamBuilder<UserData>(
+                  stream: DatabaseService(uid: user.uid).utilisateursDonnees,
+                  builder: (context,snapshot){
+     if (!snapshot.hasData) return const Text("Loading",
+      style: const TextStyle(
+      color:  const Color(0xff3d3d3d),
+      fontWeight: FontWeight.w400,
+      fontFamily: "Roboto",
+      fontStyle:  FontStyle.normal,
+      fontSize: 17.0
+  ),
+  textAlign: TextAlign.left 
+     
+     
+     );
+      UserData userData=snapshot.data;
+   return  Column(
+     
+   children: <Widget>[
+   SizedBox(
+                height:250,
+                width: 250,
+                child: Image(
+                  image: AssetImage('assets/avatar.png'),
+                  fit: BoxFit.contain,
                 ),
-                onPressed: () async {
-                  if(_formKey.currentState.validate()){ 
-                    CreationGroupeServises g = new CreationGroupeServises();
-                    g.creerGroupe(admin, lieu, heure, listMembre, nom);
-                  }
-                }
               ),
-              ), 
-            ],
+    
+            
+           ListView(children: [
+                ListTile(
+                  leading: Icon(Icons.person, color: Colors.greenAccent,),
+                  title: Text(userData.nom +" " + userData.prenom,
+                   style: const TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left
+                  ),
+              
+                ),
+                
+                 ListTile(
+                  leading: Icon(Icons.phone, color: Colors.greenAccent,),
+                  title: Text(userData.numtel,
+                   style: const TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left),
+              
+                ),
+                ListTile(
+                  leading: Icon(Icons.mail, color: Colors.greenAccent,),
+                  title: Text(userData.identifiant,
+                   style: const TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left),
+              
+                ),
+
+                
+
+
+   ],
+             
+
+   ),
+    const SizedBox(height: 30),
+        FlatButton(
+          onPressed: () {},
+          textColor: Colors.white,
+          padding: const EdgeInsets.all(0.0),
+          child: Container(
+            decoration: const BoxDecoration(
+               borderRadius:  BorderRadius.all(Radius.circular(18)),
+              gradient: LinearGradient(
+                colors: <Color>[
+                  Color(0xFFFF5722),
+                  Color(0xFFFF7043),
+               
+                ],
+              ),
+            ),
+            padding: const EdgeInsets.all(10.0),
+            child: const Text(
+              'Modifier le profil',
+               style: const TextStyle(
+                          color:  const Color(0xffffff),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left),
           ),
         ),
-      ),
-      )
-     );
+   ]
+   );
+   }
+     )           
+   ),
+      ]
+   ),
+   )  
+      );
     }
-    );
+     );
+}
+void list_invitations(){
+   showModalBottomSheet(context: context, builder:(context){
+     return Container(
+        color: const Color(0xff737373),
+       width: 360,
+      height: 535,
+      child:Container(
+      decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+      borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(60) ,
+          topRight:  const Radius.circular(60) ,
+        ),
+      ),
+      
+       child: Stack(children: [
+  // ✏️ Headline 6 
+  PositionedDirectional(
+    top: 35,
+    start: 38,
+    child: 
+        SizedBox(
+      width: 150,
+      height: 50,
+      child: Text(
+      "Invitations",
+      style: const TextStyle(
+          color:  const Color(0xde204f6f),
+          fontWeight: FontWeight.w500,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 25.0
+      ),
+      textAlign: TextAlign.left                
+      ),
+      
+      ),
+      
+  ),
+     
+     Container( 
+     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     child: StreamBuilder(
+     stream: Firestore.instance.collection('invitation').snapshots(),
+     builder: (context,snapshot){
+     if (!snapshot.hasData) return const Text("aucune invitation",
+      style: const TextStyle(
+      color:  const Color(0xff3d3d3d),
+      fontWeight: FontWeight.w400,
+      fontFamily: "Roboto",
+      fontStyle:  FontStyle.normal,
+      fontSize: 17.0
+  ),
+  textAlign: TextAlign.left 
+     
+     
+     );
+   return  ListView.builder(
+     
+     itemExtent: 80.0,
+     itemCount:snapshot.data.documents.length,
+    itemBuilder: (ctx,index )=> (
+    buildInvitationlistItem(ctx,snapshot.data.documents[index])),
+      );
     
+     }
+         
+      )
+
+      ) , 
+      ]
+      )
+         
+          ),
+        
+          );
+          
+    
+        }
+        );
+         
+      }
+     buildInvitationlistItem(BuildContext ctx,DocumentSnapshot document) {
+     return(ListTile(
+    title:Row (
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children : <Widget>[
+       Text(
+      document['groupe'],
+      style: const TextStyle(
+          color:  const Color(0xff3d3d3d),
+          fontWeight: FontWeight.w400,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 20.0
+      ),
+      textAlign: TextAlign.left                
+      ),
+      Spacer(flex:1,),
+     Text(
+                      "à : "+ document['destination'],
+                      style: const TextStyle(
+                          color:  const Color(0xff52bf90),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      //textAlign: TextAlign.left              
+                      ),
+                      IconButton(onPressed:()=> _refuserInvitation(document.documentID),
+                         icon: Icon(
+                        Icons.cancel,
+                         color:  const Color(0xffff5722),
+                         size: 30,
+                        ),
+                      
+                         ),
+                         IconButton(onPressed:()=> _refuserInvitation(document.documentID),//a changer
+                         icon: Icon(
+                        Icons.check_circle,
+                         color:  const Color(0xff13ef81),
+                         size: 30,
+                        ),
+                      
+                         )
+                      ]
+                      ),
+     subtitle :   Text(
+                      "Admin : "+ document['admin'],
+                      style: const TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left                
+                      ),
+                           onTap:null, /*_quittergroupe(document.documentID),*/
+                      )
+                  );
+                    }//buildItem
+                      _refuserInvitation(docId) {
+            Firestore.instance.collection('invitaion').document(docId).delete().catchError((e){
+              print(e);});
+              print('supp');
+
   }
 }
