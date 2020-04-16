@@ -3,12 +3,13 @@ class CreationGroupeServises {
   final String uid;
   CreationGroupeServises({ this.uid });
   // Access a Cloud Firestore instance from your Activity
-final databaseReference = Firestore.instance;
+//final databaseReference = Firestore.instance;
 final CollectionReference chatCollection = Firestore.instance.collection('chat');
+final CollectionReference groupeCollection = Firestore.instance.collection('groupe');
 
   Future creerGroupe(String admin, String dist, String heure , List<dynamic> listMembre , String nom) async {
     try {
-     Firestore.instance.collection("groupe").document(uid).setData
+     groupeCollection.document(uid).setData
       ({
         'admin': admin,
         'destination': dist,
@@ -16,8 +17,12 @@ final CollectionReference chatCollection = Firestore.instance.collection('chat')
         'liste_membre': listMembre,
         'nom':nom,
         'statu': true ,
-        'messagerie_uid': uid,
+        'uid' : this.uid,
       });
+      chatCollection.document(uid).collection('messages').document().setData({
+        
+      }); // your answer missing **.document()**  before setData
+
        chatCollection.document(uid).setData({
        
     });
@@ -25,5 +30,8 @@ final CollectionReference chatCollection = Firestore.instance.collection('chat')
       print(error.toString()); 
       return null;
     } 
+  }
+  void sendtext(String sender, String message ){
+    
   }
 }

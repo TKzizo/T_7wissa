@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,8 +12,8 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:myapp/services/auth.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:myapp/services/creationGroupe.dart';
+import 'package:myapp/services/chat.dart';
 
 import 'modifierProfil.dart';
 
@@ -30,12 +31,17 @@ class _MyHomePageState extends State<MyHomePage> {
   final databaseReference = Firestore.instance;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   String _selectedItem = '';
+  int _cle; 
   final _formKey = GlobalKey<FormState>(); //pour identifier le formulaire 
   // text field state
   String nom = '';
   String lieu = '';
   String error =''; 
   String heure ='';
+  String _current_user; 
+    String _current_userId; 
+
+  Random random = new Random();
   List<dynamic> listMembre = null;
   String admin = '';
   StreamSubscription _locationSubscription;
@@ -43,10 +49,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Marker marker;
   Circle circle;
   GoogleMapController _controller;
-   Position position;
-String searchAddr;
-double poslat;
-double poslong; 
+  Position position;
+  String searchAddr;
+  double poslat;
+  double poslong; 
 
 
 
@@ -119,7 +125,7 @@ searchandNavigate() {
               bearing: 192.8334901395799,
               target: LatLng(newLocalData.latitude, newLocalData.longitude),
               tilt: 0,
-              zoom: 18.00)));
+              zoom: 15.00)));
           updateMarkerAndCircle(newLocalData, imageData);
         }
       });
@@ -155,23 +161,18 @@ Widget _mapWidget(){
                   _controller = controller;
                 },
               ),
+
               floatingActionButton: Padding(
-      padding: const EdgeInsets.only(bottom: 500.0),
-    child: FloatingActionButton(
+          padding: const EdgeInsets.only(bottom: 615.0),
+        child: FloatingActionButton(
         child: Icon(Icons.location_searching),
-        mini: true,
-        onPressed: () {
+        
+        onPressed: ()  {
           getCurrentLocation();
         },
         backgroundColor: Colors.deepOrangeAccent,
         ),),
-              /* floatingActionButton: FloatingActionButton(
-                child: Icon(Icons.location_searching,),
-                onPressed: () {
-                  getCurrentLocation();
-                },
-                backgroundColor: Colors.deepOrangeAccent,
-          ),*/
+               
        )               
         );  
     
@@ -191,7 +192,6 @@ Widget _mapWidget(){
         backgroundColor: Colors.deepOrange,
         elevation: 0.0,
         title: Text('Acceuil'),
-        
 
       )  ,
       /*MENU*/
@@ -207,12 +207,15 @@ Widget _mapWidget(){
         ],
       ),
     ),
+     
+        
       body:   SlidingUpPanel(
        backdropEnabled: true,
       panelBuilder: (ScrollController sc) => _scrollingmessagesList(sc),
-     body: _mapWidget(),
+      body: _mapWidget(),
       
        borderRadius: radius ,
+       minHeight: 12,
       ),
      
 
@@ -238,6 +241,9 @@ Widget _mapWidget(){
                     if(snapshot.hasData){
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
+                      _current_user= userData.identifiant; 
+                      _current_userId= userData.uid; 
+
                       return  Text(
                           userData.identifiant);
                     }else{
@@ -331,7 +337,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                       )
                   );
   }
-  /*messages a envoyer*/ 
+  /*messages a envoyer*/
   Widget _scrollingmessagesList(ScrollController sc){
   return Container(
   padding: EdgeInsets.symmetric(vertical:20.0,horizontal:40.0),
@@ -351,8 +357,16 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
       textAlign: TextAlign.left                
       ),
-   leading: Icon(Icons.departure_board),
-   trailing: Icon(Icons.send),
+   leading: Icon(Icons.departure_board,color: Color(0xFFFF5722),),
+   trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'On a démarré!', _current_user,_current_userId);
+     },
+     icon: Icon(
+                        Icons.send,
+                        color: Colors.greenAccent
+                        ),
+                      
+                         ), 
 
    ),
   ListTile(
@@ -367,9 +381,12 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
       textAlign: TextAlign.left                
       ),
-   leading: Icon(Icons.directions_car),
-   trailing: Icon(Icons.send),
-
+   leading: Icon(Icons.directions_car,color: Color(0xFFFF5722),),
+    trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Je suis en route !', _current_user,_current_userId);
+     },
+     icon: Icon(Icons.send,color: Colors.greenAccent),
+     ), 
    ),
   ListTile(
    title:  Text(
@@ -383,9 +400,12 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
       textAlign: TextAlign.left                
       ),
-   leading: Icon(Icons.arrow_drop_down_circle),
-   trailing: Icon(Icons.send),
-
+   leading: Icon(Icons.arrow_drop_down_circle,color: Color(0xFFFF5722),),
+ trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Je suis arrivé(e)', _current_user,_current_userId);
+     },
+     icon: Icon(Icons.send,color: Colors.greenAccent),
+     ), 
    ),
   ListTile(
    title:  Text(
@@ -399,9 +419,12 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
       textAlign: TextAlign.left                
       ),
-   leading: Icon(Icons.help),
-   trailing: Icon(Icons.send),
-
+   leading: Icon(Icons.help,color: Color(0xFFFF5722),),
+ trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'J''ai besoin d''aide ! ', _current_user,_current_userId);
+     },
+     icon: Icon(Icons.send,color: Colors.greenAccent),
+     ), 
    ),
   ListTile(
    title:  Text(
@@ -415,9 +438,12 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
       textAlign: TextAlign.left                
       ),
-   leading: Icon(Icons.build),
-   trailing: Icon(Icons.send),
-
+   leading: Icon(Icons.build,color: Color(0xFFFF5722),),
+ trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Je suis en panne ! ', _current_user,_current_userId);
+     },
+     icon: Icon(Icons.send,color: Colors.greenAccent),
+     ), 
    ),
    ListTile(
    title:  Text(
@@ -431,9 +457,12 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
       textAlign: TextAlign.left                
       ),
-   
-   trailing: Icon(Icons.send),
-
+   leading: Icon(Icons.flash_on,color: Color(0xFFFF5722),),
+ trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Un accident ', _current_user,_current_userId);
+     },
+     icon: Icon(Icons.send,color: Colors.greenAccent),
+     ), 
    ),
    ListTile(
    title:  Text(
@@ -447,9 +476,12 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
       textAlign: TextAlign.left                
       ),
-   
-   trailing: Icon(Icons.send),
-
+   leading: Icon(Icons.blur_off,color: Color(0xFFFF5722),),
+ trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Route endomagée ! ', _current_user,_current_userId);
+     },
+     icon: Icon(Icons.send,color: Colors.greenAccent),
+     ), 
    ),
    ListTile(
    title:  Text(
@@ -463,9 +495,12 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
       textAlign: TextAlign.left                
       ),
-   
-   trailing: Icon(Icons.send),
-
+   leading: Icon(Icons.flag,color: Color(0xFFFF5722),),
+ trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Alerte Barage ! ', _current_user,_current_userId);
+     },
+     icon: Icon(Icons.send,color: Colors.greenAccent),
+     ), 
    ),
    ListTile(
    title:  Text(
@@ -479,9 +514,13 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
       textAlign: TextAlign.left                
       ),
-   leading: Icon(Icons.flag),
-   trailing: Icon(Icons.send),
-
+   
+   leading: Icon(Icons.router,color: Color(0xFFFF5722),),
+ trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Alerte radar !', _current_user,_current_userId);
+     },
+     icon: Icon(Icons.send,color: Colors.greenAccent),
+     ), 
    ),
    ListTile(
    title:  Text(
@@ -495,13 +534,17 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
       textAlign: TextAlign.left                
       ),
-   leading: Icon(Icons.call),
-   trailing: Icon(Icons.send),
-
+   leading: Icon(Icons.call,color: Color(0xFFFF5722),),
+ trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Appelez moi  !', _current_user,_current_userId);
+     },
+     icon: Icon(Icons.send,color: Colors.greenAccent),
+     ), 
    ),
-  ListTile(
+ 
+    ListTile(
    title:  Text(
-      'OK!',
+      'OK !',
       style: const TextStyle(
           color:  const Color(0xff3d3d3d),
           fontWeight: FontWeight.w400,
@@ -511,13 +554,12 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
       textAlign: TextAlign.left                
       ),
-   leading: Icon(Icons.check),
-   trailing: FlatButton(
-     child: Icon(
-       Icons.send, 
-     ),
-     onPressed: (){}, ),
-
+   leading: Icon(Icons.check,color: Color(0xFFFF5722),),
+ trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'OK  !', _current_user,_current_userId);
+     },
+     icon: Icon(Icons.send,color: Colors.greenAccent),
+     ), 
    ),
   
     ],
@@ -548,7 +590,7 @@ void _onMessageButtonPressed(){
     start: 38,
     child: 
         SizedBox(
-      width: 77,
+      width: 150,
       height: 26,
       child: Text(
       "Messages ",
@@ -627,7 +669,7 @@ void _onGroupButtonPressed(){
     start: 38,
     child: 
         SizedBox(
-      width: 77,
+      width: 150,
       height: 26,
       child: Text(
       "Groupes ",
@@ -818,7 +860,7 @@ void creeGroupe(){
                    FlatButton.icon(
                      icon: Icon(Icons.add_circle,color: Color(0xffff5722), size: 40,),
                      label: Text("Ajoutez les membres"),
-                     onPressed: () => print(nom)
+                     onPressed: () => showSearch(context: context, delegate: UserSeach())
                     ),
                   ],      
               ),
@@ -843,8 +885,9 @@ void creeGroupe(){
                 ),
                 onPressed: () async {
                   if(_formKey.currentState.validate()){ 
-                    CreationGroupeServises g = new CreationGroupeServises();
-                    g.creerGroupe(admin, lieu, heure, listMembre, nom);
+                    int _id = random.nextInt(10000);
+                     _cle = _id; 
+                    CreationGroupeServises(uid: _id.toString() ).creerGroupe(admin, lieu, heure, listMembre, nom);
                   }
                 }
               ),
@@ -1176,22 +1219,7 @@ void creeGroupe(){
                 },
                     ),
                   ),
-           /*TextField(
-                decoration: InputDecoration(
-                    hintText: 'Enter Address',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
-                    suffixIcon: IconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: searchandNavigate,
-                        iconSize: 30.0)),
-                onChanged: (val) {
-                  setState(() {
-                    searchAddr = val;
-                    
-                  });
-                },
-              ),*/
+           
                   SizedBox(height: 12,),
                   Material(
                     elevation: 6.5,
@@ -1595,5 +1623,98 @@ void list_invitations(){
               print(e);});
               print('supp');
 
+  }
+}
+
+class UserSeach extends SearchDelegate<String> {
+
+final users = [
+  "mouna",
+  "amina",
+  "aziz",
+  "djihane",
+  "walid",
+  "anis",
+  "Mr.anane",
+  "Mr.sahad",
+  "Mr.mahfoudi",
+  "koudil",
+];
+
+final recentserch = [
+  "walid",
+  "Mr.anane",
+  "amina",
+];
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(icon: Icon(Icons.clear), onPressed: () {
+        query = "";
+      },)
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+   return IconButton( 
+     icon: AnimatedIcon( 
+       icon: AnimatedIcons.menu_arrow,
+        progress: transitionAnimation,
+      ), 
+      onPressed: () {
+        close(context, null);
+      },
+     );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+
+    String add = "add '$query' to the group";
+    var card1 = Card(
+        color: Colors.grey[350],
+        child: Center(
+        child: Text(add)
+        ),
+      );
+   
+
+    return Container(
+      height: 50.0,
+      width: 400.0,
+      child: InkWell(
+         child: card1,  
+      ),
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggest = query.isEmpty ? recentserch : users.where((p) => p.startsWith(query)).toList()  ;
+    return ListView.builder(
+      itemBuilder: (context,index) => ListTile(
+        onTap: () {
+          query = suggest[index];
+          showResults(context);
+        },
+          leading: Icon(Icons.person_pin_circle),
+          title: RichText(
+            text:TextSpan(
+              text: suggest[index].substring(0, query.length),
+              style: TextStyle(
+                color: Colors.black),
+              children: [
+                TextSpan(
+                  text: suggest[index].substring(query.length),
+                  style: TextStyle(color: Colors.grey)
+                )
+              ]
+            ),
+            ),
+    ),
+    itemCount: suggest.length,
+    );
   }
 }
