@@ -155,13 +155,23 @@ Widget _mapWidget(){
                   _controller = controller;
                 },
               ),
-               floatingActionButton: FloatingActionButton(
+              floatingActionButton: Padding(
+      padding: const EdgeInsets.only(bottom: 500.0),
+    child: FloatingActionButton(
+        child: Icon(Icons.location_searching),
+        mini: true,
+        onPressed: () {
+          getCurrentLocation();
+        },
+        backgroundColor: Colors.deepOrangeAccent,
+        ),),
+              /* floatingActionButton: FloatingActionButton(
                 child: Icon(Icons.location_searching,),
                 onPressed: () {
                   getCurrentLocation();
                 },
                 backgroundColor: Colors.deepOrangeAccent,
-          ),
+          ),*/
        )               
         );  
     
@@ -181,6 +191,7 @@ Widget _mapWidget(){
         backgroundColor: Colors.deepOrange,
         elevation: 0.0,
         title: Text('Acceuil'),
+        
 
       )  ,
       /*MENU*/
