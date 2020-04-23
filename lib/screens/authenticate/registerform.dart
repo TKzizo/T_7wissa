@@ -1,7 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/services/auth.dart';
-import 'package:myapp/screens/authenticate/register.dart';
+
 
 
 class RegisterForm extends StatefulWidget {
