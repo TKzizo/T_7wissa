@@ -1,12 +1,8 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:math';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/services/database.dart';
 import 'package:provider/provider.dart';
@@ -18,11 +14,12 @@ import 'package:myapp/services/chat.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'modifierProfil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:google_maps_webservice/places.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
-
+final homeScaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -52,6 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Position position;
   String searchAddr;
   double vitesse;
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
 
 
     Future<void> getPermission() async {
@@ -123,18 +121,42 @@ class _MyHomePageState extends State<MyHomePage> {
     ].toSet();
   }
 
-  searchandNavigate() {
-    Geolocator().placemarkFromAddress(searchAddr).then((result) {
-      _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target:
-              LatLng(result[0].position.latitude, result[0].position.longitude),
-          zoom: 12.0
-          )
+  
 
-          ));
-          
-    });
-    }
+    Future<Null> displayPrediction(Prediction p) async {
+  if (p != null) {
+    // get detail (lat/lng)
+    PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
+    final lat = detail.result.geometry.location.lat;
+    final lng = detail.result.geometry.location.lng;
+    _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      target: 
+           LatLng(lat, lng),
+           zoom: 16.0
+    )));
+  }
+}
+
+Future<void> _handlePressButton() async {
+    // show input autocomplete with selected mode
+    // then get the Prediction selected
+    Prediction p = await PlacesAutocomplete.show(
+      context: context,
+      apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo",
+      language: "fr",
+      components: [Component(Component.country, "dz")],
+    );
+   
+    displayPrediction(p);
+  }
+
+
+
+
+
+
+
+  
 
 
 /*COMPOSANTS*/ 
@@ -1173,14 +1195,7 @@ void creeGroupe(){
                     borderRadius: BorderRadius.circular(30.0),
                     child:
                     TextFormField(
-                      obscureText: false,
-                      //TEXT
-                      style: TextStyle(
-                          color:  Colors.grey[900],
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 16.0
-                      ),
+                      
                       //SHAPE
                          
                       decoration: InputDecoration(
@@ -1188,7 +1203,7 @@ void creeGroupe(){
                           hintText: "Entrez une adresse ",
                          suffixIcon: IconButton(
                         icon: Icon(Icons.search),
-                        onPressed: searchandNavigate,
+                        onPressed: _handlePressButton,
                         iconSize: 30.0),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
                       ),

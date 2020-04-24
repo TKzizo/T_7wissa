@@ -11,8 +11,8 @@
 
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="myapp"
-        android:icon="@mipmap/launcher_icon">
+        android:label="T'7wissa"
+        android:icon="@mipmap/ic_launcher">
 
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo"/>
