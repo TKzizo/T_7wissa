@@ -43,7 +43,6 @@ class AuthService {
       user.sendEmailVerification(); 
       // create a new document for the user with the uid
       await DatabaseService(uid: user.uid).updateUserData(nom,prenom, identifiant, numtel);
-
       return _userFromFirebaseUser(user);
     } catch (error) {
       print(error.toString()); 

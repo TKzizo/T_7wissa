@@ -1,21 +1,26 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:myapp/services/auth.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:myapp/services/creationGroupe.dart';
 import 'package:myapp/services/chat.dart';
-
+import 'package:permission_handler/permission_handler.dart';
 import 'modifierProfil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 
 class MyHomePage extends StatefulWidget {
@@ -39,26 +44,105 @@ class _MyHomePageState extends State<MyHomePage> {
   String error =''; 
   String heure ='';
   String _current_user; 
-    String _current_userId; 
-
+  String _current_userId; 
+String _time = "Not set";
   Random random = new Random();
   List<dynamic> listMembre = null;
-  String admin = '';
-  StreamSubscription _locationSubscription;
-  Location _locationTracker = Location();
+  String _admin = '';
   Marker marker;
   Circle circle;
   GoogleMapController _controller;
   Position position;
   String searchAddr;
-  double poslat;
-  double poslong; 
+  double vitesse;
+String text; 
+FirebaseUser currentUser;
 
+  @override
+  void initState() {
+    getPermission();
+    super.initState();
+    _loadCurrentUser();
+  }
 
+  void _loadCurrentUser() {
+    FirebaseAuth.instance.currentUser().then((FirebaseUser user) {
+      setState(() { // call setState to rebuild the view
+        this.currentUser = user;
+      });
+    });
+  }
 
+  String _email() {
+    if (currentUser != null) {
+      return currentUser.email;
+    } else {
+      return "no current user";
+    }
+  }
+    Future<void> getPermission() async {
+    PermissionStatus permission = await PermissionHandler()
+        .checkPermissionStatus(PermissionGroup.location);
 
+    if(permission == PermissionStatus.denied){
+      await PermissionHandler()
+          .requestPermissions([PermissionGroup.locationAlways]);
+    }
 
-searchandNavigate() {
+    var geolocator = Geolocator();
+
+    GeolocationStatus geolocationStatus =
+        await geolocator.checkGeolocationPermissionStatus();
+
+    switch(geolocationStatus){
+      case GeolocationStatus.denied:
+        showToast('Acess denied');
+        break;
+      case GeolocationStatus.disabled:
+        showToast('Disabled');
+        break;
+      case GeolocationStatus.restricted:
+        showToast('Restricted');
+        break;
+      case GeolocationStatus.unknown:
+        showToast('Unknown');
+        break;
+      case GeolocationStatus.granted:
+        showToast('Access Granted');
+        _getCurrentLocation();
+    }
+
+  }
+   void _getCurrentLocation() async {
+    Position res = await Geolocator().getCurrentPosition();
+    setState(() {
+      position = res;
+      vitesse = position.speed;
+    });
+  }
+   void showToast(message){
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
+  }
+
+   Set<Marker> _createMarker(){
+    return <Marker>[
+      Marker(
+        markerId: MarkerId('home'),
+        position: LatLng(position.latitude,position.longitude),
+        icon: BitmapDescriptor.defaultMarker,
+        infoWindow: InfoWindow(title: 'position actuelle'))
+    ].toSet();
+  }
+
+  searchandNavigate() {
     Geolocator().placemarkFromAddress(searchAddr).then((result) {
       _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
           target:
@@ -67,84 +151,9 @@ searchandNavigate() {
           )
 
           ));
-          poslat = result[0].position.latitude;
-          poslong = result[0].position.longitude; 
+          
     });
-    
-    
-  }
-
-  static final CameraPosition initialLocation = CameraPosition(
-    target: LatLng(36.752887, 3.042048),
-    zoom: 14.4746,
-  );
-
-  Future<Uint8List> getMarker() async {
-    ByteData byteData = await DefaultAssetBundle.of(context).load("assets/car_icon.png");
-    return byteData.buffer.asUint8List();
-  }
-
-  void updateMarkerAndCircle(LocationData newLocalData, Uint8List imageData) {
-    LatLng latlng = LatLng(newLocalData.latitude, newLocalData.longitude);
-    this.setState(() {
-      marker = Marker(
-          markerId: MarkerId("home"),
-          position: latlng,
-          rotation: newLocalData.heading,
-          draggable: false,
-          zIndex: 2,
-          flat: true,
-          anchor: Offset(0.5, 0.5),
-          icon: BitmapDescriptor.fromBytes(imageData));
-      circle = Circle(
-          circleId: CircleId("car"),
-          radius: newLocalData.accuracy,
-          zIndex: 1,
-          strokeColor: Colors.deepOrange,
-          center: latlng,
-          fillColor: Colors.deepOrange.withAlpha(70));
-    });
-  }
-
-  void getCurrentLocation() async {
-    try {
-
-      Uint8List imageData = await getMarker();
-      var location = await _locationTracker.getLocation();
-
-      updateMarkerAndCircle(location, imageData);
-
-      if (_locationSubscription != null) {
-        _locationSubscription.cancel();
-      }
-
-
-      _locationSubscription = _locationTracker.onLocationChanged().listen((newLocalData) {
-        if (_controller != null) {
-          _controller.animateCamera(CameraUpdate.newCameraPosition(new CameraPosition(
-              bearing: 192.8334901395799,
-              target: LatLng(newLocalData.latitude, newLocalData.longitude),
-              tilt: 0,
-              zoom: 15.00)));
-          updateMarkerAndCircle(newLocalData, imageData);
-        }
-      });
-
-    } on PlatformException catch (e) {
-      if (e.code == 'PERMISSION_DENIED') {
-        debugPrint("Permission Denied");
-      }
     }
-  }
-
-
-  void dispose() {
-    if (_locationSubscription != null) {
-      _locationSubscription.cancel();
-    }
-    super.dispose();
-  }
-
 
 
 /*COMPOSANTS*/ 
@@ -154,24 +163,17 @@ Widget _mapWidget(){
            key: _scaffoldKey,
             backgroundColor: Colors.white,           
             body: GoogleMap(
-                initialCameraPosition: initialLocation,
-                markers: Set.of((marker != null) ? [marker] : []),
-                circles: Set.of((circle != null) ? [circle] : []),
+                markers: _createMarker(),
+                initialCameraPosition: CameraPosition(
+        target: LatLng(position.latitude,position.longitude),
+        zoom: 12.0
+      ),
                 onMapCreated: (GoogleMapController controller) {
                   _controller = controller;
                 },
               ),
 
-              floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 615.0),
-        child: FloatingActionButton(
-        child: Icon(Icons.location_searching),
-        
-        onPressed: ()  {
-          getCurrentLocation();
-        },
-        backgroundColor: Colors.deepOrangeAccent,
-        ),),
+              
                
        )               
         );  
@@ -241,7 +243,9 @@ Widget _mapWidget(){
                     if(snapshot.hasData){
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
+                      
                       _current_user= userData.identifiant; 
+                      _admin=userData.identifiant; 
                       _current_userId= userData.uid; 
 
                       return  Text(
@@ -590,7 +594,7 @@ void _onMessageButtonPressed(){
     start: 38,
     child: 
         SizedBox(
-      width: 150,
+      width: 100,
       height: 26,
       child: Text(
       "Messages ",
@@ -634,8 +638,33 @@ void _onMessageButtonPressed(){
     
        
       ) , 
-      
-      ]
+       PositionedDirectional(
+    top: 270,
+    start:20,
+       child: SizedBox(
+      width:300,
+      height: 50,
+      child:
+       
+       ListTile(
+   title:  TextField(
+     decoration: InputDecoration(
+       hintText: "Envoyer..",
+                       suffixIcon :  Icon(Icons.camera_alt,color: Colors.teal)),
+                 onChanged: (val) {
+                   
+                  setState(() => text = val);
+                },
+                       
+  ), 
+trailing:  IconButton(onPressed:() async {      
+     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),text, _current_user,_current_userId);
+     },
+     icon: Icon(Icons.send,color: Colors.greenAccent ),
+                      
+    ),
+   ), 
+       )), ]
       )
          
           ),
@@ -844,15 +873,65 @@ void creeGroupe(){
                 },
               ),
               SizedBox(height: 15.0),
-              TextFormField(
-                decoration: const InputDecoration(
-                 hintText: 'Heure de deppart',
-                  ),
-                validator: (val) => val.isEmpty ? 'Donnez une heure de deppart' : null,
-                onChanged: (val) {
-                  setState(() => heure = val);
-                },
+              /*Heure de depart*/ 
+               Material(
+                    elevation: 2.5,
+                    borderRadius: BorderRadius.circular(30.0),
+                    color: Colors.white,
+                    shadowColor: Colors.white,
+                     child: FlatButton(
+                       focusColor: Colors.white,
+                       highlightColor: Colors.white,
+                     onPressed: () {
+                    DatePicker.showTimePicker(context,
+                        theme: DatePickerTheme(
+                          containerHeight: 210.0,
+                        ),
+                        showTitleActions: true, onConfirm: (time) {
+                      print('confirm $time');
+                      
+                      _time = '${time.hour} : ${time.minute} : ${time.second}';
+                      setState(() {});
+                    }, currentTime: DateTime.now(), locale: LocaleType.en);
+                    setState(() {});
+                }, 
+                child: Container(
+                    alignment: Alignment.center,
+                    height: 50.0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Container(
+                              child: Row(
+                                children: <Widget>[
+                                
+                                  Text(
+                                    " $_time",
+                                    style: TextStyle(
+                                        color: Colors.deepOrange,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                         Icon(
+                                    Icons.access_time,
+                                    size: 18.0,
+                                    color: Colors.deepOrange,
+                                  ),
+                      ],
+                    ),
+                ),
+                color: Colors.white,
               ),
+                  ), 
+                  /*HEURE DE DEPART */
+           
               Row(
                  children: <Widget>[
                    SizedBox(height: 80,),
@@ -887,7 +966,7 @@ void creeGroupe(){
                   if(_formKey.currentState.validate()){ 
                     int _id = random.nextInt(10000);
                      _cle = _id; 
-                    CreationGroupeServises(uid: _id.toString() ).creerGroupe(admin, lieu, heure, listMembre, nom);
+                    CreationGroupeServises(uid: _id.toString() ).creerGroupe(_admin, lieu, _time, listMembre, nom);
                   }
                 }
               ),
@@ -1185,11 +1264,10 @@ void creeGroupe(){
                           child: Column(
                 children: <Widget>[
                   SizedBox(height: 12,),
-                 Material(
-                    elevation: 6.5,
-                    borderRadius: BorderRadius.circular(30.0),
-                    child:
+                
                     TextFormField(
+                      autofocus: false,
+                      cursorColor: Colors.deepOrange,
                       obscureText: false,
                       //TEXT
                       style: TextStyle(
@@ -1201,13 +1279,11 @@ void creeGroupe(){
                       //SHAPE
                          
                       decoration: InputDecoration(
-                          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                           hintText: "Entrez une adresse ",
                          suffixIcon: IconButton(
-                        icon: Icon(Icons.search),
+                        icon: Icon(Icons.search, color: Colors.deepOrange,),
                         onPressed: searchandNavigate,
                         iconSize: 30.0),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
                       ),
                       //Validation de l'entrée
                       validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
@@ -1218,40 +1294,66 @@ void creeGroupe(){
                   });
                 },
                     ),
-                  ),
+                  
            
                   SizedBox(height: 12,),
+                
                   Material(
-                    elevation: 6.5,
+                    elevation: 2.5,
                     borderRadius: BorderRadius.circular(30.0),
-                    child:
-                    TextFormField(
-                      obscureText: false,
-                      //TEXT
-                      style: TextStyle(
-                          color:  Colors.grey[900],
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 16.0
-                      ),
-                      //SHAPE
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 15.0),
-                          hintText: "Heure",
-                          suffixIcon: Icon (
-                            Icons.timer,
-                            color:  Colors.deepOrange,
-                          ),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
-                      ),
-                      //Validation de l'entrée
-                      validator: (val) => val.isEmpty ? 'Entrez l''heure' : null,
-                      onChanged: (val) {
-                        String heure;
-                      setState(() => heure= val);
-                      },
+                    color: Colors.white,
+                    shadowColor: Colors.white,
+                     child: FlatButton(
+                       focusColor: Colors.white,
+                       highlightColor: Colors.white,
+                     onPressed: () {
+                    DatePicker.showTimePicker(context,
+                        theme: DatePickerTheme(
+                          containerHeight: 210.0,
+                        ),
+                        showTitleActions: true, onConfirm: (time) {
+                      print('confirm $time');
+                      
+                      _time = '${time.hour} : ${time.minute} : ${time.second}';
+                      setState(() {});
+                    }, currentTime: DateTime.now(), locale: LocaleType.en);
+                    setState(() {});
+                }, 
+                child: Container(
+                    alignment: Alignment.center,
+                    height: 50.0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Container(
+                              child: Row(
+                                children: <Widget>[
+                                
+                                  Text(
+                                    " $_time",
+                                    style: TextStyle(
+                                        color: Colors.deepOrange,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                         Icon(
+                                    Icons.access_time,
+                                    size: 18.0,
+                                    color: Colors.deepOrange,
+                                  ),
+                      ],
                     ),
-                  ),
+                ),
+                color: Colors.white,
+              ),
+                  ), 
                    SizedBox(height: 40.0),
                   Material(
                     borderRadius: BorderRadius.circular(30.0),
@@ -1297,6 +1399,14 @@ void creeGroupe(){
 void _onParametrePressed(){
     showModalBottomSheet(context: context, builder:(context){
       final user = Provider.of<User>(context);
+        String nom= 'nom';
+       String email= 'email';
+      String url='assets/avatar.png';
+      String prenom = 'prénom';
+      String utilisateur = 'user name';
+       String phoneNumber=" num tel";
+       final FirebaseAuth _auth = FirebaseAuth.instance;
+ 
      return Container(
         color: const Color(0xff737373),
        width: 360,
@@ -1331,40 +1441,19 @@ void _onParametrePressed(){
   ),
      
      Container( 
-     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
-     child: StreamBuilder<UserData>(
-                  stream: DatabaseService(uid: user.uid).utilisateursDonnees,
-                  builder: (context,snapshot){
-     if (!snapshot.hasData) return const Text("Loading",
-      style: const TextStyle(
-      color:  const Color(0xff3d3d3d),
-      fontWeight: FontWeight.w400,
-      fontFamily: "Roboto",
-      fontStyle:  FontStyle.normal,
-      fontSize: 17.0
-  ),
-  textAlign: TextAlign.left 
-     
-     
-     );
-      UserData userData=snapshot.data;
-   return  Column(
-     
-   children: <Widget>[
-   SizedBox(
-                height:250,
-                width: 250,
+     padding: EdgeInsets.symmetric(vertical:40,horizontal :20.0),
+     child: ListView(children: [
+                SizedBox(
+                height:100,
+                width: 100,
                 child: Image(
-                  image: AssetImage('assets/avatar.png'),
+                  image: AssetImage(url),
                   fit: BoxFit.contain,
                 ),
               ),
-    
-            
-           ListView(children: [
                 ListTile(
                   leading: Icon(Icons.person, color: Colors.greenAccent,),
-                  title: Text(userData.nom +" " + userData.prenom,
+                  title: Text(nom +" " + prenom,
                    style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,
@@ -1380,10 +1469,22 @@ void _onParametrePressed(){
                   ),
               
                 ),
-                
+                ListTile(
+                  leading: Icon(Icons.person, color: Colors.greenAccent,),
+                  title: Text(utilisateur,
+                   style: const TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left),
+              
+                ),
                  ListTile(
                   leading: Icon(Icons.phone, color: Colors.greenAccent,),
-                  title: Text(userData.numtel,
+                  title: Text(phoneNumber,
                    style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,
@@ -1396,7 +1497,7 @@ void _onParametrePressed(){
                 ),
                 ListTile(
                   leading: Icon(Icons.mail, color: Colors.greenAccent,),
-                  title: Text(userData.identifiant,
+                  title: Text(email,
                    style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,
@@ -1407,34 +1508,65 @@ void _onParametrePressed(){
                       textAlign: TextAlign.left),
               
                 ),
-
-                
-
-
-   ],
-             
-
-   ),
+  
    
    ]
 
-   );
-   }
-     )
+   ),
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
 
                   
    ),
-    const SizedBox(height: 30),
+    
+     
+      StreamBuilder<UserData>(
+                  stream: DatabaseService(uid: user.uid).utilisateursDonnees,
+                  builder: (context,snapshot){
+     if (!snapshot.hasData) {return Container();
+ 
+     }
+      UserData userData=snapshot.data;
+        phoneNumber=userData.numtel;
+        nom=userData.nom;
+        prenom=userData.prenom;
+        utilisateur=userData.identifiant;
+        email=_email();
+        return Container();
+   }
+     ),
+     
      PositionedDirectional(
-    top: 300,
+    top: 350,
     start:100,
        child:  FlatButton(
           onPressed: () {
 
              Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => EditProfileView()),
+                        MaterialPageRoute(builder: (context) => 
+                        
+                        EditProfileView()),
                       );
+                      
           },
           textColor: Colors.white,
          
@@ -1475,6 +1607,11 @@ void _onParametrePressed(){
     }
      );
 }
+
+                  
+                  
+
+
 void list_invitations(){
    showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -1717,4 +1854,4 @@ final recentserch = [
     itemCount: suggest.length,
     );
   }
-}
+} 

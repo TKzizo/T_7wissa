@@ -9,19 +9,22 @@ final CollectionReference groupeCollection = Firestore.instance.collection('grou
 
   Future creerGroupe(String admin, String dist, String heure , List<dynamic> listMembre , String nom) async {
     try {
+      groupeCollection.document(uid).collection('ListeMembre').document().setData({});
+            groupeCollection.document(uid).collection('Markers').document().setData({});
+
      groupeCollection.document(uid).setData
       ({
         'admin': admin,
         'destination': dist,
         'heureDepart': heure,
-        'liste_membre': listMembre,
+        
         'nom':nom,
         'statu': true ,
         'uid' : this.uid,
       });
       chatCollection.document(uid).collection('messages').document().setData({
         
-      }); // your answer missing **.document()**  before setData
+      }); // your answer missing *.document()*  before setData
 
        chatCollection.document(uid).setData({
        
@@ -31,7 +34,5 @@ final CollectionReference groupeCollection = Firestore.instance.collection('grou
       return null;
     } 
   }
-  void sendtext(String sender, String message ){
-    
-  }
+  
 }
