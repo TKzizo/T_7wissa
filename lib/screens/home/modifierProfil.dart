@@ -5,7 +5,8 @@ import 'package:myapp/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/screens/authenticate/forgot_pswd.dart';
-
+import 'package:myapp/services/auth.dart';
+import 'package:myapp/screens/authenticate/register.dart';
 
 class EditProfileView extends StatefulWidget {
   @override
@@ -30,8 +31,8 @@ class _EditProfileViewState extends State<EditProfileView> {
   FirebaseUser user1;
   FirebaseUser currentUser;
    FocusNode _focusNode = new FocusNode();
-  void _loadCurrentUser() {
-    FirebaseAuth.instance.currentUser().then((FirebaseUser user) {
+  void _loadCurrentUser()async {
+   await FirebaseAuth.instance.currentUser().then((FirebaseUser user) {
       setState(() { // call setState to rebuild the view
         this.currentUser = user;
       });
@@ -84,7 +85,29 @@ Future<Null> _focusNodeListener() async {
            
        
         ),
-        body:SingleChildScrollView(
+        body: StreamBuilder<UserData>(
+          stream: DatabaseService(uid: user.uid).utilisateursDonnees,
+          builder: (context,snapshot){
+            if (!snapshot.hasData){
+          return Text(
+              'Chargement de données ..!',
+                      style: const TextStyle(
+                          color:  const Color(0xde000000),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 17.0
+                      ),
+                      textAlign: TextAlign.left                
+                      );
+     
+
+            }
+
+           else{
+              UserData userData =snapshot.data;
+             
+             return  SingleChildScrollView(
             child: Stack(
               children: <Widget>[
                  Column(children: <Widget>[
@@ -96,7 +119,7 @@ Future<Null> _focusNodeListener() async {
             children: <Widget>[
               SizedBox(height: 30.0),
               TextFormField(
-                initialValue: nom,
+                initialValue: userData.nom,
                  decoration: const InputDecoration(
                  icon: Icon(Icons.person,
                   color:  Colors.teal),
@@ -110,7 +133,7 @@ Future<Null> _focusNodeListener() async {
               ),
               SizedBox(height: 15.0),
                TextFormField(
-                initialValue: prenom,
+                initialValue:userData.nom,
                  decoration: const InputDecoration(
                  icon: Icon(Icons.person,
                  color:  Colors.teal),
@@ -123,7 +146,7 @@ Future<Null> _focusNodeListener() async {
                 },),
               SizedBox(height: 15.0),
               TextFormField(
-                initialValue: utilisateur,
+                initialValue: userData.identifiant,
                  decoration: const InputDecoration(
                  icon: Icon(null),
                 
@@ -135,7 +158,7 @@ Future<Null> _focusNodeListener() async {
                 },),
 
                 TextFormField(
-                initialValue: phoneNumber,
+                initialValue: userData.numtel,
                  decoration: const InputDecoration(
                  icon: Icon(Icons.phone,
                  color:  Colors.teal),
@@ -146,8 +169,12 @@ Future<Null> _focusNodeListener() async {
                 onChanged: (val) {
                   setState(() => phoneNumber = val);
                 },),
-               TextFormField(
-                initialValue: email,
+                FutureBuilder(
+                 future: FirebaseAuth.instance.currentUser(),
+                  builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
+                 if (snapshot.hasData) {
+                 return   TextFormField(
+                initialValue: snapshot.data.email,
                  decoration: const InputDecoration(
                  icon: Icon(Icons.mail,
                  color:  Colors.teal),
@@ -157,9 +184,20 @@ Future<Null> _focusNodeListener() async {
                 validator: (val) => val.isEmpty ? 'Donner une adresse ' : null,
                 onChanged: (val) {
                   setState(() => email = val);
-                },),
+                },);
+          
+          
+          
+        }
+        else {
+          return Text('Loading...');
+        }
+      },
+    ),
+  
+            
                 TextFormField(
-                 initialValue: password,
+                 
                  obscureText: true,
                  decoration: const InputDecoration(
                  icon: Icon(Icons.vpn_key,
@@ -238,12 +276,12 @@ Future<Null> _focusNodeListener() async {
                 child: new Text('Sauvegarder'),
                  onPressed: () async {
             
-          /* if(_formKey.currentState.validate() )
+          if(_formKey.currentState.validate() )
                 {   await DatabaseService(uid: user.uid).updateUserData(
-                  
+                  nom,prenom,utilisateur,phoneNumber
                 );
                 
-                 }*/
+                 }
                   Navigator.pop(context);
                 },
               ))
@@ -302,22 +340,13 @@ Future<Null> _focusNodeListener() async {
         
         
         
-         StreamBuilder<UserData>(
-          stream: DatabaseService(uid: user.uid).utilisateursDonnees,
-          builder: (context,snapshot){
-            if (!snapshot.hasData){
-          return Container();
-     
-
-            }
-
-           else{
-              UserData userData =snapshot.data;
-             prenom = userData.prenom;
-             nom = userData.nom;
-             phoneNumber =userData.numtel;
-             utilisateur= userData.identifiant;
         
+        
+        
+        ])
+               ],
+             ),
+           );
         
        
         
@@ -326,10 +355,8 @@ Future<Null> _focusNodeListener() async {
         )
         
         
-        ])
-               ],
-             ),
-           ),
+        
+       
         );
   }
 }
