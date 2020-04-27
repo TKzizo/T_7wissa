@@ -249,7 +249,7 @@ class _SignInState extends State<SignIn> {
           ],
         ),
       ),
-                  onPressed: () {
+                   onPressed: () {
                     _auth.googleSignin(context).then((user) {
                       if (user != null) {
                         print('Logged in successfully.');

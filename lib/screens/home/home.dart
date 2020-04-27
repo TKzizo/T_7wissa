@@ -44,8 +44,8 @@ class _MyHomePageState extends State<MyHomePage> {
   List<dynamic> listMembre = null;
   String admin = '';
   Marker marker;
-  Circle circle;
   GoogleMapController _controller;
+  Widget _child;
   Position position;
   String searchAddr;
   double vitesse;
@@ -90,8 +90,12 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       position = res;
       vitesse = position.speed;
+       _child = _mapWidget();
     });
   }
+
+  
+
    void showToast(message){
     Fluttertoast.showToast(
         msg: message,
@@ -150,15 +154,7 @@ Future<void> _handlePressButton() async {
     displayPrediction(p);
   }
 
-
-
-
-
-
-
-  
-
-
+ 
 /*COMPOSANTS*/ 
 Widget _mapWidget(){
         return  Container(
@@ -167,7 +163,7 @@ Widget _mapWidget(){
             backgroundColor: Colors.white,           
             body: GoogleMap(
                 markers: _createMarker(),
-                initialCameraPosition: CameraPosition(
+                 initialCameraPosition: CameraPosition(
         target: LatLng(position.latitude,position.longitude),
         zoom: 12.0
       ),
@@ -217,7 +213,7 @@ Widget _mapWidget(){
       body:   SlidingUpPanel(
        backdropEnabled: true,
       panelBuilder: (ScrollController sc) => _scrollingmessagesList(sc),
-      body: _mapWidget(),
+      body: _child,
       
        borderRadius: radius ,
        minHeight: 12,

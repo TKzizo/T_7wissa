@@ -39,7 +39,7 @@ dependencies:
   photo_view: ^0.4.2 
   google_maps_webservice: ^0.0.16
   flutter_google_places: ^0.2.3
-
+ 
 
 
 dev_dependencies:
