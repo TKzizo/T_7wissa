@@ -25,6 +25,7 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:myapp/services/Usersearch.dart'; 
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -63,23 +64,23 @@ String _time = "Not set";
 String text; 
 FirebaseUser currentUser;
 Widget _child; 
-BitmapDescriptor myIcon;
-
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
+   BitmapDescriptor pinLocationIcon;
+
   @override
   void initState() {
-    
+    setCustomMapPin();
+
     getPermission();
     super.initState();
     _loadCurrentUser();
-      BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(size: Size(48, 48)), 'assets/my_icon.png')
-        .then((onValue) {
-      myIcon = onValue;
-    });
 
   }
-
+void setCustomMapPin() async {
+      pinLocationIcon = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(size:Size(-12,-12)),
+      'assets/jesuisenpanne.png');
+   }
   void _loadCurrentUser() {
     FirebaseAuth.instance.currentUser().then((FirebaseUser user) {
       setState(() { // call setState to rebuild the view
@@ -125,7 +126,6 @@ GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1
         break;
       case GeolocationStatus.granted:
         showToast('Access Granted');
-       
         _getCurrentLocation(_current_userId);
     }
 
@@ -134,21 +134,67 @@ GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1
     Position res = await Geolocator().getCurrentPosition();
     setState(() {
       position = res;
-      vitesse = position.speed;
+      vitesse = position.speed; 
        _child = _mapWidget();
     }
     );
-     
-      print("position"); print(position); 
-      
-  }
-    List<Marker> allMarkers = [];
- 
- void _updateVitesseLoc(String userId) {
-Firestore.instance.collection('utilisateur').document(userId).updateData({ 'localisation':position.toJson()}); 
- }
-  
- 
+    }
+    List<Marker> allMarkers = []; 
+
+void setMarkersfromFirebase(){
+   print("SETTING MARKERS"); 
+  StreamBuilder(
+   
+      stream: Firestore.instance.collection('groupe').document('838').collection('Markers').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return Text('Loading maps.. Please Wait');
+        for (int i = 0; i < snapshot.data.documents.length; i++) {
+          print(i);
+          print(snapshot.data.documents.length); 
+          print(snapshot.data.documents[i]['position'].latitude);
+          allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['postion'].latitude).toDouble(),
+                 (snapshot.data.documents[i]['position'].longitude).toDouble()),
+                   markerId: snapshot.data.document[i]['user_id'],
+                   icon:BitmapDescriptor.defaultMarkerWithHue
+                  (BitmapDescriptor.hueViolet),
+              ));
+        }  
+      },
+    );
+}
+/* Widget _mapWidget() {
+    return StreamBuilder(
+      stream: Firestore.instance.collection('groupe').document('838').collection('Markers').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return Text('Loading maps.. Please Wait');
+        for (int i = 0; i < snapshot.data.documents.length; i++) {
+          print(i);
+          print(snapshot.data.documents.length); 
+          print(snapshot.data.documents[i]['position'].latitude);
+          allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['postion'].latitude).toDouble(),
+                 (snapshot.data.documents[i]['position'].longitude).toDouble()),
+                   markerId: snapshot.data.document[i]['user_id'],
+                   icon:BitmapDescriptor.defaultMarkerWithHue
+(BitmapDescriptor.hueCyan),
+              ));
+        }
+      /*MAP*/ 
+        return    GoogleMap(
+                  markers: Set.from(allMarkers),
+                  initialCameraPosition: CameraPosition(
+          target: LatLng(position.latitude,position.longitude),
+          
+          zoom: 12.0
+      ),
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller = controller;
+                  },
+                );   
+      },
+    );
+  }*/
    void showToast(message){
     Fluttertoast.showToast(
         msg: message,
@@ -161,8 +207,7 @@ Firestore.instance.collection('utilisateur').document(userId).updateData({ 'loca
     );
   }
 /*METHODES RECHERCHES ET AUTOCOMPLETE*/ 
-
-    Future<Null> displayPrediction(Prediction p) async {
+Future<Null> displayPrediction(Prediction p) async {
   if (p != null) {
     // get detail (lat/lng)
     PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
@@ -196,9 +241,8 @@ Future<void> _handlePressButton() async {
        new      Marker(
         markerId: MarkerId('home'),
         position: LatLng(position.latitude,position.longitude),
-        icon:myIcon,
-
-        infoWindow: InfoWindow(title: 'position actuelle'))
+        infoWindow: InfoWindow(title: 'position actuelle')
+        )
          
     );
     return allMarkers;
@@ -208,23 +252,23 @@ Marker marqer=Marker(markerId: MarkerId("Current"),
 position: LatLng(17.385044, 78.486671),);
 
 
-Marker marker1=Marker(markerId:MarkerId("1"), 
+/*Marker marker1=Marker(markerId:MarkerId("1"), 
 position: LatLng(36.741285, 3.172218), 
- icon:BitmapDescriptor.defaultMarkerWithHue
-(BitmapDescriptor.hueCyan), );
-Map marqers = {};
+  );*/
 
-Marker marker2=Marker(markerId: MarkerId("2"),
+Marker marker2= new Marker(markerId: MarkerId("2"),
 position: LatLng(45.393102, 12.353055),
- /*icon: BitmapDescriptor.defaultMarkerWithHue
-(BitmapDescriptor.hueRed),*/);
+//icon: myIcon,
+
+ icon: BitmapDescriptor.defaultMarkerWithHue
+(BitmapDescriptor.hueViolet));
 
 
 
 Marker marker3=Marker(markerId: MarkerId("3"),
 position: LatLng(36.732021, 3.172555),
- /*icon:BitmapDescriptor.defaultMarkerWithHue
-(BitmapDescriptor.hueGreen),*/
+ icon:BitmapDescriptor.defaultMarkerWithHue
+(BitmapDescriptor.hueGreen),
  );
 
  
@@ -234,10 +278,17 @@ position: LatLng(36.732021, 3.172555),
 
 
 Widget _mapWidget(){
-    allMarkers.add(marker1); 
-    print('1');
+allMarkers.add(
+       new      Marker(
+        markerId: MarkerId('home'),
+        position: LatLng(position.latitude,position.longitude),
+        infoWindow: InfoWindow(title: 'position actuelle'), 
+        icon:pinLocationIcon, 
+        )
+         
+    );
+   // allMarkers.add(marker1); 
       allMarkers.add(marker2);
-      print('2');
       allMarkers.add(marker3); 
         return    GoogleMap(
                   markers: Set.from(allMarkers),
@@ -252,9 +303,6 @@ Widget _mapWidget(){
                 );   
           }                
         
-        
-  
-
  
   Widget build(BuildContext context) {
     
@@ -274,6 +322,8 @@ Widget _mapWidget(){
       )  ,
       /*MENU*/
       bottomNavigationBar:   BottomAppBar(
+          color: Colors.white.withOpacity(0.5),
+
       child: new Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -328,7 +378,7 @@ Widget _mapWidget(){
                      width: 40.0,
                      height: 40.0,
                       child: FloatingActionButton(
-                      onPressed: () {}/*=>_onMembreButtonPressed()*/,
+                      onPressed: () =>_onMembreButtonPressed(),
                       child: Icon(
                        Icons.view_list,
                       size: 25.0,
@@ -595,7 +645,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.departure_board,color: Color(0xFFFF5722),),
    trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'On a démarré!', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','On a démarré!', _current_user,_current_userId,null);
      },
      icon: Icon(
                         Icons.send,
@@ -619,7 +669,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.directions_car,color: Color(0xFFFF5722),),
     trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Je suis en route !', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Je suis en route !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -638,7 +688,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.arrow_drop_down_circle,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Je suis arrivé(e)', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Je suis arrivé(e)', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -657,7 +707,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.help,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'J''ai besoin d''aide ! ', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','J''ai besoin d''aide ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -677,7 +727,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
    leading: Icon(Icons.build,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {  
      CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(_cle.toString(), "Je suis en panne  ! ", position,_current_userId,"image");     
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Je suis en panne ! ', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Je suis en panne ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -696,8 +746,8 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.flash_on,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(_cle.toString(), "Un accident ! ", position,_current_userId,"image");     
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Un accident !', _current_user,_current_userId,null);
+     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(/*_cle.toString()*/'1314', "Un accident ! ", position,_current_userId,"image");     
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Un accident !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -718,8 +768,8 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
  trailing:  IconButton(onPressed:() async {     
  //  Future marquer_Alerte(String id, String text,Position position, String senderId, String icon ) async{
 
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Route endommagée ! ', _current_user,_current_userId,null);
-     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(_cle.toString(), "Route endommagée ! ", position,_current_userId,"image");     
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Route endommagée ! ', _current_user,_current_userId,null);
+     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(/*_cle.toString()*/'1314', "Route endommagée ! ", position,_current_userId,"image");     
 
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -739,9 +789,9 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.flag,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(_cle.toString(), "Alerte barage  ! ", position,_current_userId,"image");     
+     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(/*_cle.toString()*/'1314', "Alerte barage  ! ", position,_current_userId,"image");     
 
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Alerte Barage ! ', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Alerte Barage ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -853,7 +903,7 @@ void _onMessageButtonPressed(){
      Container( 
      padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
      child: StreamBuilder(
-     stream: Firestore.instance.collection('messagerie').snapshots(),
+     stream: Firestore.instance.collection('chat').document('1314').collection('messages').snapshots(),
      builder: (context,snapshot){
      if (!snapshot.hasData) return const Text("aucun message",
       style: const TextStyle(
@@ -1773,7 +1823,7 @@ showModalBottomSheet(context: context, builder:(context){
     
      
      PositionedDirectional(
-    top: 350,
+    top: 290,
     start:100,
        child:  FlatButton(
           onPressed:()=>custom_lunch('tel:$phonenum'),
@@ -2335,97 +2385,5 @@ void _onParametrePressed(){
     
 }
 
-class UserSeach extends SearchDelegate<String> {
-
-final users = [
-  "mouna",
-  "amina",
-  "aziz",
-  "djihane",
-  "walid",
-  "anis",
-  "Mr.anane",
-  "Mr.sahad",
-  "Mr.mahfoudi",
-  "koudil",
-];
-
-final recentserch = [
-  "walid",
-  "Mr.anane",
-  "amina",
-];
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(icon: Icon(Icons.clear), onPressed: () {
-        query = "";
-      },)
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-   return IconButton( 
-     icon: AnimatedIcon( 
-       icon: AnimatedIcons.menu_arrow,
-        progress: transitionAnimation,
-      ), 
-      onPressed: () {
-        close(context, null);
-      },
-     );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-
-    String add = "add '$query' to the group";
-    var card1 = Card(
-        color: Colors.grey[350],
-        child: Center(
-        child: Text(add)
-        ),
-      );
-   
-
-    return Container(
-      height: 50.0,
-      width: 400.0,
-      child: InkWell(
-         child: card1,  
-      ),
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggest = query.isEmpty ? recentserch : users.where((p) => p.startsWith(query)).toList()  ;
-    return ListView.builder(
-      itemBuilder: (context,index) => ListTile(
-        onTap: () {
-          query = suggest[index];
-          showResults(context);
-        },
-          leading: Icon(Icons.person_pin_circle),
-          title: RichText(
-            text:TextSpan(
-              text: suggest[index].substring(0, query.length),
-              style: TextStyle(
-                color: Colors.black),
-              children: [
-                TextSpan(
-                  text: suggest[index].substring(query.length),
-                  style: TextStyle(color: Colors.grey)
-                )
-              ]
-            ),
-            ),
-    ),
-    itemCount: suggest.length,
-    );
-  }
 
 
-} 
