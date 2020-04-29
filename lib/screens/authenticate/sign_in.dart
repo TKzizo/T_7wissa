@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/authenticate/forgot_pswd.dart';
 import 'package:myapp/services/auth.dart';
-import 'package:myapp/screens/home/map.dart';
-import 'package:myapp/screens/authenticate/signin_G.dart';
-
-
-
-
+import 'package:myapp/screens/home/home.dart';
 
 class SignIn extends StatefulWidget {
 
@@ -20,9 +15,11 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
 
   final AuthService _auth = AuthService();
-  final AuthService googleSignIn = AuthService();
   final _formKey = GlobalKey<FormState>();
   String error = '';
+    String errorMessage = '';
+  String successMessage = '';
+  bool isGoogleSignIn = false;
 
   // text field state
   String email = '';
@@ -82,6 +79,7 @@ class _SignInState extends State<SignIn> {
                     },
                   ),
                 ),
+
                 /*Champs Mot de passe*/
                 SizedBox(height: 20.0),
                 Material(
@@ -216,36 +214,13 @@ class _SignInState extends State<SignIn> {
                   error,
                   style: TextStyle(color: Colors.red, fontSize: 14.0),
                 ),
-                SizedBox(height: 0),
-                _signInButton(),
-              ],
-            ),
-
-          ),
-
-        ),
-      ),
-    );
-  }
-
-  Widget _signInButton() {
-    return OutlineButton(
-      splashColor: Colors.grey,
-      onPressed: () {
-        signInWithGoogle().whenComplete(() {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return MyHomePage();
-              },
-            ),
-          );
-        });
-      },
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-      highlightElevation: 0,
-      borderSide: BorderSide(color: Colors.grey),
-      child: Padding(
+                (!isGoogleSignIn
+              ? OutlineButton(
+                splashColor: Colors.grey,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+                highlightElevation: 0,
+                borderSide: BorderSide(color: Colors.grey),
+                   child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -265,6 +240,44 @@ class _SignInState extends State<SignIn> {
           ],
         ),
       ),
+                   onPressed: () {
+                    _auth.googleSignin(context).then((user) {
+                      if (user != null) {
+                        print('Logged in successfully.');
+                        setState(() {
+                          isGoogleSignIn = true;
+                         Navigator.push(context, new MaterialPageRoute(
+                           builder: (context) => new MyHomePage()),);
+                         
+                        });
+                      } else {
+                        print('Error while Login.');
+                      }
+                    });
+                  },
+        )
+              : OutlineButton(
+                  child: Text('Google Logout'),
+                  onPressed: () {
+                    _auth.googleSignout().then((response) {
+                      if (response) {
+                        setState(() {
+                          isGoogleSignIn = false;
+                          successMessage = '';
+                        });
+                      }
+                    });
+                  },
+                )),
+            
+              ],
+            ),
+
+          ),
+
+        ),
+      ),
     );
   }
+
 }
