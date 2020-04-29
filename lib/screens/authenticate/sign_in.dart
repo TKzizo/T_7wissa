@@ -2,13 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:myapp/screens/authenticate/forgot_pswd.dart';
 import 'package:myapp/services/auth.dart';
 import 'package:myapp/screens/home/home.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-
-
-
 
 class SignIn extends StatefulWidget {
 
@@ -20,15 +13,13 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-   final FirebaseAuth auth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = new GoogleSignIn();
 
   final AuthService _auth = AuthService();
-  String errorMessage = '';
-  String successMessage = '';
-  bool isGoogleSignIn = false;
   final _formKey = GlobalKey<FormState>();
   String error = '';
+    String errorMessage = '';
+  String successMessage = '';
+  bool isGoogleSignIn = false;
 
   // text field state
   String email = '';
@@ -223,7 +214,7 @@ class _SignInState extends State<SignIn> {
                   error,
                   style: TextStyle(color: Colors.red, fontSize: 14.0),
                 ),
-               (!isGoogleSignIn
+                (!isGoogleSignIn
               ? OutlineButton(
                 splashColor: Colors.grey,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
@@ -288,8 +279,5 @@ class _SignInState extends State<SignIn> {
       ),
     );
   }
-
-
-
 
 }
