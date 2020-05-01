@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 class CreationGroupeServises {
@@ -35,13 +37,14 @@ final CollectionReference groupeCollection = Firestore.instance.collection('grou
       return null;
     } 
   }
-  Future marquer_Alerte(String id, String text,Position position, String senderId, String icon ) async{
+  Future marquer_Alerte(String id, String text,double longitude,double latitude, String senderId, String icon ) async{
     try {
        groupeCollection.document(id).collection('Markers').document().setData
       ({
         'text': text,
         'senderId': senderId,
-        'position':position.toJson(), 
+        'longitude':longitude, 
+        'latitude': latitude, 
         'icon': icon, 
       });
     } catch (error) {

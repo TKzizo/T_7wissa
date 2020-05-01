@@ -141,47 +141,63 @@ void setCustomMapPin() async {
     }
     List<Marker> allMarkers = []; 
 
-void setMarkersfromFirebase(){
+/*void setMarkersfromFirebase(){
    print("SETTING MARKERS"); 
   StreamBuilder(
    
-      stream: Firestore.instance.collection('groupe').document('838').collection('Markers').snapshots(),
+      stream: Firestore.instance.collection('groupe').document('1314').collection('Markers').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return Text('Loading maps.. Please Wait');
         for (int i = 0; i < snapshot.data.documents.length; i++) {
-          print(i);
           print(snapshot.data.documents.length); 
-          print(snapshot.data.documents[i]['position'].latitude);
-          allMarkers.add(new Marker(
+          //Text((contenu==null)?" ":contenu)
+          print("ICI"); 
+          print((snapshot.data.documents[i]['position'].longitude).toString() ==null ?" ": (snapshot.data.documents[i]['position'].longitude).toString() );
+         /* allMarkers.add(new Marker(
               position: new LatLng((snapshot.data.documents[i]['postion'].latitude).toDouble(),
                  (snapshot.data.documents[i]['position'].longitude).toDouble()),
                    markerId: snapshot.data.document[i]['user_id'],
                    icon:BitmapDescriptor.defaultMarkerWithHue
                   (BitmapDescriptor.hueViolet),
-              ));
+              ));*/ 
         }  
       },
     );
-}
-/* Widget _mapWidget() {
+}*/
+ Widget _mapWidget() {
     return StreamBuilder(
-      stream: Firestore.instance.collection('groupe').document('838').collection('Markers').snapshots(),
+      stream: Firestore.instance.collection('groupe').document('1314').collection('Markers').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return Text('Loading maps.. Please Wait');
         for (int i = 0; i < snapshot.data.documents.length; i++) {
-          print(i);
-          print(snapshot.data.documents.length); 
-          print(snapshot.data.documents[i]['position'].latitude);
-          allMarkers.add(new Marker(
-              position: new LatLng((snapshot.data.documents[i]['postion'].latitude).toDouble(),
-                 (snapshot.data.documents[i]['position'].longitude).toDouble()),
-                   markerId: snapshot.data.document[i]['user_id'],
-                   icon:BitmapDescriptor.defaultMarkerWithHue
-(BitmapDescriptor.hueCyan),
+         allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
+                  infoWindow: InfoWindow(
+                        title: (snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString(),
+                        snippet:  (snapshot.data.documents[i]['sender']).toString() ==null ?"User! ": (snapshot.data.documents[i]['sender']).toString(),
+                        onTap:  ()=> _markerPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?null: (snapshot.data.documents[i]['senderId']).toString()),
+
+                    ),
+                  
               ));
+    
+        
         }
       /*MAP*/ 
+      allMarkers.add(
+       new      Marker(
+        markerId: MarkerId('home'),
+        position: LatLng(position.latitude,position.longitude),
+        infoWindow: InfoWindow(title: 'position actuelle'), 
+        icon:pinLocationIcon, 
+        )
+         
+    );
         return    GoogleMap(
+          
                   markers: Set.from(allMarkers),
                   initialCameraPosition: CameraPosition(
           target: LatLng(position.latitude,position.longitude),
@@ -194,7 +210,130 @@ void setMarkersfromFirebase(){
                 );   
       },
     );
-  }*/
+  }
+   void _markerPressed(String userId){
+      showModalBottomSheet(context: context, builder:(context){
+     return Container(
+        color: const Color(0xff737373),
+       width: 360,
+      height: 240,
+      child:Container(
+      decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+      borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(30) ,
+          topRight:  const Radius.circular(30) ,
+        ),
+      ),
+      
+       child: Stack(children: [
+    StreamBuilder<UserData>(
+                  stream: DatabaseService(uid:userId).utilisateursDonnees,
+                  builder: (context,snapshot){
+                    if(snapshot.hasData){
+                      UserData userData=snapshot.data;
+                      print(userData.identifiant);
+                      return    Container( 
+     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+      child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 20,), 
+                Row(
+                  children: <Widget>[
+                    Text('Nom ',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                            SizedBox(width: 12,),
+                              Text(userData.nom,
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.teal,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                  ],
+                ),
+                 SizedBox(height: 20,), 
+                Row(
+                  children: <Widget>[
+                    Text('Prenom',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                            SizedBox(width: 12,),
+                              Text(userData.prenom,
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.teal,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                  ],
+                ),                
+                 SizedBox(height: 20,), 
+                Row(
+                  children: <Widget>[
+                    Text('Identifiant ',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                            SizedBox(width: 12,),
+                              Text(userData.identifiant,
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.teal,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                  ],
+                ),
+              ],
+            ),
+          ),
+       
+      );
+                    }else{
+                      return Text('Loading');
+                    }
+                  }
+              ),
+       
+      
+      ]
+      )
+         
+          ),
+        
+          );
+          
+    
+        }
+        );
+         
+  }
    void showToast(message){
     Fluttertoast.showToast(
         msg: message,
@@ -236,7 +375,7 @@ Future<void> _handlePressButton() async {
 /*METHODES RECHERCHES ET AUTOCOMPLETE*/ 
 
  //createur de marker 
-  setMarkers() {
+ /* setMarkers() {
     allMarkers.add(
        new      Marker(
         markerId: MarkerId('home'),
@@ -246,7 +385,7 @@ Future<void> _handlePressButton() async {
          
     );
     return allMarkers;
-  }
+  }*/
   //
 Marker marqer=Marker(markerId: MarkerId("Current"),
 position: LatLng(17.385044, 78.486671),);
@@ -277,7 +416,7 @@ position: LatLng(36.732021, 3.172555),
 /*COMPOSANTS*/ 
 
 
-Widget _mapWidget(){
+/*Widget _mapWidget(){
 allMarkers.add(
        new      Marker(
         markerId: MarkerId('home'),
@@ -301,7 +440,7 @@ allMarkers.add(
                     _controller = controller;
                   },
                 );   
-          }                
+          }  */              
         
  
   Widget build(BuildContext context) {
@@ -529,22 +668,13 @@ allMarkers.add(
     });
   }
 /*Messages  recues*/ 
+/*Messages  recues*/ 
 _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       if ((document['image'])!=null ){
         
      return(ListTile(
        
-    title: IconButton(icon: Icon(Icons.camera_enhance,color:Colors.greenAccent) , onPressed:() {
-      return new Scaffold(
-        resizeToAvoidBottomInset: true,
-        appBar: new AppBar(title: const Text('Modifier le profil'), 
-         backgroundColor:  Color(0xFFFF5722),
-           
-       
-        ),
-        body: Image.network(document['image']), 
-      );
-    }) ,
+    title: Image.network(document['image']),
     
 
       
@@ -726,7 +856,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.build,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {  
-     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(_cle.toString(), "Je suis en panne  ! ", position,_current_userId,"image");     
+    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('1314', "je suis en panne !", position.longitude, position.latitude, _current_userId, "image");
      ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Je suis en panne ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -746,7 +876,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.flash_on,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(/*_cle.toString()*/'1314', "Un accident ! ", position,_current_userId,"image");     
+    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('1314', "Un accident!", position.longitude, position.latitude, _current_userId, "image");
      ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Un accident !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -769,7 +899,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
  //  Future marquer_Alerte(String id, String text,Position position, String senderId, String icon ) async{
 
      ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Route endommagée ! ', _current_user,_current_userId,null);
-     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(/*_cle.toString()*/'1314', "Route endommagée ! ", position,_current_userId,"image");     
+    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('1314', "Route endommagée  !", position.longitude, position.latitude, _current_userId, "image");
 
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -789,7 +919,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.flag,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(/*_cle.toString()*/'1314', "Alerte barage  ! ", position,_current_userId,"image");     
+    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('1314', "Alerte barrage !", position.longitude, position.latitude, _current_userId, "image");
 
      ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Alerte Barage ! ', _current_user,_current_userId,null);
      },
@@ -811,7 +941,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
    
    leading: Icon(Icons.router,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte(_cle.toString(), "Alerte radar! ", position,_current_userId,"image");     
+    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('1314', "Alerte radar!", position.longitude, position.latitude, _current_userId, "image");
      ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Alerte radar !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
