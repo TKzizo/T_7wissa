@@ -126,11 +126,11 @@ void setCustomMapPin() async {
         break;
       case GeolocationStatus.granted:
         showToast('Access Granted');
-        _getCurrentLocation(_current_userId);
+        _getCurrentLocation();
     }
 
   }
-   void _getCurrentLocation(String userId) async {
+   void _getCurrentLocation() async {
     Position res = await Geolocator().getCurrentPosition();
     setState(() {
       position = res;
@@ -139,6 +139,10 @@ void setCustomMapPin() async {
     }
     );
     }
+  void updateuserLocation(String userId){
+    _getCurrentLocation();
+      Firestore.instance.collection('utilisateur').document(userId).updateData({'vitesse': position.speed.toDouble(),'latitude': position.latitude.toDouble(), 'longitude':position.longitude.toDouble()});
+  }
     List<Marker> allMarkers = []; 
  Widget _mapWidget() {
     return StreamBuilder(
@@ -530,10 +534,6 @@ Future<void> _handlePressButton() async {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          /*IconButton(icon: Icon(Icons.free_breakfast), onPressed: () => _onBreakButtonPressed(),),
-          IconButton(icon: Icon(Icons.message), onPressed: ()=> _onMessageButtonPressed(),),
-          IconButton(icon: Icon(Icons.group ), onPressed: () =>_onGroupButtonPressed(),),
-          IconButton(icon: Icon(Icons.place), onPressed: () {},),*/
            Container(
                      width: 40.0,
                      height: 40.0,
@@ -639,6 +639,7 @@ Future<void> _handlePressButton() async {
                     if(snapshot.hasData){
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
+                      updateuserLocation(user.uid); 
                       return  Text(
                           userData.identifiant);
                     }else{
