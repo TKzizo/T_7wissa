@@ -151,11 +151,9 @@ void setCustomMapPin() async {
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
                    icon:BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
-                  infoWindow: InfoWindow(
-                        title: (snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString(),
-                        snippet:  (snapshot.data.documents[i]['sender']).toString() ==null ?"User! ": (snapshot.data.documents[i]['sender']).toString(),
-                        onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?null: (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
-                    ), 
+                 
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+ 
               ));
         }  
       allMarkers.add(
@@ -358,7 +356,7 @@ Widget map(){
       ),
       
        child: Stack(children: [
-         Text('On vous signale une alerte !  ',
+         Text('Informations sur votre partenaire de route ',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.deepOrange,
