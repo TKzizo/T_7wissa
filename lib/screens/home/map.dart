@@ -140,30 +140,6 @@ void setCustomMapPin() async {
     );
     }
     List<Marker> allMarkers = []; 
-
-/*void setMarkersfromFirebase(){
-   print("SETTING MARKERS"); 
-  StreamBuilder(
-   
-      stream: Firestore.instance.collection('groupe').document('1314').collection('Markers').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return Text('Loading maps.. Please Wait');
-        for (int i = 0; i < snapshot.data.documents.length; i++) {
-          print(snapshot.data.documents.length); 
-          //Text((contenu==null)?" ":contenu)
-          print("ICI"); 
-          print((snapshot.data.documents[i]['position'].longitude).toString() ==null ?" ": (snapshot.data.documents[i]['position'].longitude).toString() );
-         /* allMarkers.add(new Marker(
-              position: new LatLng((snapshot.data.documents[i]['postion'].latitude).toDouble(),
-                 (snapshot.data.documents[i]['position'].longitude).toDouble()),
-                   markerId: snapshot.data.document[i]['user_id'],
-                   icon:BitmapDescriptor.defaultMarkerWithHue
-                  (BitmapDescriptor.hueViolet),
-              ));*/ 
-        }  
-      },
-    );
-}*/
  Widget _mapWidget() {
     return StreamBuilder(
       stream: Firestore.instance.collection('groupe').document('1314').collection('Markers').snapshots(),
@@ -178,40 +154,77 @@ void setCustomMapPin() async {
                   infoWindow: InfoWindow(
                         title: (snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString(),
                         snippet:  (snapshot.data.documents[i]['sender']).toString() ==null ?"User! ": (snapshot.data.documents[i]['sender']).toString(),
-                        onTap:  ()=> _markerPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?null: (snapshot.data.documents[i]['senderId']).toString()),
-
-                    ),
-                  
+                        onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?null: (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+                    ), 
               ));
-    
-        
-        }
-      /*MAP*/ 
+        }  
       allMarkers.add(
        new      Marker(
         markerId: MarkerId('home'),
         position: LatLng(position.latitude,position.longitude),
         infoWindow: InfoWindow(title: 'position actuelle'), 
         icon:pinLocationIcon, 
-        )
-         
-    );
-        return    GoogleMap(
-          
-                  markers: Set.from(allMarkers),
-                  initialCameraPosition: CameraPosition(
-          target: LatLng(position.latitude,position.longitude),
-          
-          zoom: 12.0
-      ),
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller = controller;
-                  },
-                );   
+        ));
+        return userListeMarkers();    
       },
     );
   }
-   void _markerPressed(String userId){
+
+List<String> allUsers = []; 
+Widget _eachUserMarker(){
+     return StreamBuilder(
+      stream: Firestore.instance.collection('utilisateur').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return Text('Loading maps.. Please Wait');
+        for (int i = 0; i < snapshot.data.documents.length; i++) {
+          print('data.documents.length'); 
+          print(i); 
+          print('uid'); 
+          print((snapshot.data.documents[i]['uid']).toString() ==null ?"uid": (snapshot.data.documents[i]['uid']).toString()); 
+          if(allUsers.contains((snapshot.data.documents[i]['uid']).toString() ==null ?"uid": (snapshot.data.documents[i]['uid']).toString())){
+              allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+                     infoWindow: InfoWindow(
+                        title: (snapshot.data.documents[i]['identifiant']).toString() ==null ?"user": (snapshot.data.documents[i]['identifiant']).toString(),
+                        onTap:  ()=> _markerUserPressed((snapshot.data.documents[i]['uid']).toString() ==null ?null: (snapshot.data.documents[i]['uid']).toString()),
+                    ),
+              ));
+          }
+         
+        }  
+        return map();    
+      },
+    );
+}
+  
+ Widget  userListeMarkers(){
+    return   StreamBuilder(
+      stream: Firestore.instance.collection('groupe').document('1314').collection('ListeMembre').snapshots(),
+      builder: (context, snapshot){
+        if (!snapshot.hasData) return Text('Loading users...');
+        for (int i = 0; i < snapshot.data.documents.length; i++) { 
+          allUsers.add((snapshot.data.documents[i]['user']).toString() ==null ?" ": (snapshot.data.documents[i]['user']).toString());              
+        }  
+    return  _eachUserMarker(); 
+      },
+
+    );
+  }
+Widget map(){ 
+    return    GoogleMap(
+                markers: Set.from(allMarkers),
+                initialCameraPosition: CameraPosition(
+                target: LatLng(position.latitude,position.longitude),
+                zoom: 12.0),
+                onMapCreated: (GoogleMapController controller) {_controller = controller; },
+                );
+  
+}
+  
+   void _markerAlertPressed(String userId,String alerte){
       showModalBottomSheet(context: context, builder:(context){
      return Container(
         color: const Color(0xff737373),
@@ -227,6 +240,15 @@ void setCustomMapPin() async {
       ),
       
        child: Stack(children: [
+         Text('On vous signale une alerte ! ',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 19.0
+                            ),),
     StreamBuilder<UserData>(
                   stream: DatabaseService(uid:userId).utilisateursDonnees,
                   builder: (context,snapshot){
@@ -241,7 +263,7 @@ void setCustomMapPin() async {
                 SizedBox(height: 20,), 
                 Row(
                   children: <Widget>[
-                    Text('Nom ',
+                    Text('Votre partenaire de route',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.black,
@@ -250,7 +272,7 @@ void setCustomMapPin() async {
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 17.0
                             ),),
-                            SizedBox(width: 12,),
+                            SizedBox(width: 7,),
                               Text(userData.nom,
                     textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -260,21 +282,7 @@ void setCustomMapPin() async {
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 17.0
                             ),),
-                  ],
-                ),
-                 SizedBox(height: 20,), 
-                Row(
-                  children: <Widget>[
-                    Text('Prenom',
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color:  Colors.black,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.normal,
-                                fontSize: 17.0
-                            ),),
-                            SizedBox(width: 12,),
+                             SizedBox(width: 7,),
                               Text(userData.prenom,
                     textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -285,11 +293,11 @@ void setCustomMapPin() async {
                                 fontSize: 17.0
                             ),),
                   ],
-                ),                
+                ),
                  SizedBox(height: 20,), 
                 Row(
                   children: <Widget>[
-                    Text('Identifiant ',
+                    Text('Vous signale une alerte',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.black,
@@ -299,7 +307,101 @@ void setCustomMapPin() async {
                                 fontSize: 17.0
                             ),),
                             SizedBox(width: 12,),
-                              Text(userData.identifiant,
+                              Text(alerte,
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.italic,
+                                fontSize: 17.0
+                            ),),
+                  ],
+                ),                
+              ],
+            ),
+          ),
+       
+      );
+                    }else{
+                      return Text('Loading');
+                    }
+                  }
+              ),
+       
+      
+      ]
+      )
+         
+          ),
+        
+          );
+          
+    
+        }
+        );
+         
+  }
+  void _markerUserPressed(String userId){
+      showModalBottomSheet(context: context, builder:(context){
+     return Container(
+        color: const Color(0xff737373),
+       width: 360,
+      height: 200,
+      child:Container(
+      decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+      borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(30) ,
+          topRight:  const Radius.circular(30) ,
+        ),
+      ),
+      
+       child: Stack(children: [
+         Text('On vous signale une alerte !  ',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 19.0
+                            ),),
+    StreamBuilder<UserData>(
+                  stream: DatabaseService(uid:userId).utilisateursDonnees,
+                  builder: (context,snapshot){
+                    if(snapshot.hasData){
+                      UserData userData=snapshot.data;
+                      print(userData.identifiant);
+                      return    Container( 
+     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+      child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 20,), 
+                Row(
+                  children: <Widget>[
+                    Text('Votre partenaire de route',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                            SizedBox(width: 7,),
+                              Text(userData.nom,
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.teal,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                             SizedBox(width: 7,),
+                              Text(userData.prenom,
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.teal,
@@ -310,6 +412,30 @@ void setCustomMapPin() async {
                             ),),
                   ],
                 ),
+                 SizedBox(height: 20,), 
+                Row(
+                  children: <Widget>[
+                    Text('Roule à une vitesse de : ',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                            SizedBox(width: 12,),
+                              Text(userData.vitesse.toString(),
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.italic,
+                                fontSize: 17.0
+                            ),),
+                  ],
+                ),                
               ],
             ),
           ),

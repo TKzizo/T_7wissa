@@ -35,6 +35,9 @@ class DatabaseService {
        nom: snapshot.data['nom'],
        prenom: snapshot.data['prenom'], 
        numtel: snapshot.data['numtel'], 
+       longitude: snapshot.data['longitude'],
+       latitude: snapshot.data['latitude'], 
+       vitesse: snapshot.data['vitesse'], 
        ); 
      
      }
