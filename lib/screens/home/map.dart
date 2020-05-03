@@ -498,41 +498,6 @@ Future<void> _handlePressButton() async {
   }
 /*METHODES RECHERCHES ET AUTOCOMPLETE*/ 
 
- //createur de marker 
- /* setMarkers() {
-    allMarkers.add(
-       new      Marker(
-        markerId: MarkerId('home'),
-        position: LatLng(position.latitude,position.longitude),
-        infoWindow: InfoWindow(title: 'position actuelle')
-        )
-         
-    );
-    return allMarkers;
-  }*/
-  //
-Marker marqer=Marker(markerId: MarkerId("Current"),
-position: LatLng(17.385044, 78.486671),);
-
-
-/*Marker marker1=Marker(markerId:MarkerId("1"), 
-position: LatLng(36.741285, 3.172218), 
-  );*/
-
-Marker marker2= new Marker(markerId: MarkerId("2"),
-position: LatLng(45.393102, 12.353055),
-//icon: myIcon,
-
- icon: BitmapDescriptor.defaultMarkerWithHue
-(BitmapDescriptor.hueViolet));
-
-
-
-Marker marker3=Marker(markerId: MarkerId("3"),
-position: LatLng(36.732021, 3.172555),
- icon:BitmapDescriptor.defaultMarkerWithHue
-(BitmapDescriptor.hueGreen),
- );
 
  
 
@@ -540,32 +505,6 @@ position: LatLng(36.732021, 3.172555),
 /*COMPOSANTS*/ 
 
 
-/*Widget _mapWidget(){
-allMarkers.add(
-       new      Marker(
-        markerId: MarkerId('home'),
-        position: LatLng(position.latitude,position.longitude),
-        infoWindow: InfoWindow(title: 'position actuelle'), 
-        icon:pinLocationIcon, 
-        )
-         
-    );
-   // allMarkers.add(marker1); 
-      allMarkers.add(marker2);
-      allMarkers.add(marker3); 
-        return    GoogleMap(
-                  markers: Set.from(allMarkers),
-                  initialCameraPosition: CameraPosition(
-          target: LatLng(position.latitude,position.longitude),
-          
-          zoom: 12.0
-      ),
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller = controller;
-                  },
-                );   
-          }  */              
-        
  
   Widget build(BuildContext context) {
     
