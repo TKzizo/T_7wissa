@@ -38,6 +38,7 @@ class DatabaseService {
        longitude: snapshot.data['longitude'],
        latitude: snapshot.data['latitude'], 
        vitesse: snapshot.data['vitesse'], 
+       image_url: snapshot.data['image_url']
        ); 
      
      }
@@ -47,4 +48,15 @@ class DatabaseService {
       return utilisateurCollection.document(uid).snapshots()
       .map(_userDataFromSnapchot); 
     }
+    Future addPhoto(String url) async{
+  try{
+      utilisateurCollection.document(uid).updateData({
+        'image_url':url,
+      });
+  }catch (error) {
+      print(error.toString()); 
+      return null;
+    } 
+
+  }
 }

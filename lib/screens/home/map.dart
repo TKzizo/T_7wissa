@@ -13,6 +13,7 @@ import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:loading/loading.dart';
 import 'package:myapp/screens/home/camera.dart';
 import 'package:myapp/models/user.dart';
+import 'package:myapp/screens/home/components/ProfilePicture.dart';
 import 'package:myapp/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -68,6 +69,7 @@ String _time = "Not set";
 String text; 
 FirebaseUser currentUser;
 Widget _child; 
+String _img='';
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
    
 
@@ -684,6 +686,24 @@ Future<void> _handlePressButton() async {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
+          StreamBuilder<UserData>(
+                  stream: DatabaseService(uid: user.uid).utilisateursDonnees,
+                  builder: (context,snapshot){
+                    if(snapshot.hasData){
+                      _current_userId = user.uid;
+                      
+                      UserData userData=snapshot.data;
+                      _img = userData.image_url;
+                      print(userData.identifiant);
+                      print(_img);
+
+                      return  Text(
+                          '');
+                    }else{
+                      return Text('Loading');
+                    }
+                  }
+              ),
            Container(
                      width: 40.0,
                      height: 40.0,
@@ -730,7 +750,7 @@ Future<void> _handlePressButton() async {
                      width: 40.0,
                      height: 40.0,
                       child: FloatingActionButton(
-                      onPressed: () =>_onMembreButtonPressed(),
+                      onPressed: () =>onMembreButtonPressed(),
                       child: Icon(
                        Icons.view_list,
                       size: 25.0,
@@ -754,7 +774,7 @@ Future<void> _handlePressButton() async {
                         focusColor: Colors.white,
                    ),
                   ),
-                  
+          Text(''),        
         ],
       ),
     ),
@@ -767,44 +787,108 @@ Future<void> _handlePressButton() async {
        borderRadius: radius ,
        minHeight: 12,
       ),
-     drawer: Drawer(
+      drawer: Drawer(
         child: Column(
           children: [
-            Expanded(
-              flex: 1,
-              child: SizedBox(
-                height:200,
-                width: 250,
-                child: Image(
-                  image: AssetImage('assets/avatar.png'),
-                  fit: BoxFit.contain,
-                ),
-              ),
+            SizedBox(
+             height: 30,
             ),
+           
+           Row(
+             mainAxisAlignment: MainAxisAlignment.spaceAround,
+             mainAxisSize: MainAxisSize.min,
+
+             
+             children: <Widget>[
+               
+               Container(
+                color: Colors.white24,
+                height: 50.0,
+                width: 50.0,
+               ),
+               StreamBuilder<UserData>(
+                  stream: DatabaseService(uid: user.uid).utilisateursDonnees,
+                  builder: (context,snapshot){
+                    if(snapshot.hasData){
+                      _current_userId = user.uid;
+                      
+                      UserData userData=snapshot.data;
+                      _img = userData.image_url;
+                      print(userData.identifiant);
+                      print(_img);
+
+                      return   Align(
+                 alignment: Alignment.center,
+                
+                   child: ClipOval(
+                   child: SizedBox(
+                     width: 120.0,
+                     height: 120.0,
+                     
+                     child: Image.network(_img,fit: BoxFit.fill,),
+                     
+                   ),
+                   ),
+                 
+               );
+                    }else{
+                      return Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange);
+                    }
+                  }
+              ),
+              
+
+                IconButton(
+                  
+                  icon: Icon( Icons.camera_alt,
+               size:30.0,
+                 color: Colors.greenAccent
+             ),
+                padding: EdgeInsets.only(top:90, right: 30), 
+                
+             onPressed: (){
+                        Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>  ProfilPicture()),
+                      );
+                      }
+                      ),
+                     
+             
+             ]
+           ),
+            
+                      SizedBox(
+             height: 20,
+            ),
+           
             Expanded(
               flex: 1,
               child: StreamBuilder<UserData>(
                   stream: DatabaseService(uid: user.uid).utilisateursDonnees,
                   builder: (context,snapshot){
-                    print('UID');
-                    print(user.uid); 
                     if(snapshot.hasData){
+                      _current_userId = user.uid;
+                      
                       UserData userData=snapshot.data;
+                      _img = userData.image_url;
                       print(userData.identifiant);
-                      updateuserLocation(user.uid); 
+                      print(_img);
+
                       return  Text(
                           userData.identifiant);
                     }else{
-                      return  Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
+                      return Text('Loading');
                     }
                   }
               ),
             ),
+            
             Expanded(
               flex: 2,
               child: ListView(children: [
                 ListTile(
-                  leading: Icon(Icons.settings, color: Colors.greenAccent,),
+                  leading: Icon(Icons.settings, color: Colors.greenAccent),
                   title: Text('Paramètres du compte'),
                   onTap: () async {
                     Navigator.of(context).pop();
@@ -2014,13 +2098,14 @@ void creeGroupe(){
     print('i could nt lunch $command');
   }
 }
-void _onMembreButtonPressed(){
+void onMembreButtonPressed(){
 
-  String text ;
+  
+    String text ;
   String _cle;
   String _current_user;
   String _current_userId;
-   
+    final user = Provider.of<User>(context);
     showModalBottomSheet(context: context, builder:(context){
      return Container(
         color: const Color(0xff737373),
@@ -2060,7 +2145,7 @@ void _onMembreButtonPressed(){
      Container( 
      padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
      child: StreamBuilder(
-     stream: Firestore.instance.collection('groupe').document('5672').collection('ListeMembre').snapshots(),
+     stream: Firestore.instance.collection('groupe').document('1314').collection('ListeMembre').snapshots(),
      builder: (context,snapshot){
      if (!snapshot.hasData) return const Text("aucun membre",
 
@@ -2102,7 +2187,47 @@ void _onMembreButtonPressed(){
          focusColor: Colors.white,
          ),
         ),
-  ), ]
+  ), 
+   PositionedDirectional(
+    top: 370,
+    start: 275,
+    child: 
+        SizedBox(
+      
+      child:StreamBuilder<UserData>(
+                  stream: DatabaseService(uid: user.uid).utilisateursDonnees,
+                  builder: (context,snapshot){
+                    if(snapshot.hasData){
+                      UserData userData=snapshot.data;
+                      print(userData.identifiant);
+                      return(  StreamBuilder<DocumentSnapshot>(
+    stream: provideDocumentFieldStream("groupe",'1314'),
+    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasData) {
+           Map<String, dynamic> documentAdmin = snapshot.data.data;
+           print(documentAdmin['admin']);
+           print(userData.identifiant);
+           
+           if (documentAdmin['admin']==userData.identifiant){
+          return
+          FloatingActionButton(onPressed:()=> creatAlertDialog(context),
+         child: Icon(Icons.notification_important,
+         size: 40,
+         ),
+         backgroundColor: const Color(0xffff5722),
+         focusColor: Colors.white,
+         );
+        
+          }
+           } else return Container();
+    }));          
+                           }else{
+                      return Text('Loading');
+                    }
+                  }
+              ),
+        ),
+  ),]
       )
          
           ),
@@ -2137,8 +2262,9 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
                       ),
       trailing: IconButton(icon: Icon(Icons.place,
       color : const Color(0xff339899)), onPressed: ()=>{
-        _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: 
-        LatLng(documentFields['latitude'],documentFields['longitude'])))),
+      _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: 
+        LatLng(documentFields['latitude'],documentFields['longitude']),
+        zoom: 16.0),)),
       }),
      onTap: ()=> _afficherMembre(documentFields),
     
@@ -2160,6 +2286,52 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
      
                   );
   }
+  creatAlertDialog( BuildContext context){
+ return showDialog(context: context, builder:(context){
+  return AlertDialog(
+  title : Text('Suggestions'),
+  content:  Container(
+              padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+              height: 300.0, // Change as per your requirement
+      width: double.maxFinite,
+     child: StreamBuilder(
+     stream: Firestore.instance.collection('groupe').document('1314').collection('suggestions').snapshots(),
+     builder: (context,snapshot){
+     if (!snapshot.hasData){ return const Text("aucune suggestion",
+      style: const TextStyle(
+      color:  const Color(0xff3d3d3d),
+      fontWeight: FontWeight.w400,
+      fontFamily: "Roboto",
+      fontStyle:  FontStyle.normal,
+      fontSize: 17.0
+  ),
+  textAlign: TextAlign.left 
+     );}
+  else{ return  ListView.builder(
+     itemExtent: 80.0,
+     itemCount:snapshot.data.documents.length,
+    itemBuilder: (ctx,index )=> (
+    buildSugglistItem(ctx,snapshot.data.documents[index],'1314')),
+      );}
+     }
+      ),
+      
+              
+       ),
+  actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('Ignorer'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
+
+  );
+ });
+
+ }
   /*Affichage membre du groupe*/
 _afficherMembre(Map<String, dynamic> document){
 
@@ -2381,72 +2553,7 @@ _buildMemberlistItem2(BuildContext ctx,DocumentSnapshot document) {
           ),
           );
         }
-       
-      
-     buildSugglistItem(BuildContext ctx,DocumentSnapshot document,String idGroup) {
-       return(  StreamBuilder<DocumentSnapshot>(
-    stream: provideDocumentFieldStream("utilisateur",document['id']),
-    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasData) {
-           Map<String, dynamic> documentFields = snapshot.data.data;
-           return  ListTile(
-       
-    title: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children : <Widget>[  Text(
-                documentFields['identifiant'],
-                      style: const TextStyle(
-                          color:  const Color(0xde000000),
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left                
-                      ),
-                       IconButton(onPressed:()=>_refuserSugg(idGroup,document.documentID), /*_refuserInvitation(document.documentID)*/
-                         icon: Icon(
-                        Icons.cancel,
-                         color:  const Color(0xffff5722),
-                         size: 30,
-                        ),
-                         ),
-                         IconButton(onPressed:()=>  _accepterSugg(document.documentID,idGroup,document['id']),//a changer
-                         icon: Icon(
-                        Icons.check_circle,
-                         color:  const Color(0xff13ef81),
-                         size: 30,
-                        ),
-                         ),]),
-           subtitle :   Text(
-                      "Admin : "+ document['admin'],
-                      style: const TextStyle(
-                          color:  const Color(0xde3d3d3d),
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left                
-                      ),
-           );}}));
-                    }
-                    _refuserSugg(String groupId,String docId) {
-              Firestore.instance.collection('groupe').document(groupId).collection('Suggestions').document(docId).delete().catchError((e){
-              print(e);});
-            }
 
-_accepterSugg(String docId,String grpID,String userID) {
-            //ajouter linvitation à la liste d'invi de cet utilisateur
-            Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').document().setData({
-              'id' : null,
-            }).catchError((e){print(e);});
-            
-            //supprimer l'invitation
-            Firestore.instance.collection('groupe').document(grpID).collection('Suggestions').document(docId).delete().catchError((e){
-              print(e);});
-          }
 void list_invitations(BuildContext context, String userID){
    showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -2590,15 +2697,16 @@ void list_invitations(BuildContext context, String userID){
                       )
                   );
                     }//buildItem
-void _onParametrePressed(){
+
+ void _onParametrePressed(){
     showModalBottomSheet(context: context, builder:(context){
       final user = Provider.of<User>(context);
-        String nom= 'nom';
-       String email= 'email';
-      String url='assets/avatar.png';
-      String prenom = 'prénom';
-      String utilisateur = 'user name';
-       String phoneNumber=" num tel";
+        String nom= 'Nom';
+       String email= 'Email';
+      String url='';//'https://www.cbronline.com/wp-content/uploads/2016/06/what-is-URL.jpg';
+      String prenom = 'Prénom';
+      String utilisateur = 'Pseudo';
+       String phoneNumber="Numéro de téléphone";
        final FirebaseAuth _auth = FirebaseAuth.instance;
  
      return Container(
@@ -2633,21 +2741,56 @@ void _onParametrePressed(){
       textAlign: TextAlign.left                
       )),
   ),
+  
      
      Container( 
-     padding: EdgeInsets.symmetric(vertical:40,horizontal :20.0),
+     padding: EdgeInsets.symmetric(vertical:70,horizontal :20.0),
      child: ListView(children: [
                 SizedBox(
-                height:100,
-                width: 100,
-                child: Image(
-                  image: AssetImage(url),
+                
+                child: Row(
+             mainAxisAlignment: MainAxisAlignment.spaceAround,
+             mainAxisSize: MainAxisSize.min,
+
+             
+             children: <Widget>[
+               Container(
+                color: Colors.white24,
+                height: 30.0,
+                width: 50.0,
+               ),
+               Align(
+                 alignment: Alignment.center,
+                
+                   child: ClipOval(
+                   child: SizedBox(
+                     width: 80.0,
+                     height: 80.0,
+                     
+                     child: Image.network(_img,fit: BoxFit.fill,),
+                     /*child:Image(
+                  image: AssetImage('assets/avatar.png'),
                   fit: BoxFit.contain,
-                ),
+                ), */
+                   ),
+                   ),
+                 
+               ),
+               Container(
+                color: Colors.white24,
+                height: 30.0,
+                width: 50.0,
+               ),
+                
+                     
+             
+             ]
+           ),
               ),
+                
                 ListTile(
                   leading: Icon(Icons.person, color: Colors.greenAccent,),
-                  title: Text(nom +" " + prenom,
+                  title: Text(nom +" et " + prenom,
                    style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,
@@ -2706,29 +2849,7 @@ void _onParametrePressed(){
    
    ]
 
-   ),
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-
-                  
+   ),   
    ),
     
      
@@ -2740,6 +2861,7 @@ void _onParametrePressed(){
      }
       UserData userData=snapshot.data;
         phoneNumber=userData.numtel;
+        url=userData.image_url;
         nom=userData.nom;
         prenom=userData.prenom;
         utilisateur=userData.identifiant;
@@ -2752,6 +2874,8 @@ void _onParametrePressed(){
     top: 20,
     start:100,
        child:  FlatButton(
+         
+         padding: EdgeInsets.only(top:350,left: 30),
           onPressed: () {
 
              Navigator.push(
@@ -2801,9 +2925,73 @@ void _onParametrePressed(){
     }
      );
 }
+                 
+buildSugglistItem(BuildContext ctx,DocumentSnapshot document,String idGroup) {
+       return(  StreamBuilder<DocumentSnapshot>(
+    stream: provideDocumentFieldStream("utilisateur",document['id']),
+    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasData) {
+           Map<String, dynamic> documentFields = snapshot.data.data;
+           print(documentFields['identifiant']);
+         
+          return ListView(
+            children :<Widget>[ ListTile(
+       
+    title: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children : <Widget>[  Text(
+                documentFields['identifiant'],
+                      style: const TextStyle(
+                          color:  const Color(0xde000000),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left                
+                      ),
+                       IconButton(onPressed:()=>_refuserSugg(idGroup,document.documentID), /*_refuserInvitation(document.documentID)*/
+                         icon: Icon(
+                        Icons.cancel,
+                         color:  const Color(0xffff5722),
+                         size: 30,
+                        ),
+                         ),
+                         IconButton(onPressed:()=>  _accepterSugg(document.documentID,idGroup,document['id']),//a changer
+                         icon: Icon(
+                        Icons.check_circle,
+                         color:  const Color(0xff13ef81),
+                         size: 30,
+                        ),
+                         ),]),
+           
+           )]);
+   
+           } 
+           else { return Container();} }
 
-                  
-                  
+           ));
+
+                    }
+
+_refuserSugg(String groupId,String docId) {
+   Firestore.instance.collection('groupe').document(groupId).collection('suggestions').document(docId).delete().catchError((e){
+   print(e);}); }
+
+_accepterSugg(String docId,String grpID,String userID) {
+            //ajouter linvitation à la liste d'invi de cet utilisateur
+            Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').document().setData({
+                      'groupeID':'5672',
+                      'admin': 'ammalimouna', 
+                      'destination': 'Alger', 
+                      'groupe': 'Famille', 
+            }).catchError((e){print(e);});
+            
+            //supprimer l'invitation
+            Firestore.instance.collection('groupe').document(grpID).collection('suggestions').document(docId).delete().catchError((e){
+              print(e);});
+          }                
 
 
 
