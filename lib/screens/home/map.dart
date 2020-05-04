@@ -616,6 +616,8 @@ Widget map(){
     );
   }
   String pause="Planifiez votre pause"; 
+  double latt; 
+  double lang; 
 /*METHODES RECHERCHES ET AUTOCOMPLETE*/ 
 Future<Null> displayPrediction(Prediction p) async {
   if (p != null) {
@@ -623,6 +625,8 @@ Future<Null> displayPrediction(Prediction p) async {
     PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
     final lat = detail.result.geometry.location.lat;
     final lng = detail.result.geometry.location.lng;
+    latt=lat; 
+    lang=lng; 
     final coordinates = new Coordinates(lat, lng);
     List<Address> addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
     final first = addresses.first;
@@ -866,17 +870,17 @@ Future<void> _handlePressButton() async {
             
           }
 
-  void _onAddMarkerButtonPressed() {
+  void _onAddMarkerButtonPressed(double latitude,double longitude) {
     InfoWindow infoWindow =
     InfoWindow(title: "Location" + markers.length.toString());
     Marker marker = Marker(
       markerId: MarkerId(markers.length.toString()),
       infoWindow: infoWindow,
-      position: centerPosition,
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+      position: new LatLng(latitude,longitude),
+      icon: pauseIcon,
     );
     setState(() {
-      markers.add(marker);
+      allMarkers.add(marker);
     });
   }
 /*Messages  recues*/ 
@@ -1719,7 +1723,15 @@ void creeGroupe(){
                             fontSize: 16.0
                         ),
                       ),
-                      onPressed: () {Navigator.of(context).pop();}
+                      onPressed: () {
+                        print('adding'); 
+                        allMarkers.add(new Marker(
+                         position: new LatLng(latt,lang),
+                          markerId: MarkerId('pause'),
+                          icon:pauseIcon, 
+              ));
+              _child=_mapWidget(); 
+                      }
                   ),
                 ),
                 SizedBox(width: 65,height: 70,),
