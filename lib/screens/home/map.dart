@@ -47,7 +47,6 @@ class _MyHomePageState extends State<MyHomePage> {
     LatLng centerPosition;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   String _selectedItem = '';
-  int _cle; 
   final _formKey = GlobalKey<FormState>(); //pour identifier le formulaire 
   // text field state
   String nom = '';
@@ -70,6 +69,7 @@ String text;
 FirebaseUser currentUser;
 Widget _child; 
 String _img='';
+String _current_grp = null;
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
    
 
@@ -187,7 +187,7 @@ void setCustomMapPin() async {
     List<Marker> allMarkers = []; 
  Widget _mapWidget() {
     return StreamBuilder(
-      stream: Firestore.instance.collection('groupe').document('5672').collection('Markers').snapshots(),
+      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('Markers').snapshots(),
       builder: (context, snapshot) {
         
         if (!snapshot.hasData) return Container(child : Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
@@ -340,7 +340,7 @@ Widget _eachUserMarker(){
   
  Widget  userListeMarkers(){
     return   StreamBuilder(
-      stream: Firestore.instance.collection('groupe').document('5672').collection('ListeMembre').snapshots(),
+      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('ListeMembre').snapshots(),
       builder: (context, snapshot){
         if (!snapshot.hasData) return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
         for (int i = 0; i < snapshot.data.documents.length; i++) { 
@@ -708,6 +708,7 @@ Future<void> _handlePressButton() async {
                      width: 40.0,
                      height: 40.0,
                       child: FloatingActionButton(
+                      heroTag: 'btn1',
                       onPressed: () => _onBreakButtonPressed(),
                       child: Icon(
                        Icons.free_breakfast,
@@ -722,7 +723,8 @@ Future<void> _handlePressButton() async {
                      width: 40.0,
                      height: 40.0,
                       child: FloatingActionButton(
-                      onPressed: ()=> _onMessageButtonPressed(),
+                        heroTag: 'btn2',
+                      onPressed: ()=> _onMessageButtonPressed(_current_grp),
                       child: Icon(
                        Icons.email,
                       size: 25.0,
@@ -736,7 +738,8 @@ Future<void> _handlePressButton() async {
                      width: 40.0,
                      height: 40.0,
                       child: FloatingActionButton(
-                      onPressed:() =>_onGroupButtonPressed(),
+                        heroTag: 'btn3',
+                      onPressed:() =>_onGroupButtonPressed(_current_grp),
                       child: Icon(
                        Icons.group,
                       size: 25.0,
@@ -750,6 +753,7 @@ Future<void> _handlePressButton() async {
                      width: 40.0,
                      height: 40.0,
                       child: FloatingActionButton(
+                        heroTag: 'btn4',
                       onPressed: () =>onMembreButtonPressed(),
                       child: Icon(
                        Icons.view_list,
@@ -763,6 +767,7 @@ Future<void> _handlePressButton() async {
                      width: 40.0,
                      height: 40.0,
                       child: FloatingActionButton(
+                        heroTag: 'btn5',
                       onPressed: () {
                         list_invitations(context, _current_userId); 
                       },
@@ -990,7 +995,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                       textAlign: TextAlign.left                
                       ),
          trailing:    Text(
-                       document['time'],
+                       document['time'].toString(),
                       style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,
@@ -1035,7 +1040,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                       textAlign: TextAlign.left                
                       ),
          trailing:    Text(
-                       document['time'],
+                       document['time'].toString(),
                       style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,
@@ -1075,7 +1080,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.departure_board,color: Color(0xFFFF5722),),
    trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','On a démarré!', _current_user,_current_userId,null);
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'On a démarré!', _current_user,_current_userId,null);
      },
      icon: Icon(
                         Icons.send,
@@ -1099,7 +1104,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.directions_car,color: Color(0xFFFF5722),),
     trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Je suis en route !', _current_user,_current_userId,null);
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Je suis en route !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1118,7 +1123,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.arrow_drop_down_circle,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Je suis arrivé(e)', _current_user,_current_userId,null);
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Je suis arrivé(e)', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1137,7 +1142,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.help,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','J''ai besoin d''aide ! ', _current_user,_current_userId,null);
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'J''ai besoin d''aide ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1156,14 +1161,14 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.build,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {  
-    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('5672', "je suis en panne !", position.longitude, position.latitude, _current_userId, "image");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "je suis en panne !", position.longitude, position.latitude, _current_userId, "image");
      allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
-                   markerId: MarkerId(_cle.toString()),
+                   markerId: MarkerId(_current_grp.toString()),
                    icon:BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
                 onTap:  ()=> _markerAlertPressed(_current_userId,"je suis en panne"),
               ));
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Je suis en panne ! ', _current_user,_current_userId,null);
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Je suis en panne ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1182,8 +1187,8 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.flash_on,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('5672', "Un accident!", position.longitude, position.latitude, _current_userId, "image");
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Un accident !', _current_user,_current_userId,null);
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Un accident!", position.longitude, position.latitude, _current_userId, "image");
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Un accident !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1204,8 +1209,8 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
  trailing:  IconButton(onPressed:() async {     
  //  Future marquer_Alerte(String id, String text,Position position, String senderId, String icon ) async{
 
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Route endommagée ! ', _current_user,_current_userId,null);
-    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('5672', "Route endommagée  !", position.longitude, position.latitude, _current_userId, "image");
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Route endommagée ! ', _current_user,_current_userId,null);
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Route endommagée  !", position.longitude, position.latitude, _current_userId, "image");
 
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1225,9 +1230,9 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.flag,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('5672', "Alerte barrage !", position.longitude, position.latitude, _current_userId, "image");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte barrage !", position.longitude, position.latitude, _current_userId, "image");
 
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Alerte Barage ! ', _current_user,_current_userId,null);
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Alerte Barage ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1247,8 +1252,8 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
    
    leading: Icon(Icons.router,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('5672', "Alerte radar!", position.longitude, position.latitude, _current_userId, "image");
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Alerte radar !', _current_user,_current_userId,null);
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte radar!", position.longitude, position.latitude, _current_userId, "image");
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp.toString(),'Alerte radar !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1267,7 +1272,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.call,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Appelez moi  !', _current_user,_current_userId,null);
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp.toString(),'Appelez moi  !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1287,7 +1292,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.check,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'OK  !', _current_user,_current_userId,null);
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp.toString(),'OK  !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1298,7 +1303,8 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
   ));
  
 }
-void _onMessageButtonPressed(){
+void _onMessageButtonPressed(String currentGroupe){
+ 
    
     showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -1339,7 +1345,7 @@ void _onMessageButtonPressed(){
      Container( 
      padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
      child: StreamBuilder(
-     stream: Firestore.instance.collection('chat').document('5672').collection('messages').snapshots(),
+     stream: Firestore.instance.collection('chat').document(currentGroupe).collection('messages').snapshots(),
      builder: (context,snapshot){
      if (!snapshot.hasData) return const Text("aucun message",
       style: const TextStyle(
@@ -1390,7 +1396,7 @@ void _onMessageButtonPressed(){
                        
   ), 
 trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),text, _current_user,_current_userId,null);
+     ChatService(uid: currentGroupe.toString() ).envoyer_mesg(currentGroupe.toString(),text, _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent ),
                       
@@ -1409,7 +1415,7 @@ trailing:  IconButton(onPressed:() async {
          
       }
 /*Groupes*/
-void _onGroupButtonPressed(){
+_onGroupButtonPressed(String currentUser){
     showModalBottomSheet(context: context, builder:(context){
      return Container(
         color: const Color(0xff737373),
@@ -1448,7 +1454,7 @@ void _onGroupButtonPressed(){
      Container( 
      padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
      child: StreamBuilder(
-     stream: Firestore.instance.collection('groupe').snapshots(),
+     stream: Firestore.instance.collection('utilisateur').document(_current_userId).collection('ListeGroupe').snapshots(),
      builder: (context,snapshot){
      if (!snapshot.hasData) return const Text("aucun groupe",
       style: const TextStyle(
@@ -1481,7 +1487,7 @@ void _onGroupButtonPressed(){
     child: 
         SizedBox(
       
-      child:FloatingActionButton(onPressed:()=>creeGroupe(),
+      child:FloatingActionButton(heroTag: 'btn6',onPressed:()=>creeGroupe(),
          child: Icon(Icons.add,
          size: 40,
          ),
@@ -1504,14 +1510,19 @@ void _onGroupButtonPressed(){
          
       }
      _buildlistItem(BuildContext ctx,DocumentSnapshot document) {
-     return(ListTile(
+      return(  StreamBuilder<DocumentSnapshot>(
+    stream: provideDocumentFieldStream("groupe",document['id']),
+    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasData) {
+           Map<String, dynamic> documentFields = snapshot.data.data;
+           return  ListTile(
     title:Row (
        
         crossAxisAlignment: CrossAxisAlignment.start,
        
         children : <Widget>[
        Text(
-      document['nom'],
+      documentFields['nom'],
       style: const TextStyle(
           color:  const Color(0xff3d3d3d),
           fontWeight: FontWeight.w400,
@@ -1522,7 +1533,7 @@ void _onGroupButtonPressed(){
       textAlign: TextAlign.left                
       ),
       Spacer(flex:1,),
-     Text(  "à : "+ document['destination'],
+     Text(  "à : "+ documentFields['destination'],
                       style: const TextStyle(
                           color:  const Color(0xff52bf90),
                           fontWeight: FontWeight.w400,
@@ -1533,7 +1544,7 @@ void _onGroupButtonPressed(){
                       textAlign: TextAlign.left              
                       ),]),
      subtitle :   Text(
-                      "Admin : "+ document['admin'],
+                      "Admin : "+ documentFields['admin'],
                       style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,
@@ -1550,14 +1561,20 @@ void _onGroupButtonPressed(){
                         ),
                       
                          ),
-                         onTap:null, 
-                      )   
-                  );
+                         onTap:(){
+                      _current_grp = document['id'];
+                         }, 
+                      ) ;  }})
+      );
                     }
-                      _quittergroupe(docId) {
-            Firestore.instance.collection('groupe').document(docId).delete().catchError((e){
+_quittergroupe(docId) {
+
+            Firestore.instance.collection('utilisateur').document(_current_userId).collection('ListeGroupe').document(docId).delete().catchError((e){
               print(e);});
-              print('supp');
+              print('supp');           
+            /*Firestore.instance.collection('groupe').document(docId).collection('ListeMembre').document().catchError((e){
+              print(e);});
+              print('supp');*/
             }
 void creeGroupe(){
     showModalBottomSheet(context: context, builder:(context){
@@ -1716,7 +1733,6 @@ void creeGroupe(){
                 onPressed: () async {
                   if(_formKey.currentState.validate()){ 
                     int _id = random.nextInt(10000);
-                     _cle = _id; 
                     CreationGroupeServises(uid: _id.toString() ).creerGroupe(_admin, lieu, _time, listMembre, nom);
                   }
                 }
@@ -2102,7 +2118,6 @@ void onMembreButtonPressed(){
 
   
     String text ;
-  String _cle;
   String _current_user;
   String _current_userId;
     final user = Provider.of<User>(context);
@@ -2179,7 +2194,7 @@ void onMembreButtonPressed(){
     child: 
         SizedBox(
       
-      child:FloatingActionButton(onPressed:()=>null,
+      child:FloatingActionButton(heroTag: 'btn8',onPressed:()=>null,
          child: Icon(Icons.add,
          size: 40,
          ),
@@ -2210,7 +2225,7 @@ void onMembreButtonPressed(){
            
            if (documentAdmin['admin']==userData.identifiant){
           return
-          FloatingActionButton(onPressed:()=> creatAlertDialog(context),
+          FloatingActionButton(heroTag: 'btn10',onPressed:()=> creatAlertDialog(context),
          child: Icon(Icons.notification_important,
          size: 40,
          ),
@@ -2474,12 +2489,12 @@ _buildMemberlistItem2(BuildContext ctx,DocumentSnapshot document) {
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
                       return(  StreamBuilder<DocumentSnapshot>(
-    stream: provideDocumentFieldStream("groupe",'5672'),
+    stream: provideDocumentFieldStream("groupe",_current_grp),
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.hasData) {
            Map<String, dynamic> documentAdmin = snapshot.data.data;
            if (documentAdmin['admin']==userData.identifiant){
-            list_suggestion(context, '5672');
+            list_suggestion(context, _current_grp);
            }
            }
     }));          
@@ -2982,7 +2997,7 @@ _refuserSugg(String groupId,String docId) {
 _accepterSugg(String docId,String grpID,String userID) {
             //ajouter linvitation à la liste d'invi de cet utilisateur
             Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').document().setData({
-                      'groupeID':'5672',
+                      'groupeID':_current_grp,
                       'admin': 'ammalimouna', 
                       'destination': 'Alger', 
                       'groupe': 'Famille', 
