@@ -91,6 +91,7 @@ GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1
    BitmapDescriptor routeIcon;
    BitmapDescriptor maleIcon;
    BitmapDescriptor femaleIcon; 
+   BitmapDescriptor destinationIcon; 
 
 void setCustomMapPin() async {
       pinLocationIcon = await BitmapDescriptor.fromAssetImage(
@@ -111,11 +112,12 @@ void setCustomMapPin() async {
       //ICONE RADAR
        radarIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/radar.png');
       //ICONE ROUTE
-       routeIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/jesuisenpanne.png');
+       routeIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/route.png');
       //ICONE UTILISATEUR MALE
        maleIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/utilisateurmale.png');
       //ICONE UTILISATEUR FEMALE
-       femaleIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/utilisateurfemale.png');
+       destinationIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/destination.png');
+      //ICONE DESTINATION
 
    }
   void _loadCurrentUser() {
@@ -183,7 +185,7 @@ void setCustomMapPin() async {
     List<Marker> allMarkers = []; 
  Widget _mapWidget() {
     return StreamBuilder(
-      stream: Firestore.instance.collection('groupe').document('1314').collection('Markers').snapshots(),
+      stream: Firestore.instance.collection('groupe').document('5672').collection('Markers').snapshots(),
       builder: (context, snapshot) {
         
         if (!snapshot.hasData) return Container(child : Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
@@ -270,7 +272,18 @@ void setCustomMapPin() async {
  
               ));
           }else{
-              allMarkers.add(new Marker(
+              if(icon=='destination'){
+               allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:destinationIcon,
+                   infoWindow: InfoWindow(
+                        title: 'Votre destination',
+                    ),
+              )); 
+              }else{
+                 allMarkers.add(new Marker(
               position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
@@ -279,6 +292,8 @@ void setCustomMapPin() async {
                 onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
  
               ));
+              }
+             
           }
           }
           }
@@ -302,11 +317,12 @@ Widget _eachUserMarker(){
         if (!snapshot.hasData) return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),); 
         for (int i = 0; i < snapshot.data.documents.length; i++) {
           if(allUsers.contains((snapshot.data.documents[i]['uid']).toString() ==null ?"uid": (snapshot.data.documents[i]['uid']).toString())){
+             print((snapshot.data.documents[i]['uid']).toString() ==null ?"uid": (snapshot.data.documents[i]['uid']).toString()); 
               allMarkers.add(new Marker(
               position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
-                   icon:femaleIcon,
+                   icon:maleIcon,
                      infoWindow: InfoWindow(
                         title: (snapshot.data.documents[i]['identifiant']).toString() ==null ?"user": (snapshot.data.documents[i]['identifiant']).toString(),
                         onTap:  ()=> _markerUserPressed((snapshot.data.documents[i]['uid']).toString() ==null ?null: (snapshot.data.documents[i]['uid']).toString()),
@@ -322,10 +338,12 @@ Widget _eachUserMarker(){
   
  Widget  userListeMarkers(){
     return   StreamBuilder(
-      stream: Firestore.instance.collection('groupe').document('1314').collection('ListeMembre').snapshots(),
+      stream: Firestore.instance.collection('groupe').document('5672').collection('ListeMembre').snapshots(),
       builder: (context, snapshot){
         if (!snapshot.hasData) return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
         for (int i = 0; i < snapshot.data.documents.length; i++) { 
+          print('userListeMarkers'); 
+          print(i); 
           allUsers.add((snapshot.data.documents[i]['user']).toString() ==null ?" ": (snapshot.data.documents[i]['user']).toString());              
         }  
     return  _eachUserMarker(); 
@@ -597,6 +615,7 @@ Widget map(){
         fontSize: 16.0
     );
   }
+  String pause="Planifiez votre pause"; 
 /*METHODES RECHERCHES ET AUTOCOMPLETE*/ 
 Future<Null> displayPrediction(Prediction p) async {
   if (p != null) {
@@ -607,7 +626,7 @@ Future<Null> displayPrediction(Prediction p) async {
     final coordinates = new Coordinates(lat, lng);
     List<Address> addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
     final first = addresses.first;
-    /*print("${first.featureName} : ${first.addressLine}");*/
+    pause= "${first.featureName} : ${first.addressLine}";
     _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: 
            LatLng(lat, lng),
@@ -763,6 +782,8 @@ Future<void> _handlePressButton() async {
               child: StreamBuilder<UserData>(
                   stream: DatabaseService(uid: user.uid).utilisateursDonnees,
                   builder: (context,snapshot){
+                    print('UID');
+                    print(user.uid); 
                     if(snapshot.hasData){
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
@@ -966,7 +987,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.departure_board,color: Color(0xFFFF5722),),
    trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','On a démarré!', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','On a démarré!', _current_user,_current_userId,null);
      },
      icon: Icon(
                         Icons.send,
@@ -990,7 +1011,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.directions_car,color: Color(0xFFFF5722),),
     trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Je suis en route !', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Je suis en route !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1009,7 +1030,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.arrow_drop_down_circle,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Je suis arrivé(e)', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Je suis arrivé(e)', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1028,7 +1049,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.help,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','J''ai besoin d''aide ! ', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','J''ai besoin d''aide ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1047,14 +1068,14 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.build,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {  
-    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('1314', "je suis en panne !", position.longitude, position.latitude, _current_userId, "image");
+    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('5672', "je suis en panne !", position.longitude, position.latitude, _current_userId, "image");
      allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_cle.toString()),
                    icon:BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
                 onTap:  ()=> _markerAlertPressed(_current_userId,"je suis en panne"),
               ));
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Je suis en panne ! ', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Je suis en panne ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1073,8 +1094,8 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.flash_on,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('1314', "Un accident!", position.longitude, position.latitude, _current_userId, "image");
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Un accident !', _current_user,_current_userId,null);
+    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('5672', "Un accident!", position.longitude, position.latitude, _current_userId, "image");
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Un accident !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1095,8 +1116,8 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
  trailing:  IconButton(onPressed:() async {     
  //  Future marquer_Alerte(String id, String text,Position position, String senderId, String icon ) async{
 
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Route endommagée ! ', _current_user,_current_userId,null);
-    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('1314', "Route endommagée  !", position.longitude, position.latitude, _current_userId, "image");
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Route endommagée ! ', _current_user,_current_userId,null);
+    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('5672', "Route endommagée  !", position.longitude, position.latitude, _current_userId, "image");
 
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1116,9 +1137,9 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.flag,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('1314', "Alerte barrage !", position.longitude, position.latitude, _current_userId, "image");
+    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('5672', "Alerte barrage !", position.longitude, position.latitude, _current_userId, "image");
 
-     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Alerte Barage ! ', _current_user,_current_userId,null);
+     ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'5672','Alerte Barage ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1138,7 +1159,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
    
    leading: Icon(Icons.router,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('1314', "Alerte radar!", position.longitude, position.latitude, _current_userId, "image");
+    CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('5672', "Alerte radar!", position.longitude, position.latitude, _current_userId, "image");
      ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),'Alerte radar !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1230,7 +1251,7 @@ void _onMessageButtonPressed(){
      Container( 
      padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
      child: StreamBuilder(
-     stream: Firestore.instance.collection('chat').document('1314').collection('messages').snapshots(),
+     stream: Firestore.instance.collection('chat').document('5672').collection('messages').snapshots(),
      builder: (context,snapshot){
      if (!snapshot.hasData) return const Text("aucun message",
       style: const TextStyle(
@@ -1788,8 +1809,8 @@ void creeGroupe(){
                           child: Column(
                 children: <Widget>[
                   SizedBox(height: 12,),
-                
-                    TextFormField(
+                    
+                  /*  TextFormField(
                       autofocus: false,
                       cursorColor: Colors.deepOrange,
                       obscureText: false,
@@ -1819,9 +1840,54 @@ void creeGroupe(){
                     
                   });
                 },
-                    ),
+                    ),*/
                   
-           
+            Material(
+                    elevation: 2.5,
+                    borderRadius: BorderRadius.circular(30.0),
+                    color: Colors.white,
+                    shadowColor: Colors.white,
+                     child: FlatButton(
+                       focusColor: Colors.white,
+                       highlightColor: Colors.white,
+                     onPressed:   _handlePressButton,
+
+                   
+                child: Container(
+                    alignment: Alignment.center,
+                    height: 50.0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Container(
+                              child: Row(
+                                children: <Widget>[
+                                
+                                  Text(
+                                    pause ==null ?'Position':pause,
+                                    style: TextStyle(
+                                        color: Colors.deepOrange,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                         Icon(
+                                    Icons.search,
+                                    size: 18.0,
+                                    color: Colors.deepOrange,
+                                  ),
+                      ],
+                    ),
+                ),
+                color: Colors.white,
+              ),
+                  ),
                   SizedBox(height: 12,),
                 
                   Material(
@@ -1982,7 +2048,7 @@ void _onMembreButtonPressed(){
      Container( 
      padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
      child: StreamBuilder(
-     stream: Firestore.instance.collection('groupe').document('1314').collection('ListeMembre').snapshots(),
+     stream: Firestore.instance.collection('groupe').document('5672').collection('ListeMembre').snapshots(),
      builder: (context,snapshot){
      if (!snapshot.hasData) return const Text("aucun membre",
 
@@ -2224,12 +2290,12 @@ _buildMemberlistItem2(BuildContext ctx,DocumentSnapshot document) {
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
                       return(  StreamBuilder<DocumentSnapshot>(
-    stream: provideDocumentFieldStream("groupe",'1314'),
+    stream: provideDocumentFieldStream("groupe",'5672'),
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.hasData) {
            Map<String, dynamic> documentAdmin = snapshot.data.data;
            if (documentAdmin['admin']==userData.identifiant){
-            list_suggestion(context, '1314');
+            list_suggestion(context, '5672');
            }
            }
     }));          
