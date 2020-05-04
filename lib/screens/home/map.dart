@@ -4,9 +4,13 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_placeholder_textlines/placeholder_lines.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:loading/indicator/ball_pulse_indicator.dart';
+import 'package:loading/loading.dart';
 import 'package:myapp/screens/home/camera.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/services/database.dart';
@@ -65,21 +69,54 @@ String text;
 FirebaseUser currentUser;
 Widget _child; 
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
-   BitmapDescriptor pinLocationIcon;
+   
+
 
   @override
   void initState() {
     setCustomMapPin();
-
     getPermission();
     super.initState();
     _loadCurrentUser();
 
   }
+  BitmapDescriptor pinLocationIcon;
+   BitmapDescriptor panneIcon;
+   BitmapDescriptor accidentIcon;
+   BitmapDescriptor animauxIcon;
+   BitmapDescriptor barrageIcon;
+   BitmapDescriptor aideIcon;
+   BitmapDescriptor pauseIcon;
+   BitmapDescriptor radarIcon;
+   BitmapDescriptor routeIcon;
+   BitmapDescriptor maleIcon;
+   BitmapDescriptor femaleIcon; 
+
 void setCustomMapPin() async {
       pinLocationIcon = await BitmapDescriptor.fromAssetImage(
       ImageConfiguration(size:Size(-12,-12)),
       'assets/jesuisenpanne.png');
+      //ICONE EN PANNE 
+       panneIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/jesuisenpanne.png');
+      //ICONE ACCIDENT
+       accidentIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/accident.png');
+      //ICONE ANIMAUX
+       animauxIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/animaux.png');
+      //ICONE BARRAGE
+       barrageIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)), 'assets/barrage.png');
+      //ICONE AIDE
+       aideIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/besoindaide.png');
+      //ICONDE PAUSE 
+       pauseIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/pause.png');
+      //ICONE RADAR
+       radarIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/radar.png');
+      //ICONE ROUTE
+       routeIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/jesuisenpanne.png');
+      //ICONE UTILISATEUR MALE
+       maleIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/utilisateurmale.png');
+      //ICONE UTILISATEUR FEMALE
+       femaleIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/utilisateurfemale.png');
+
    }
   void _loadCurrentUser() {
     FirebaseAuth.instance.currentUser().then((FirebaseUser user) {
@@ -148,9 +185,92 @@ void setCustomMapPin() async {
     return StreamBuilder(
       stream: Firestore.instance.collection('groupe').document('1314').collection('Markers').snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return Text('Loading maps.. Please Wait');
+        
+        if (!snapshot.hasData) return Container(child : Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
         for (int i = 0; i < snapshot.data.documents.length; i++) {
-         allMarkers.add(new Marker(
+          String icon= (snapshot.data.documents[i]['icon']).toString() ==null ?' ': (snapshot.data.documents[i]['icon']).toString();
+          print(icon); 
+          if(icon=='route'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:routeIcon,
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+ 
+              ));
+          }else{
+             if(icon=='radar'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:radarIcon,
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+ 
+              ));
+          }else{
+             if(icon=='pause'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:pauseIcon,
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+ 
+              ));
+          }else{
+              if(icon=='aide'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:aideIcon,
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+ 
+              ));
+          }else{
+             if(icon=='animaux'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:animauxIcon,
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+ 
+              ));
+          }else{
+              if(icon=='barrage'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:barrageIcon,
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+ 
+              ));
+          }else{
+            if(icon=='accident'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:accidentIcon,
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+ 
+              ));
+          }else{
+            if(icon=='panne'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:panneIcon,
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+ 
+              ));
+          }else{
+              allMarkers.add(new Marker(
               position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
@@ -159,14 +279,16 @@ void setCustomMapPin() async {
                 onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
  
               ));
+          }
+          }
+          }
+          }
+          }
+          }
+          }
+          }
         }  
-      allMarkers.add(
-       new      Marker(
-        markerId: MarkerId('home'),
-        position: LatLng(position.latitude,position.longitude),
-        infoWindow: InfoWindow(title: 'position actuelle'), 
-        icon:pinLocationIcon, 
-        ));
+      
         return userListeMarkers();    
       },
     );
@@ -177,18 +299,14 @@ Widget _eachUserMarker(){
      return StreamBuilder(
       stream: Firestore.instance.collection('utilisateur').snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return Text('Loading maps.. Please Wait');
+        if (!snapshot.hasData) return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),); 
         for (int i = 0; i < snapshot.data.documents.length; i++) {
-          print('data.documents.length'); 
-          print(i); 
-          print('uid'); 
-          print((snapshot.data.documents[i]['uid']).toString() ==null ?"uid": (snapshot.data.documents[i]['uid']).toString()); 
           if(allUsers.contains((snapshot.data.documents[i]['uid']).toString() ==null ?"uid": (snapshot.data.documents[i]['uid']).toString())){
               allMarkers.add(new Marker(
               position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
-                   icon:BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+                   icon:femaleIcon,
                      infoWindow: InfoWindow(
                         title: (snapshot.data.documents[i]['identifiant']).toString() ==null ?"user": (snapshot.data.documents[i]['identifiant']).toString(),
                         onTap:  ()=> _markerUserPressed((snapshot.data.documents[i]['uid']).toString() ==null ?null: (snapshot.data.documents[i]['uid']).toString()),
@@ -206,7 +324,7 @@ Widget _eachUserMarker(){
     return   StreamBuilder(
       stream: Firestore.instance.collection('groupe').document('1314').collection('ListeMembre').snapshots(),
       builder: (context, snapshot){
-        if (!snapshot.hasData) return Text('Loading users...');
+        if (!snapshot.hasData) return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
         for (int i = 0; i < snapshot.data.documents.length; i++) { 
           allUsers.add((snapshot.data.documents[i]['user']).toString() ==null ?" ": (snapshot.data.documents[i]['user']).toString());              
         }  
@@ -326,7 +444,7 @@ Widget map(){
        
       );
                     }else{
-                      return Text('Loading');
+                      return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
                     }
                   }
               ),
@@ -444,7 +562,13 @@ Widget map(){
        
       );
                     }else{
-                      return Text('Loading');
+                           
+                      return Column(
+                        children: <Widget>[
+                          SizedBox(height: 60,), 
+                          PlaceholderLines(count: 3, animate: true, color: Colors.grey,align: TextAlign.center, minOpacity: 0.2, maxOpacity: 0.4, ),
+                        ],
+                      );
                     }
                   }
               ),
@@ -480,6 +604,10 @@ Future<Null> displayPrediction(Prediction p) async {
     PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
     final lat = detail.result.geometry.location.lat;
     final lng = detail.result.geometry.location.lng;
+    final coordinates = new Coordinates(lat, lng);
+    List<Address> addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    final first = addresses.first;
+    /*print("${first.featureName} : ${first.addressLine}");*/
     _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: 
            LatLng(lat, lng),
@@ -487,7 +615,6 @@ Future<Null> displayPrediction(Prediction p) async {
     )));
   }
 }
-
 Future<void> _handlePressButton() async {
     // show input autocomplete with selected mode
     // then get the Prediction selected
@@ -521,7 +648,7 @@ Future<void> _handlePressButton() async {
 
       /*Bar*/
       appBar: AppBar(
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.deepOrange.withOpacity(0.7),
         elevation: 0.0,
         title: Text('Acceuil'),
 
@@ -623,7 +750,7 @@ Future<void> _handlePressButton() async {
             Expanded(
               flex: 1,
               child: SizedBox(
-                height:250,
+                height:200,
                 width: 250,
                 child: Image(
                   image: AssetImage('assets/avatar.png'),
@@ -643,7 +770,7 @@ Future<void> _handlePressButton() async {
                       return  Text(
                           userData.identifiant);
                     }else{
-                      return Text('Loading');
+                      return  Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
                     }
                   }
               ),
@@ -921,6 +1048,12 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
    leading: Icon(Icons.build,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {  
     CreationGroupeServises(uid: _cle.toString()).marquer_Alerte('1314', "je suis en panne !", position.longitude, position.latitude, _current_userId, "image");
+     allMarkers.add(new Marker(
+              position: new LatLng(position.latitude,position.longitude),
+                   markerId: MarkerId(_cle.toString()),
+                   icon:BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+                onTap:  ()=> _markerAlertPressed(_current_userId,"je suis en panne"),
+              ));
      ChatService(uid: _cle.toString() ).envoyer_mesg(/*_cle.toString()*/'1314','Je suis en panne ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1905,12 +2038,14 @@ void _onMembreButtonPressed(){
       }
 _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
         final user = Provider.of<User>(context);
+             
      return(  StreamBuilder<DocumentSnapshot>(
     stream: provideDocumentFieldStream("utilisateur",document['user']),
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.hasData) {
            Map<String, dynamic> documentFields = snapshot.data.data;
            return  ListTile(
+       
     title: Text(
                 documentFields['identifiant'],
                       style: const TextStyle(
@@ -1922,11 +2057,29 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
                       ),
                       textAlign: TextAlign.left                
                       ),
+      trailing: IconButton(icon: Icon(Icons.place,
+      color : const Color(0xff339899)), onPressed: ()=>{
+        _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: 
+        LatLng(documentFields['latitude'],documentFields['longitude'])))),
+      }),
      onTap: ()=> _afficherMembre(documentFields),
+    
+       
+
+
+
+
                       );
         }
     }
 )
+       
+       
+       
+       
+       
+       
+     
                   );
   }
   /*Affichage membre du groupe*/
@@ -2081,7 +2234,7 @@ _buildMemberlistItem2(BuildContext ctx,DocumentSnapshot document) {
            }
     }));          
                            }else{
-                      return Text('Loading');
+                      return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
                     }
                   }
               );

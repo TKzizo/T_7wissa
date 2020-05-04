@@ -43,7 +43,10 @@ dependencies:
   google_maps_webservice: ^0.0.16
   flutter_google_places: ^0.2.3
   camera: ^0.5.7+4
+  loading: ^1.0.2
   path_provider: ^1.6.5
+  geocoder: ^0.2.1
+  flutter_placeholder_textlines: ^1.0.4
   video_player: any
   image_picker : any
   share: any
