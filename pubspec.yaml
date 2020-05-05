@@ -50,6 +50,7 @@ dependencies:
   url_launcher: any
   firebase_core: any 
   get_it : any 
+  geocoder: ^0.2.1
 
 
 
