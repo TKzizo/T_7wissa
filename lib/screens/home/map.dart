@@ -69,7 +69,12 @@ String text;
 FirebaseUser currentUser;
 Widget _child; 
 String _img='';
-String _current_grp = null;
+String _current_grp = '10000000';
+String  _current_grp_adminID;
+String  _current_grp_admin;
+String _current_grp_destinaton;
+
+Map<String,dynamic> pass;
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
    
 
@@ -1509,12 +1514,35 @@ _onGroupButtonPressed(String currentUser){
         );
          
       }
+      afficher_alerte(){
+
+ showDialog(context: context, builder:(context){
+  return AlertDialog(
+  title : Text('Alerte'),
+  content: Text('vous n avez pas le droit de lancer cette fonctionalité '),
+  actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('OK'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
+
+  );
+ });
+
+ }
      _buildlistItem(BuildContext ctx,DocumentSnapshot document) {
+       DocumentReference ref = Firestore.instance.collection('groupe').document(_current_grp);
       return(  StreamBuilder<DocumentSnapshot>(
     stream: provideDocumentFieldStream("groupe",document['id']),
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasData) {
+        if ((snapshot.hasData)&& (document['id']!='10000000')) {
            Map<String, dynamic> documentFields = snapshot.data.data;
+           bool isSwitched = documentFields['statu'];
+
            return  ListTile(
     title:Row (
        
@@ -1554,17 +1582,46 @@ _onGroupButtonPressed(String currentUser){
                       ),
                       textAlign: TextAlign.left                
                       ),
-         trailing:    IconButton(onPressed:()=> _quittergroupe(document.documentID),
-                         icon: Icon(
-                        Icons.arrow_forward,
-                         color:  const Color(0xffff5722),
-                        ),
-                      
-                         ),
-                         onTap:(){
-                      _current_grp = document['id'];
-                         }, 
-                      ) ;  }})
+        trailing:    Column(
+           children: <Widget>[
+             Switch(
+            value: isSwitched,
+            onChanged: (value) {
+              setState(() {
+                isSwitched = value;
+                print(isSwitched);
+              });
+               ref.updateData({"statu": value});
+            },
+            activeTrackColor: Colors.lightGreenAccent,
+            activeColor: Colors.green,
+          ),
+             IconButton(onPressed:()=> _quittergroupe(document.documentID),
+                             icon: Icon(
+                            Icons.arrow_forward,
+                             color:  const Color(0xffff5722),
+                            ),
+                          
+                             ),
+           ],
+         ),
+                       onTap:(){
+                     String getid( String value){
+                              String h;
+                              Firestore.instance.collection("utilisateur")..where("identifiant" , isEqualTo: value ).getDocuments().then((val){
+                                   h = val.documents[0].data["uid"].toString();                       });
+                                   return h;
+                            }
+                      _current_grp = document['id'].toString();
+                     _current_grp_admin = document.data['admin'].toString();
+                     _current_grp_destinaton=document.data['destination'].toString();
+                     _current_grp_adminID = getid(_current_grp_admin);
+                      pass = document.data;
+                         },
+                      ) ;  }else{
+                        return SizedBox(height: 1,); 
+                      }
+                      })
       );
                     }
 _quittergroupe(docId) {
@@ -1733,7 +1790,7 @@ void creeGroupe(){
                 onPressed: () async {
                   if(_formKey.currentState.validate()){ 
                     int _id = random.nextInt(10000);
-                    CreationGroupeServises(uid: _id.toString() ).creerGroupe(_admin, lieu, _time, listMembre, nom);
+                    CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user, lieu, _time, listMembre, nom,_current_userId);
                   }
                 }
               ),
@@ -1748,7 +1805,119 @@ void creeGroupe(){
     );
     
   }
-   
+   changer_destination(){
+     DocumentReference ref = Firestore.instance.collection('groupe').document(_current_grp);
+   if(_current_userId==_current_grp_adminID){
+    showModalBottomSheet(context: context, builder:(context){
+     return Container(
+        color: const Color(0xff737373),
+       width: 360,
+      height: 535,
+      child:Container(
+      decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+      borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(30) ,
+          topRight:  const Radius.circular(30) ,
+        ),
+      ),
+      
+       child: Stack(children: [
+  // ✏️ Headline 6 
+  PositionedDirectional(
+    top: 35,
+    start: 38,
+    child: 
+        SizedBox(
+      width: 200,
+      height: 26,
+      child: Text(
+      "Changer destination",
+      style: const TextStyle(
+          color:  const Color(0xde204f6f),
+          fontWeight: FontWeight.w500,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 19.0
+      ),
+      textAlign: TextAlign.left                
+      )),
+  ),
+     
+     Container( 
+     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     child: Form(
+          key : _formKey,
+      child: Column( 
+        mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: 30.0),
+            
+           
+                    TextFormField(
+                      autofocus: false,
+                      cursorColor: Colors.deepOrange,
+                      obscureText: false,
+                      //TEXT
+                      style: TextStyle(
+                          color:  Colors.grey[900],
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 16.0
+                      ),
+                      //SHAPE
+                         
+                      decoration: InputDecoration(
+                          hintText: "Entrez une adresse ",
+                         suffixIcon: IconButton(
+                        icon: Icon(Icons.search, color: Colors.deepOrange,),
+                        onPressed:
+                          _handlePressButton,
+                        
+                        iconSize: 30.0),
+                      ),
+                      //Validation de l'entrée
+                      validator: (val) => val.isEmpty ? 'Entrez une adresse' : null,
+                       onChanged: (val) {
+                  setState(() {
+                    lieu = val;
+                    
+                  });})])),),
+       PositionedDirectional(
+    top: 300,
+    start: 275,
+    child: 
+        SizedBox(
+      
+      child:FloatingActionButton(onPressed:()=>{ if(_formKey.currentState.validate()){ 
+         
+    ref.updateData({"destination": lieu})         
+                    
+                  }},
+         child: Icon(Icons.change_history,
+         size: 40,
+         ),
+         backgroundColor: const Color(0xffff5722),
+         focusColor: Colors.white,
+         ),
+        ),
+  ), ]
+      )
+         
+          ),
+        
+          );
+          
+    
+        }
+        );
+         
+      }              
+       else{
+      afficher_alerte();
+
+ }
+  }
   void _onBreakConfirmationPressed(){
       showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -2160,7 +2329,7 @@ void onMembreButtonPressed(){
      Container( 
      padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
      child: StreamBuilder(
-     stream: Firestore.instance.collection('groupe').document('1314').collection('ListeMembre').snapshots(),
+     stream: Firestore.instance.collection('groupe').document(_current_grp).collection('ListeMembre').snapshots(),
      builder: (context,snapshot){
      if (!snapshot.hasData) return const Text("aucun membre",
 
@@ -2215,17 +2384,20 @@ void onMembreButtonPressed(){
                     if(snapshot.hasData){
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
+                      print('object');
+                      print(_current_grp);
                       return(  StreamBuilder<DocumentSnapshot>(
-    stream: provideDocumentFieldStream("groupe",'1314'),
+    stream: provideDocumentFieldStream("groupe",_current_grp),
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.hasData) {
            Map<String, dynamic> documentAdmin = snapshot.data.data;
-           print(documentAdmin['admin']);
+           print('object2');
+           print(documentAdmin['admin'].toString() ==null ?" ": documentAdmin['admin'].toString()         );
            print(userData.identifiant);
            
-           if (documentAdmin['admin']==userData.identifiant){
+           
           return
-          FloatingActionButton(heroTag: 'btn10',onPressed:()=> creatAlertDialog(context),
+          FloatingActionButton(heroTag: 'btn10',onPressed:()=> { if (documentAdmin['admin']==userData.identifiant){creatAlertDialog(context),} else {}},
          child: Icon(Icons.notification_important,
          size: 40,
          ),
@@ -2233,7 +2405,7 @@ void onMembreButtonPressed(){
          focusColor: Colors.white,
          );
         
-          }
+          
            } else return Container();
     }));          
                            }else{
@@ -2310,7 +2482,7 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
               height: 300.0, // Change as per your requirement
       width: double.maxFinite,
      child: StreamBuilder(
-     stream: Firestore.instance.collection('groupe').document('1314').collection('suggestions').snapshots(),
+     stream: Firestore.instance.collection('groupe').document(_current_grp).collection('suggestions').snapshots(),
      builder: (context,snapshot){
      if (!snapshot.hasData){ return const Text("aucune suggestion",
       style: const TextStyle(
@@ -2326,7 +2498,7 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
      itemExtent: 80.0,
      itemCount:snapshot.data.documents.length,
     itemBuilder: (ctx,index )=> (
-    buildSugglistItem(ctx,snapshot.data.documents[index],'1314')),
+    buildSugglistItem(ctx,snapshot.data.documents[index],_current_grp)),
       );}
      }
       ),
@@ -3007,8 +3179,6 @@ _accepterSugg(String docId,String grpID,String userID) {
             Firestore.instance.collection('groupe').document(grpID).collection('suggestions').document(docId).delete().catchError((e){
               print(e);});
           }                
-
-
 
     
 }

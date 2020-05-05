@@ -9,8 +9,8 @@ class CreationGroupeServises {
 //final databaseReference = Firestore.instance;
 final CollectionReference chatCollection = Firestore.instance.collection('chat');
 final CollectionReference groupeCollection = Firestore.instance.collection('groupe');
-
-  Future creerGroupe(String admin, String dist, String heure , List<dynamic> listMembre , String nom) async {
+final CollectionReference utilisateurCollection = Firestore.instance.collection('utilisateur');
+  Future creerGroupe(String admin, String dist, String heure , List<dynamic> listMembre , String nom,String adminID) async {
     try {
       groupeCollection.document(uid).collection('ListeMembre').document().setData({});
       groupeCollection.document(uid).collection('Markers').document().setData({});
@@ -24,6 +24,9 @@ final CollectionReference groupeCollection = Firestore.instance.collection('grou
         'nom':nom,
         'statu': true ,
         'uid' : this.uid,
+      });
+      utilisateurCollection.document(adminID).collection('ListeGroupe').document().setData({
+      'id': this.uid,
       });
       chatCollection.document(uid).collection('messages').document().setData({
         
