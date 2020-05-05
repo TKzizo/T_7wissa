@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:myapp/screens/home/camera.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/services/database.dart';
@@ -20,12 +19,12 @@ import 'package:myapp/services/chat.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'modifierProfil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:myapp/services/Usersearch.dart'; 
+import 'package:geocoder/geocoder.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -51,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String heure ='';
   String _current_user; 
   String _current_userId; 
-String _time = "Not set";
+  String _time = "Not set";
   Random random = new Random();
   List<dynamic> listMembre = null;
   String _admin = '';
@@ -61,11 +60,19 @@ String _time = "Not set";
   Position position;
   String searchAddr;
   double vitesse;
-String text; 
-FirebaseUser currentUser;
-Widget _child; 
-GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
-   BitmapDescriptor pinLocationIcon;
+  String text; 
+  FirebaseUser currentUser;
+  Widget _child; 
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
+  BitmapDescriptor pinLocationIcon;
+  String _current_grp_destinaton;
+  String  _current_grp_adminID;
+  String  _current_grp_admin;
+  Map<String,dynamic> pass;
+  String _current_grp;
+
+
+  
 
   @override
   void initState() {
@@ -163,6 +170,8 @@ void setMarkersfromFirebase(){
       },
     );
 }
+
+
 /* Widget _mapWidget() {
     return StreamBuilder(
       stream: Firestore.instance.collection('groupe').document('838').collection('Markers').snapshots(),
@@ -213,6 +222,10 @@ Future<Null> displayPrediction(Prediction p) async {
     PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
     final lat = detail.result.geometry.location.lat;
     final lng = detail.result.geometry.location.lng;
+    final coordinates = new Coordinates(lat, lng);
+    List<Address> addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    final first = addresses.first;
+    /*print("${first.featureName} : ${first.addressLine}");*/
     _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: 
            LatLng(lat, lng),
@@ -220,6 +233,8 @@ Future<Null> displayPrediction(Prediction p) async {
     )));
   }
 }
+
+ 
 
 Future<void> _handlePressButton() async {
     // show input autocomplete with selected mode
@@ -234,6 +249,8 @@ Future<void> _handlePressButton() async {
     displayPrediction(p);
   }
 /*METHODES RECHERCHES ET AUTOCOMPLETE*/ 
+
+
 
  //createur de marker 
   setMarkers() {
@@ -392,7 +409,7 @@ allMarkers.add(
                      height: 40.0,
                       child: FloatingActionButton(
                       onPressed: () {
-                        list_invitations(context, _current_userId); 
+                        changer_destination(); 
                       },
                       child: Icon(
                        Icons.place,
@@ -1068,6 +1085,8 @@ void _onGroupButtonPressed(){
          
       }
      _buildlistItem(BuildContext ctx,DocumentSnapshot document) {
+       DocumentReference ref = Firestore.instance.collection('groupe').document(_current_grp);
+       bool isSwitched = documentFields['statu'];
      return(ListTile(
     title:Row (
        
@@ -1107,14 +1126,43 @@ void _onGroupButtonPressed(){
                       ),
                       textAlign: TextAlign.left                
                       ),
-         trailing:    IconButton(onPressed:()=> _quittergroupe(document.documentID),
-                         icon: Icon(
-                        Icons.arrow_forward,
-                         color:  const Color(0xffff5722),
-                        ),
-                      
-                         ),
-                         onTap:null, 
+       trailing:    Column(
+           children: <Widget>[
+             Switch(
+            value: isSwitched,
+            onChanged: (value) {
+              setState(() {
+                isSwitched = value;
+                print(isSwitched);
+              });
+               ref.updateData({"statu": value});
+            },
+            activeTrackColor: Colors.lightGreenAccent,
+            activeColor: Colors.green,
+          ),
+             IconButton(onPressed:()=> _quittergroupe(document.documentID),
+                             icon: Icon(
+                            Icons.arrow_forward,
+                             color:  const Color(0xffff5722),
+                            ),
+                          
+                             ),
+           ],
+         ),
+                         onTap:(){
+                     String getid( String value){
+                              String h;
+                              Firestore.instance.collection("utilisateur")..where("identifiant" , isEqualTo: value ).getDocuments().then((val){
+                                   h = val.documents[0].data["uid"].toString();                       });
+                                   return h;
+                            }
+                      _current_grp = document['id'].toString();
+                     _current_grp_admin = document.data['admin'].toString();
+                     _current_grp_destinaton=document.data['destination'];
+                     _current_grp_adminID = getid(_current_grp_admin);
+                     _current_grp_destinaton=document.data['destination'].toString();
+                      pass = document.data;
+                         }, 
                       )   
                   );
                     }
@@ -1675,7 +1723,7 @@ void _onMembreButtonPressed(){
      itemCount:snapshot.data.documents.length,
     itemBuilder: (ctx,index )=> (
       
-    _buildMemberlistItem(ctx,snapshot.data.documents[index])),
+    _buildMemberlistItem3(ctx,snapshot.data.documents[index])),
       );
     
      }
@@ -1728,6 +1776,11 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
                       ),
                       textAlign: TextAlign.left                
                       ),
+      trailing: IconButton(icon: Icon(Icons.place,
+      color : const Color(0xff339899)), onPressed: ()=>{
+        _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: 
+        LatLng(documentFields['latitude'],documentFields['longitude'])))),
+      }),
      onTap: ()=> _afficherMembre(documentFields),
                       );
         }
@@ -2376,9 +2429,242 @@ void _onParametrePressed(){
     }
      );
 }
+creatAlertDialog( BuildContext context){
+ return showDialog(context: context, builder:(context){
+  return AlertDialog(
+  title : Text('Suggestions'),
+  content: Container(
+              padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     child: StreamBuilder(
+     stream: Firestore.instance.collection('groupe').document('1314').collection('suggestions').snapshots(),
+     builder: (context,snapshot){
+     if (!snapshot.hasData) return const Text("aucune suggestion",
+      style: const TextStyle(
+      color:  const Color(0xff3d3d3d),
+      fontWeight: FontWeight.w400,
+      fontFamily: "Roboto",
+      fontStyle:  FontStyle.normal,
+      fontSize: 17.0
+  ),
+  textAlign: TextAlign.left 
+     );
+   return  ListView.builder(
+     itemExtent: 80.0,
+     itemCount:snapshot.data.documents.length,
+    itemBuilder: (ctx,index )=> (
+    buildSugglistItem(ctx,snapshot.data.documents[index],'1314')),
+      );
+     }
+      )
+      
+              
+       ),
+  actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('Ignorer'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
 
+  );
+ });
+
+ }
+ afficher_alerte(){
+
+ showDialog(context: context, builder:(context){
+  return AlertDialog(
+  title : Text('Alerte'),
+  content: Text('vous n avez pas le droit de lancer cette fonctionalité '),
+  actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('OK'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
+
+  );
+ });
+
+ }
+
+ 
                   
-                  
+  _buildMemberlistItem3(BuildContext ctx,DocumentSnapshot document) {
+        final user = Provider.of<User>(context);
+         return StreamBuilder<UserData>(
+                  stream: DatabaseService(uid: user.uid).utilisateursDonnees,
+                  builder: (context,snapshot){
+                    if(snapshot.hasData){
+                      UserData userData=snapshot.data;
+                      print(userData.identifiant);
+                      return(  StreamBuilder<DocumentSnapshot>(
+    stream: provideDocumentFieldStream("groupe",'1314'),
+    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasData) {
+           Map<String, dynamic> documentAdmin = snapshot.data.data;
+           print(documentAdmin['admin']);
+           print(userData.identifiant);
+           
+           if (documentAdmin['admin']==userData.identifiant){
+          
+           return Container(
+             child: MaterialButton(
+               elevation: 5.0,
+               child: Text('press'),
+               onPressed:()=>creatAlertDialog(context),),
+           );}
+           } else return Container();
+    }));          
+                           }else{
+                      return Text('Loading');
+                    }
+                  }
+              );
+     /*return(  StreamBuilder<DocumentSnapshot>(
+    stream: provideDocumentFieldStream("utilisateur",document['user']),
+    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasData) {
+           Map<String, dynamic> documentFields = snapshot.data.data;
+           return  ListTile(
+    title: Text(
+                documentFields['identifiant'],
+                      style: const TextStyle(
+                          color:  const Color(0xde000000),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left                
+                      ),
+     onTap: ()=> _afficherMembre(documentFields),
+                      );
+        }
+    }
+)
+                  );*/
+  }  
+
+  changer_destination(){
+     DocumentReference ref = Firestore.instance.collection('groupe').document(_current_grp);
+   if(_current_userId==_current_grp_adminID){
+    showModalBottomSheet(context: context, builder:(context){
+     return Container(
+        color: const Color(0xff737373),
+       width: 360,
+      height: 535,
+      child:Container(
+      decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+      borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(30) ,
+          topRight:  const Radius.circular(30) ,
+        ),
+      ),
+      
+       child: Stack(children: [
+  // ✏️ Headline 6 
+  PositionedDirectional(
+    top: 35,
+    start: 38,
+    child: 
+        SizedBox(
+      width: 200,
+      height: 26,
+      child: Text(
+      "Changer destination",
+      style: const TextStyle(
+          color:  const Color(0xde204f6f),
+          fontWeight: FontWeight.w500,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 19.0
+      ),
+      textAlign: TextAlign.left                
+      )),
+  ),
+     
+     Container( 
+     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     child: Form(
+          key : _formKey,
+      child: Column( 
+        mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: 30.0),
+            
+           
+                    TextFormField(
+                      autofocus: false,
+                      cursorColor: Colors.deepOrange,
+                      obscureText: false,
+                      //TEXT
+                      style: TextStyle(
+                          color:  Colors.grey[900],
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 16.0
+                      ),
+                      //SHAPE
+                         
+                      decoration: InputDecoration(
+                          hintText: "Entrez une adresse ",
+                         suffixIcon: IconButton(
+                        icon: Icon(Icons.search, color: Colors.deepOrange,),
+                        onPressed:
+                          _handlePressButton,
+                        
+                        iconSize: 30.0),
+                      ),
+                      //Validation de l'entrée
+                      validator: (val) => val.isEmpty ? 'Entrez une adresse' : null,
+                       onChanged: (val) {
+                  setState(() {
+                    lieu = val;
+                    
+                  });})])),),
+       PositionedDirectional(
+    top: 300,
+    start: 275,
+    child: 
+        SizedBox(
+      
+      child:FloatingActionButton(onPressed:()=>{ if(_formKey.currentState.validate()){ 
+         
+    ref.updateData({"destination": lieu})         
+                    
+                  }},
+         child: Icon(Icons.change_history,
+         size: 40,
+         ),
+         backgroundColor: const Color(0xffff5722),
+         focusColor: Colors.white,
+         ),
+        ),
+  ), ]
+      )
+         
+          ),
+        
+          );
+          
+    
+        }
+        );
+         
+      }              
+       else{
+      afficher_alerte();
+
+ }
+}            
 
 
 
