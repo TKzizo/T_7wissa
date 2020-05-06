@@ -16,12 +16,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class ImageCapture extends StatefulWidget {
+
+  final String groupeID;
+  ImageCapture({this.groupeID});
+  
  @override
-  createState() => _ImageCaptureState();
+  createState() => _ImageCaptureState(groupeID: this.groupeID);
+  
     
    
 }
  class _ImageCaptureState extends State<ImageCapture> {
+   final String groupeID;
+  _ImageCaptureState({this.groupeID});
  File _imageFile;
 Future<void> _pickImage(ImageSource source)async{
  File selected = await ImagePicker.pickImage(source: source);
@@ -76,7 +83,7 @@ void _clear(){
          child: Icon(Icons.refresh)),
      ],
    ),
-   Uploader(file:_imageFile)
+   Uploader(file:_imageFile,groupeID: groupeID,)
 
 
   ]
@@ -90,11 +97,16 @@ void _clear(){
   }
  }
  class Uploader extends StatefulWidget{
+   final String groupeID ;
+   
+
   final File file;
-   Uploader({Key key,this.file }):super(key : key);
-  createState()=>_UploaderState();
+   Uploader({Key key,this.file,this.groupeID }):super(key : key);
+  createState()=>_UploaderState(groupeID: groupeID);
  }
  class _UploaderState extends State<Uploader>{
+   final String groupeID ;
+   _UploaderState({this.groupeID});
   final FirebaseStorage _storage = FirebaseStorage(
     storageBucket: 'gs://myapp-4df98.appspot.com'
   );
@@ -142,7 +154,7 @@ void _clear(){
 
     // Get url from the image bucket
     String url = await _startUpLoad();
-    String _cle ='1314';
+    
     // Hide loading
     final user = Provider.of<User>(context);
      String _current_user; 
@@ -164,7 +176,7 @@ void _clear(){
                     }
                   });
    /* imageUploadProvider.setToIdle();*/
-    ChatService(uid: _cle.toString() ).envoyer_mesg(_cle.toString(),null, _current_user,_current_userId,url);
+    ChatService(uid: groupeID.toString() ).envoyer_mesg(groupeID.toString(),null, _current_user,_current_userId,url);
     
    
   }

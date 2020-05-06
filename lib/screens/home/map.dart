@@ -30,7 +30,9 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:myapp/services/Usersearch.dart'; 
+import 'package:myapp/services/Usersearch.dart';
+
+import 'page_aide.dart'; 
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -55,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String heure ='';
   String _current_user; 
   String _current_userId; 
+  String destination="Votre destination"; 
 String _time = "Not set";
   Random random = new Random();
   List<dynamic> listMembre = null;
@@ -638,6 +641,8 @@ Future<Null> displayPrediction(Prediction p) async {
     List<Address> addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
     final first = addresses.first;
     pause= "${first.featureName} : ${first.addressLine}";
+    destination= "${first.featureName} : ${first.addressLine}";
+
     _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       target: 
            LatLng(lat, lng),
@@ -699,7 +704,7 @@ Future<void> _handlePressButton() async {
                       
                       UserData userData=snapshot.data;
                       _img = userData.image_url;
-                      print(userData.identifiant);
+                      _current_user=userData.identifiant; 
                       print(_img);
 
                       return  Text(
@@ -774,7 +779,8 @@ Future<void> _handlePressButton() async {
                       child: FloatingActionButton(
                         heroTag: 'btn5',
                       onPressed: () {
-                        list_invitations(context, _current_userId); 
+                        //list_invitations(context, _current_userId); 
+                        changer_destination();
                       },
                       child: Icon(
                        Icons.place,
@@ -910,7 +916,11 @@ Future<void> _handlePressButton() async {
                   leading: Icon(Icons.info,color: Colors.greenAccent, ),
                   title: Text("Aide"),
                   onTap: () {
-                    Navigator.of(context).pop();
+                   Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>  HelpPage()),
+                      );
+
                   },
                 ),
               
@@ -952,7 +962,7 @@ Future<void> _handlePressButton() async {
 
             //ajouter l'utilisateur dans la liste des membres du groupe
      Firestore.instance.collection('groupe').document(grpID).collection('ListeMembre').document().setData({
-              'id' : userID,
+              'user' : userID,
             }).catchError((e){print(e);});       
             //ajouter le groupe dans la liste des groupes de l'utilistateur
             Firestore.instance.collection('utilisateur').document(userID).collection('ListeGroupe').document().setData({
@@ -991,7 +1001,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
      subtitle :   Text(
                        document['sender'].toString(),
                       style: const TextStyle(
-                          color:  const Color(0xde3d3d3d),
+                          color:  Colors.teal,
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
@@ -1085,7 +1095,8 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.departure_board,color: Color(0xFFFF5722),),
    trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'On a démarré!', _current_user,_current_userId,null);
+     print(_current_user);
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'On a démarré!', _current_user,_current_userId,null);
      },
      icon: Icon(
                         Icons.send,
@@ -1146,8 +1157,16 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       textAlign: TextAlign.left                
       ),
    leading: Icon(Icons.help,color: Color(0xFFFF5722),),
- trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'J''ai besoin d''aide ! ', _current_user,_current_userId,null);
+ trailing:  IconButton(onPressed:() async { 
+   CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "j'ai besoin d'aide !", position.longitude, position.latitude, _current_userId, "aide");
+     allMarkers.add(new Marker(
+              position: new LatLng(position.latitude,position.longitude),
+                   markerId: MarkerId(_current_grp.toString()),
+                   icon: aideIcon,
+                onTap:  ()=> _markerAlertPressed(_current_userId,"j'ai besoin d'aide ! "),
+              ));     
+              _child=_mapWidget();
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'J''ai besoin d''aide ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1166,14 +1185,15 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.build,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {  
-    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "je suis en panne !", position.longitude, position.latitude, _current_userId, "image");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "je suis en panne !", position.longitude, position.latitude, _current_userId, "panne");
      allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
-                   icon:BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+                   icon:panneIcon,
                 onTap:  ()=> _markerAlertPressed(_current_userId,"je suis en panne"),
               ));
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Je suis en panne ! ', _current_user,_current_userId,null);
+    _child=_mapWidget();
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Je suis en panne ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1192,7 +1212,14 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.flash_on,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Un accident!", position.longitude, position.latitude, _current_userId, "image");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Un accident!", position.longitude, position.latitude, _current_userId, "accident");
+    allMarkers.add(new Marker(
+              position: new LatLng(position.latitude,position.longitude),
+                   markerId: MarkerId(_current_grp.toString()),
+                   icon:accidentIcon,
+                onTap:  ()=> _markerAlertPressed(_current_userId,"accident"),
+              ));
+    _child=_mapWidget();
      ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Un accident !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1215,7 +1242,14 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
  //  Future marquer_Alerte(String id, String text,Position position, String senderId, String icon ) async{
 
      ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Route endommagée ! ', _current_user,_current_userId,null);
-    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Route endommagée  !", position.longitude, position.latitude, _current_userId, "image");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Route endommagée  !", position.longitude, position.latitude, _current_userId, "route");
+    allMarkers.add(new Marker(
+              position: new LatLng(position.latitude,position.longitude),
+                   markerId: MarkerId(_current_grp.toString()),
+                   icon:routeIcon,
+                onTap:  ()=> _markerAlertPressed(_current_userId,"Route endommagée"),
+              ));
+    _child=_mapWidget();
 
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1235,7 +1269,14 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       ),
    leading: Icon(Icons.flag,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte barrage !", position.longitude, position.latitude, _current_userId, "image");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte barrage !", position.longitude, position.latitude, _current_userId, "barrage");
+    allMarkers.add(new Marker(
+              position: new LatLng(position.latitude,position.longitude),
+                   markerId: MarkerId(_current_grp.toString()),
+                   icon:barrageIcon,
+                onTap:  ()=> _markerAlertPressed(_current_userId,"Alerte barrage"),
+              ));
+    _child=_mapWidget();
 
      ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Alerte Barage ! ', _current_user,_current_userId,null);
      },
@@ -1257,7 +1298,14 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
    
    leading: Icon(Icons.router,color: Color(0xFFFF5722),),
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte radar!", position.longitude, position.latitude, _current_userId, "image");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte radar!", position.longitude, position.latitude, _current_userId, "radar");
+    allMarkers.add(new Marker(
+              position: new LatLng(position.latitude,position.longitude),
+                   markerId: MarkerId(_current_grp.toString()),
+                   icon:radarIcon,
+                onTap:  ()=> _markerAlertPressed(_current_userId,"Alerte radar"),
+              ));
+    _child=_mapWidget();
      ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp.toString(),'Alerte radar !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1392,7 +1440,7 @@ void _onMessageButtonPressed(String currentGroupe){
     
                           Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) =>  ImageCapture()),
+                        MaterialPageRoute(builder: (context) =>  ImageCapture(groupeID: _current_grp)),
                       );})),
                  onChanged: (val) {
                    
@@ -1549,29 +1597,25 @@ _onGroupButtonPressed(String currentUser){
         crossAxisAlignment: CrossAxisAlignment.start,
        
         children : <Widget>[
-       Text(
+       Column(
+         mainAxisAlignment: MainAxisAlignment.start,
+         children: <Widget>[
+
+           Text(
       documentFields['nom'],
       style: const TextStyle(
-          color:  const Color(0xff3d3d3d),
-          fontWeight: FontWeight.w400,
-          fontFamily: "Roboto",
-          fontStyle:  FontStyle.normal,
-          fontSize: 17.0
+              color:  const Color(0xff3d3d3d),
+              fontWeight: FontWeight.w400,
+              fontFamily: "Roboto",
+              fontStyle:  FontStyle.normal,
+              fontSize: 17.0
       ),
       textAlign: TextAlign.left                
       ),
-      Spacer(flex:1,),
-     Text(  "à : "+ documentFields['destination'],
-                      style: const TextStyle(
-                          color:  const Color(0xff52bf90),
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left              
-                      ),]),
-     subtitle :   Text(
+      
+     SizedBox(
+      height: 58,
+      child : Text(
                       "Admin : "+ documentFields['admin'],
                       style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
@@ -1581,21 +1625,69 @@ _onGroupButtonPressed(String currentUser){
                           fontSize: 14.0
                       ),
                       textAlign: TextAlign.left                
+                      ),),
+         ],
+       ),
+      Spacer(flex:1,),
+      Column (
+        children: <Widget>[ 
+
+     Text(  "à : "+ documentFields['destination'],
+                      style: const TextStyle(
+                          color:  const Color(0xff52bf90),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
                       ),
-        trailing:    Column(
-           children: <Widget>[
-             Switch(
+                      textAlign: TextAlign.left              
+                      ),
+                      Switch(
             value: isSwitched,
             onChanged: (value) {
+              if (_current_grp_adminID == _current_userId){
               setState(() {
                 isSwitched = value;
                 print(isSwitched);
+                
               });
-               ref.updateData({"statu": value});
+               ref.updateData({"statu": isSwitched});} else afficher_alerte();
             },
             activeTrackColor: Colors.lightGreenAccent,
             activeColor: Colors.green,
           ),
+                      ],),
+                      
+                      ]),
+
+     /*subtitle :   Text(
+                      "Admin : "+ documentFields['admin'],
+                      style: const TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left                
+                      ),*/
+        trailing:    Column(
+          
+           children: <Widget>[
+             /*Switch(
+            value: isSwitched,
+            onChanged: (value) {
+              if (_current_grp_adminID == _current_userId){
+              setState(() {
+                isSwitched = value;
+                print(isSwitched);
+                
+              });
+               ref.updateData({"statu": isSwitched});} else afficher_alerte();
+            },
+            activeTrackColor: Colors.lightGreenAccent,
+            activeColor: Colors.green,
+          ),*/
              IconButton(onPressed:()=> _quittergroupe(document.documentID),
                              icon: Icon(
                             Icons.arrow_forward,
@@ -1610,9 +1702,12 @@ _onGroupButtonPressed(String currentUser){
                               String h;
                               Firestore.instance.collection("utilisateur")..where("identifiant" , isEqualTo: value ).getDocuments().then((val){
                                    h = val.documents[0].data["uid"].toString();                       });
+                                   print('h');
+                                   print(h);print('h');
                                    return h;
                             }
-                      _current_grp = document['id'].toString();
+                      _current_grp = document['id'].toString(); 
+                      print(_current_grp);
                      _current_grp_admin = document.data['admin'].toString();
                      _current_grp_destinaton=document.data['destination'].toString();
                      _current_grp_adminID = getid(_current_grp_admin);
@@ -1634,8 +1729,11 @@ _quittergroupe(docId) {
               print('supp');*/
             }
 void creeGroupe(){
+  int _id = random.nextInt(10000);
     showModalBottomSheet(context: context, builder:(context){
+        
      return Container(
+
         color: const Color(0xff737373),
        width: 360,
         height: 600,
@@ -1665,38 +1763,52 @@ void creeGroupe(){
                 },
               ),
               SizedBox(height: 15.0),
-           
-                    TextFormField(
-                      autofocus: false,
-                      cursorColor: Colors.deepOrange,
-                      obscureText: false,
-                      //TEXT
-                      style: TextStyle(
-                          color:  Colors.grey[900],
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 16.0
-                      ),
-                      //SHAPE
-                         
-                      decoration: InputDecoration(
-                          hintText: "Entrez une adresse ",
-                         suffixIcon: IconButton(
-                        icon: Icon(Icons.search, color: Colors.deepOrange,),
-                        onPressed:
-                          _handlePressButton,
-                        
-                        iconSize: 30.0),
-                      ),
-                      //Validation de l'entrée
-                      validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
-                       onChanged: (val) {
-                  setState(() {
-                    lieu = val;
-                    
-                  });
-                },
+            Material(
+                    elevation: 2.5,
+                    borderRadius: BorderRadius.circular(30.0),
+                    color: Colors.white,
+                    shadowColor: Colors.white,
+                     child: FlatButton(
+                       focusColor: Colors.white,
+                       highlightColor: Colors.white,
+                     onPressed:   _handlePressButton,
+
+                   
+                child: Container(
+                    alignment: Alignment.center,
+                    height: 50.0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Container(
+                              child: Row(
+                                children: <Widget>[
+                                
+                                  Text(
+                                    destination ==null ?'Destination':destination,
+                                    style: TextStyle(
+                                        color: Colors.deepOrange,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                         Icon(
+                                    Icons.search,
+                                    size: 18.0,
+                                    color: Colors.deepOrange,
+                                  ),
+                      ],
                     ),
+                ),
+                color: Colors.white,
+              ),
+                  ),
               SizedBox(height: 15.0),
               /*Heure de depart*/ 
                Material(
@@ -1764,6 +1876,7 @@ void creeGroupe(){
                    FlatButton.icon(
                      icon: Icon(Icons.add_circle,color: Color(0xffff5722), size: 40,),
                      label: Text("Ajoutez les membres"),
+                     
                      onPressed: () => showSearch(context: context, delegate: UserSeach())
                     ),
                   ],      
@@ -1777,7 +1890,7 @@ void creeGroupe(){
                 minWidth: 174,
                 height: 36,
                 child: 
-                Text("Crée le groupe",
+                Text("Créer le groupe",
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                       color:  const Color(0xffffffff),
@@ -1789,8 +1902,8 @@ void creeGroupe(){
                 ),
                 onPressed: () async {
                   if(_formKey.currentState.validate()){ 
-                    int _id = random.nextInt(10000);
-                    CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user, lieu, _time, listMembre, nom,_current_userId);
+                  
+                    CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user,destination, _time, listMembre, nom,_current_userId);
                   }
                 }
               ),
@@ -1807,6 +1920,8 @@ void creeGroupe(){
   }
    changer_destination(){
      DocumentReference ref = Firestore.instance.collection('groupe').document(_current_grp);
+     print(_current_userId);
+     print(_current_grp_adminID);
    if(_current_userId==_current_grp_adminID){
     showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -2089,40 +2204,7 @@ void creeGroupe(){
             child:SingleChildScrollView(
                           child: Column(
                 children: <Widget>[
-                  SizedBox(height: 12,),
-                    
-                  /*  TextFormField(
-                      autofocus: false,
-                      cursorColor: Colors.deepOrange,
-                      obscureText: false,
-                      //TEXT
-                      style: TextStyle(
-                          color:  Colors.grey[900],
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 16.0
-                      ),
-                      //SHAPE
-                         
-                      decoration: InputDecoration(
-                          hintText: "Entrez une adresse ",
-                         suffixIcon: IconButton(
-                        icon: Icon(Icons.search, color: Colors.deepOrange,),
-                        onPressed:
-                          _handlePressButton,
-                        
-                        iconSize: 30.0),
-                      ),
-                      //Validation de l'entrée
-                      validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
-                       onChanged: (val) {
-                  setState(() {
-                    searchAddr = val;
-                    
-                  });
-                },
-                    ),*/
-                  
+                  SizedBox(height: 12,),       
             Material(
                     elevation: 2.5,
                     borderRadius: BorderRadius.circular(30.0),
@@ -2397,7 +2479,7 @@ void onMembreButtonPressed(){
            
            
           return
-          FloatingActionButton(heroTag: 'btn10',onPressed:()=> { if (documentAdmin['admin']==userData.identifiant){creatAlertDialog(context),} else {}},
+          FloatingActionButton(heroTag: 'btn10',onPressed:()=> { if (documentAdmin['admin']==userData.identifiant){creatAlertDialog(context),} else afficher_alerte(),},
          child: Icon(Icons.notification_important,
          size: 40,
          ),
@@ -2432,7 +2514,7 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
      return(  StreamBuilder<DocumentSnapshot>(
     stream: provideDocumentFieldStream("utilisateur",document['user']),
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasData) {
+        if ((snapshot.hasData)&&(document['user']!='membreDefaut')) {
            Map<String, dynamic> documentFields = snapshot.data.data;
            return  ListTile(
        
@@ -2461,6 +2543,8 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
 
 
                       );
+        }else{
+          return Container();
         }
     }
 )
@@ -3115,7 +3199,7 @@ void list_invitations(BuildContext context, String userID){
                  
 buildSugglistItem(BuildContext ctx,DocumentSnapshot document,String idGroup) {
        return(  StreamBuilder<DocumentSnapshot>(
-    stream: provideDocumentFieldStream("utilisateur",document['id']),
+    stream: provideDocumentFieldStream("utilisateur",document['user']),
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.hasData) {
            Map<String, dynamic> documentFields = snapshot.data.data;

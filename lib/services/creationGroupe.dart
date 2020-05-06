@@ -12,7 +12,9 @@ final CollectionReference groupeCollection = Firestore.instance.collection('grou
 final CollectionReference utilisateurCollection = Firestore.instance.collection('utilisateur');
   Future creerGroupe(String admin, String dist, String heure , List<dynamic> listMembre , String nom,String adminID) async {
     try {
-      groupeCollection.document(uid).collection('ListeMembre').document().setData({});
+      groupeCollection.document(uid).collection('ListeMembre').document('zzzzzzzzzzzzzz').setData({
+        'user': 'membreDefaut', 
+      });
       groupeCollection.document(uid).collection('Markers').document().setData({});
 
      groupeCollection.document(uid).setData
