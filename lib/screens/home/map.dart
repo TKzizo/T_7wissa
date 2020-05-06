@@ -194,6 +194,7 @@ void setCustomMapPin() async {
   }
     List<Marker> allMarkers = []; 
  Widget _mapWidget() {
+
     return StreamBuilder(
       stream: Firestore.instance.collection('groupe').document(_current_grp).collection('Markers').snapshots(),
       builder: (context, snapshot) {
@@ -297,7 +298,7 @@ void setCustomMapPin() async {
               position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
-                   icon:BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
+                   icon:maleIcon,
                  
                 onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
  
@@ -341,7 +342,13 @@ Widget _eachUserMarker(){
           }
          
         }  
-        return map();    
+        return GoogleMap(
+                markers: Set.from(allMarkers),
+                initialCameraPosition: CameraPosition(
+                target: LatLng(position.latitude,position.longitude),
+                zoom: 12.0),
+                onMapCreated: (GoogleMapController controller) {_controller = controller; },
+                );    
       },
     );
 }
@@ -706,6 +713,7 @@ Future<void> _handlePressButton() async {
                       _img = userData.image_url;
                       _current_user=userData.identifiant; 
                       print(_img);
+                      updateuserLocation(_current_userId);
 
                       return  Text(
                           '');
@@ -1165,7 +1173,10 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                    icon: aideIcon,
                 onTap:  ()=> _markerAlertPressed(_current_userId,"j'ai besoin d'aide ! "),
               ));     
-              _child=_mapWidget();
+              setState(() {
+                 _child=_mapWidget();
+              });
+             
      ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'J''ai besoin d''aide ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1192,7 +1203,10 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                    icon:panneIcon,
                 onTap:  ()=> _markerAlertPressed(_current_userId,"je suis en panne"),
               ));
-    _child=_mapWidget();
+               setState(() {
+                 _child=_mapWidget();
+              });
+              
      ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Je suis en panne ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1219,7 +1233,9 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                    icon:accidentIcon,
                 onTap:  ()=> _markerAlertPressed(_current_userId,"accident"),
               ));
-    _child=_mapWidget();
+               setState(() {
+                 _child=_mapWidget();
+              });
      ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Un accident !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1249,8 +1265,9 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                    icon:routeIcon,
                 onTap:  ()=> _markerAlertPressed(_current_userId,"Route endommagée"),
               ));
-    _child=_mapWidget();
-
+ setState(() {
+                 _child=_mapWidget();
+              });
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1276,8 +1293,9 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                    icon:barrageIcon,
                 onTap:  ()=> _markerAlertPressed(_current_userId,"Alerte barrage"),
               ));
-    _child=_mapWidget();
-
+ setState(() {
+                 _child=_mapWidget();
+              });
      ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Alerte Barage ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1305,7 +1323,9 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                    icon:radarIcon,
                 onTap:  ()=> _markerAlertPressed(_current_userId,"Alerte radar"),
               ));
-    _child=_mapWidget();
+     setState(() {
+                 _child=_mapWidget();
+              });
      ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp.toString(),'Alerte radar !', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
@@ -1632,16 +1652,20 @@ _onGroupButtonPressed(String currentUser){
       Column (
         children: <Widget>[ 
 
-     Text(  "à : "+ documentFields['destination'],
-                      style: const TextStyle(
-                          color:  const Color(0xff52bf90),
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left              
-                      ),
+     SizedBox(
+       width: 70, 
+       height: 30,
+            child: Text(  "à : "+ documentFields['destination'],
+                        style: const TextStyle(
+                            color:  const Color(0xff52bf90),
+                            fontWeight: FontWeight.w400,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 14.0
+                        ),
+                        textAlign: TextAlign.left,
+                        ),
+     ),
                       Switch(
             value: isSwitched,
             onChanged: (value) {
@@ -1712,6 +1736,10 @@ _onGroupButtonPressed(String currentUser){
                      _current_grp_destinaton=document.data['destination'].toString();
                      _current_grp_adminID = getid(_current_grp_admin);
                       pass = document.data;
+                      allMarkers.clear(); 
+                       setState(() {
+                 _child=_mapWidget();
+                    });
                          },
                       ) ;  }else{
                         return SizedBox(height: 1,); 
@@ -1786,12 +1814,16 @@ void creeGroupe(){
                               child: Row(
                                 children: <Widget>[
                                 
-                                  Text(
-                                    destination ==null ?'Destination':destination,
-                                    style: TextStyle(
-                                        color: Colors.deepOrange,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18.0),
+                                  SizedBox(
+                                    height: 20,
+                                    width: 270, 
+                                   child: Text(
+                                      destination ==null ?'Destination':destination,
+                                      style: TextStyle(
+                                          color: Colors.deepOrange,
+                                          fontWeight: FontWeight.normal,
+                                          fontSize: 18.0),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -2114,7 +2146,10 @@ void creeGroupe(){
                           markerId: MarkerId('pause'),
                           icon:pauseIcon, 
               ));
-              _child=_mapWidget(); 
+              setState(() {
+                 _child=_mapWidget();
+              });
+              print('done');
                       }
                   ),
                 ),
@@ -2228,12 +2263,16 @@ void creeGroupe(){
                               child: Row(
                                 children: <Widget>[
                                 
-                                  Text(
-                                    pause ==null ?'Position':pause,
-                                    style: TextStyle(
-                                        color: Colors.deepOrange,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18.0),
+                                  SizedBox(
+                                    height: 20,
+                                    width: 270,  
+                                    child: Text(
+                                      pause ==null ?'Position':pause,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.normal,
+                                          fontSize: 17.0),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -2289,9 +2328,9 @@ void creeGroupe(){
                                   Text(
                                     " $_time",
                                     style: TextStyle(
-                                        color: Colors.deepOrange,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18.0),
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 17.0),
                                   ),
                                 ],
                               ),

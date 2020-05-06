@@ -15,7 +15,9 @@ final CollectionReference utilisateurCollection = Firestore.instance.collection(
       groupeCollection.document(uid).collection('ListeMembre').document('zzzzzzzzzzzzzz').setData({
         'user': 'membreDefaut', 
       });
-      groupeCollection.document(uid).collection('Markers').document().setData({});
+      groupeCollection.document(uid).collection('Markers').document().setData({
+        'image': ''
+      });
 
      groupeCollection.document(uid).setData
       ({
