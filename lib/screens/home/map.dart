@@ -31,7 +31,7 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:myapp/services/Usersearch.dart';
-
+import 'package:myapp/services/Suggestion.dart'; 
 import 'page_aide.dart'; 
 
 class MyHomePage extends StatefulWidget {
@@ -1909,7 +1909,7 @@ void creeGroupe(){
                      icon: Icon(Icons.add_circle,color: Color(0xffff5722), size: 40,),
                      label: Text("Ajoutez les membres"),
                      
-                     onPressed: () => showSearch(context: context, delegate: UserSeach())
+                     onPressed: () => showSearch(context: context, delegate: UserSeach(pass))
                     ),
                   ],      
               ),
@@ -2484,7 +2484,9 @@ void onMembreButtonPressed(){
     child: 
         SizedBox(
       
-      child:FloatingActionButton(heroTag: 'btn8',onPressed:()=>null,
+      child:FloatingActionButton(heroTag: 'btn8',onPressed:() {
+        currentUser.uid == _current_grp_adminID ? showSearch(context: context, delegate: UserSeach(pass)) : showSearch(context: context, delegate: UserSearch(pass));
+      },
          child: Icon(Icons.add,
          size: 40,
          ),
