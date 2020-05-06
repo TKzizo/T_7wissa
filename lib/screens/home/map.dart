@@ -1734,7 +1734,7 @@ _onGroupButtonPressed(String currentUser){
                         return SizedBox(height: 1,); 
                       }
                       })
-      );
+      ); //
                     }
 _quittergroupe(docId) {
 
