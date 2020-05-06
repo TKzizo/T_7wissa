@@ -7,13 +7,14 @@ import 'package:myapp/screens/home/map.dart';
 
 
 
-class UserSeach extends SearchDelegate<String> {
+class UserSearch extends SearchDelegate<String> {
   //the hint text in search bar
   final searchFieldLabel = "Chercher un utilisateur";
   //json that we pass to show results to add the user to groupe
   var obj;
   var document;
-  UserSeach(this.document);
+
+  UserSearch(this.document);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -46,8 +47,7 @@ class UserSeach extends SearchDelegate<String> {
 //addd spinenr
     if (obj != null) {
       return Confirmation(
-        obj: obj,
-        dom: document);
+        obj: obj);
     } else {
       return Center(
         child: Row(
@@ -148,9 +148,8 @@ class UserSeach extends SearchDelegate<String> {
 
 class Confirmation extends StatefulWidget {
  final obj;
- final dom;
  
- const Confirmation ({ Key key, this.obj ,this.dom}): super(key: key);
+ const Confirmation ({ Key key, this.obj }): super(key: key);
 
   @override
   _ConfirmationState createState() => _ConfirmationState();
@@ -222,16 +221,12 @@ Color  col = Colors.grey[350] ;
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             botton = ay ?  RaisedButton(onPressed:() {
-              
+
               Firestore.instance.collection('utilisateur').document((widget.obj["uid"]).toString()).collection('Invitations').document().setData({
-                     /* 'groupeID':widget.dom["uid"].toString(),
-                      'admin': widget.dom["admin"].toString(), 
-                      'destination': widget.dom["destination"].toString(), 
-                      'groupe': widget.dom["nom"].toString(),                 */     
-                      'groupeID':'1315',
-                      'admin': 'ana',
-                      'destination': 'adrar',
-                      'groupe': 'bobagra'
+                      'groupeID':'5672',
+                      'admin': 'ammalimouna', 
+                      'destination': 'Alger', 
+                      'groupe': 'Famille',                      
                   });
                setState(() {
                 col = green;
@@ -241,7 +236,7 @@ Color  col = Colors.grey[350] ;
             },
             padding: EdgeInsets.all(20),
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            child: Text("Inviter '${widget.obj["identifiant"]}' au groupe",
+            child: Text("Suggerrer '${widget.obj["identifiant"]}' a l'admin",
             style: TextStyle(
               color: Colors.black,
               fontSize: 15
@@ -251,7 +246,7 @@ Color  col = Colors.grey[350] ;
               child:Row(
                 children: <Widget>[
                     Icon(Icons.done ,size: 40, color: Colors.white,),
-                    Text("Invitation a été envoyée", style: TextStyle(fontSize: 20, color: Colors.white), )
+                    Text("Suggestion a été envoyée", style: TextStyle(fontSize: 20, color: Colors.white), )
                 ],
                 ),
             ),
