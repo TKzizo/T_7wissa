@@ -183,14 +183,14 @@ void setCustomMapPin() async {
     Position res = await Geolocator().getCurrentPosition();
     setState(() {
       position = res;
-      vitesse = position.speed; 
+      vitesse = position.speed==null? 0.0: position.speed; 
        _child = _mapWidget();
     }
     );
     }
   void updateuserLocation(String userId){
     _getCurrentLocation();
-      Firestore.instance.collection('utilisateur').document(userId).updateData({'vitesse': position.speed.toDouble(),'latitude': position.latitude.toDouble(), 'longitude':position.longitude.toDouble()});
+      Firestore.instance.collection('utilisateur').document(userId).updateData({'vitesse': position.speed==null? 0.0: position.speed.toDouble(),'latitude': position.latitude.toDouble(), 'longitude':position.longitude.toDouble()});
   }
     List<Marker> allMarkers = []; 
  Widget _mapWidget() {
@@ -339,6 +339,7 @@ Widget _eachUserMarker(){
                         onTap:  ()=> _markerUserPressed((snapshot.data.documents[i]['uid']).toString() ==null ?null: (snapshot.data.documents[i]['uid']).toString()),
                     ),
               ));
+              // updatePinOnMap((snapshot.data.documents[i]['uid']).toString() ==null ?"uid": (snapshot.data.documents[i]['uid']).toString(), (snapshot.data.documents[i]['identifiant']).toString() ==null ?"uid": (snapshot.data.documents[i]['identifiant']).toString());
           }
          
         }  
@@ -498,22 +499,9 @@ Widget map(){
          
   }
   void _markerUserPressed(String userId){
-      showModalBottomSheet(context: context, builder:(context){
-     return Container(
-        color: const Color(0xff737373),
-       width: 360,
-      height: 200,
-      child:Container(
-      decoration: BoxDecoration(
-       color: const Color(0xffffffff),
-      borderRadius:  BorderRadius.only(
-          topLeft:  const Radius.circular(30) ,
-          topRight:  const Radius.circular(30) ,
-        ),
-      ),
-      
-       child: Stack(children: [
-         Text('Informations sur votre partenaire de route ',
+     showDialog(context: context, builder:(context){
+  return AlertDialog(
+  title :  Text('Informations sur votre partenaire de route ',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.deepOrange,
@@ -522,6 +510,8 @@ Widget map(){
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 19.0
                             ),),
+  content: Stack(children: [
+       
     StreamBuilder<UserData>(
                   stream: DatabaseService(uid:userId).utilisateursDonnees,
                   builder: (context,snapshot){
@@ -533,9 +523,6 @@ Widget map(){
       child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                SizedBox(height: 20,), 
-                Row(
-                  children: <Widget>[
                     Text('Votre partenaire de route',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -565,11 +552,10 @@ Widget map(){
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 17.0
                             ),),
-                  ],
-                ),
+                  
+                
                  SizedBox(height: 20,), 
-                Row(
-                  children: <Widget>[
+               
                     Text('Roule à une vitesse de : ',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -589,8 +575,7 @@ Widget map(){
                                 fontStyle:  FontStyle.italic,
                                 fontSize: 17.0
                             ),),
-                  ],
-                ),                
+                                
               ],
             ),
           ),
@@ -610,15 +595,21 @@ Widget map(){
        
       
       ]
-      )
-         
-          ),
-        
-          );
-          
+      ),
+   actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('OK'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
+
+  );
+ });
     
-        }
-        );
+        
          
   }
    void showToast(message){
@@ -714,7 +705,7 @@ Future<void> _handlePressButton() async {
                       _current_user=userData.identifiant; 
                       print(_img);
                       updateuserLocation(_current_userId);
-                      updatePinOnMap();
+                      updatePinOnMap(_current_userId,_current_user);
                       return  Text(
                           '');
                     }else{
@@ -1296,7 +1287,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
  setState(() {
                  _child=_mapWidget();
               });
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Alerte Barage ! ', _current_user,_current_userId,null);
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Alerte Barage ! ', _current_user,_current_userId,null);
      },
      icon: Icon(Icons.send,color: Colors.greenAccent),
      ), 
@@ -1582,7 +1573,7 @@ _onGroupButtonPressed(String currentUser){
         );
          
       }
-      afficher_alerte(){
+  afficher_alerte(){
 
  showDialog(context: context, builder:(context){
   return AlertDialog(
@@ -1726,19 +1717,17 @@ _onGroupButtonPressed(String currentUser){
                               String h;
                               Firestore.instance.collection("utilisateur")..where("identifiant" , isEqualTo: value ).getDocuments().then((val){
                                    h = val.documents[0].data["uid"].toString();                       });
-                                   print('h');
-                                   print(h);print('h');
+                                   print(h);
                                    return h;
                             }
                       _current_grp = document['id'].toString(); 
-                      print(_current_grp);
                      _current_grp_admin = document.data['admin'].toString();
                      _current_grp_destinaton=document.data['destination'].toString();
                      _current_grp_adminID = getid(_current_grp_admin);
                       pass = document.data;
-                      allMarkers.clear(); 
                        setState(() {
-                 _child=_mapWidget();
+                      allMarkers.clear(); 
+                        _child=_mapWidget();
                     });
                          },
                       ) ;  }else{
@@ -3304,7 +3293,7 @@ _accepterSugg(String docId,String grpID,String userID) {
           }         
    
 
-void updatePinOnMap() async {
+void updatePinOnMap(String id,String user) async {
    
    // create a new CameraPosition instance
    // every time the location changes, so the camera
@@ -3316,11 +3305,15 @@ void updatePinOnMap() async {
       var pinPosition = LatLng(position.latitude,
      position.longitude);
       allMarkers.removeWhere(
-      (m) => m.markerId.value == _current_userId);
+      (m) => m.markerId.value == id);
       allMarkers.add(Marker(
          markerId: MarkerId(_current_userId),
          position: pinPosition, 
          icon: maleIcon,
+           infoWindow: InfoWindow(
+                        title: (user),
+                        onTap:  ()=> _markerUserPressed(id),
+                    ),
       ));
    });
 }
