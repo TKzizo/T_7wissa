@@ -298,7 +298,7 @@ void setCustomMapPin() async {
               position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
-                   icon:maleIcon,
+                   icon:animauxIcon,
                  
                 onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
  
@@ -332,7 +332,7 @@ Widget _eachUserMarker(){
               allMarkers.add(new Marker(
               position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
-                   markerId: MarkerId(i.toString()),
+                   markerId: MarkerId((snapshot.data.documents[i]['uid']).toString() ==null ?"uid": (snapshot.data.documents[i]['uid']).toString()),
                    icon:maleIcon,
                      infoWindow: InfoWindow(
                         title: (snapshot.data.documents[i]['identifiant']).toString() ==null ?"user": (snapshot.data.documents[i]['identifiant']).toString(),
@@ -714,7 +714,7 @@ Future<void> _handlePressButton() async {
                       _current_user=userData.identifiant; 
                       print(_img);
                       updateuserLocation(_current_userId);
-
+                      updatePinOnMap();
                       return  Text(
                           '');
                     }else{
@@ -3301,8 +3301,29 @@ _accepterSugg(String docId,String grpID,String userID) {
             //supprimer l'invitation
             Firestore.instance.collection('groupe').document(grpID).collection('suggestions').document(docId).delete().catchError((e){
               print(e);});
-          }                
+          }         
+   
 
+void updatePinOnMap() async {
+   
+   // create a new CameraPosition instance
+   // every time the location changes, so the camera
+   // follows the pin as it moves with an animation
+   
+   
+   setState(() {
+      // updated position
+      var pinPosition = LatLng(position.latitude,
+     position.longitude);
+      allMarkers.removeWhere(
+      (m) => m.markerId.value == _current_userId);
+      allMarkers.add(Marker(
+         markerId: MarkerId(_current_userId),
+         position: pinPosition, 
+         icon: maleIcon,
+      ));
+   });
+}
     
 }
 
