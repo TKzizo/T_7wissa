@@ -123,7 +123,7 @@ class _ProfileHelpPageState extends State<ProfileHelpPage> {
                           textAlign: TextAlign.left                
                           ),
       children: <Widget> [Text(
-                          '\n      Les noms et les identifiants d’utilisateur font\n      partie de votre profil public,\n      et vos amis peuvent s’en servir pour vous\n      trouver sur notre application.\n',
+                          '\n      Les noms et les identifiants d’utilisateurs font\n      partie de votre profil public,\n      et vos amis peuvent s’en servir pour vous\n      trouver sur notre application.\n',
 
 
                           style: const TextStyle(
@@ -136,7 +136,14 @@ class _ProfileHelpPageState extends State<ProfileHelpPage> {
                           textAlign: TextAlign.left                
                           ),
        ] ),
-         
+        SizedBox(
+                      height: 300,
+                      width: 300,
+                      child: Image(
+                       image: AssetImage('assets/profilAide.png'),
+                        fit: BoxFit.contain,
+                      ),
+                    ), 
         
 
 

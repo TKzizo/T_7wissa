@@ -517,7 +517,94 @@ Widget map(){
     
         
   }
-  
+    void _markerDestinationPressed(String userId, String destination){
+     showDialog(context: context, builder:(context){
+  return AlertDialog(
+    elevation: 1,
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20.0))
+),
+  title :  Text('Votre destination',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 19.0
+                            ),),
+
+  content: Stack(children: [
+    StreamBuilder<UserData>(
+                  stream: DatabaseService(uid:userId).utilisateursDonnees,
+                  builder: (context,snapshot){
+                    String icone; 
+                    if(snapshot.hasData){
+                      UserData userData=snapshot.data;
+                      print(userData.identifiant);
+                      return    Container( 
+     padding: EdgeInsets.symmetric(vertical:0.0,horizontal :20.0),
+      child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                 Image(
+                    image: AssetImage('assets/destination.png'),
+                    fit: BoxFit.contain,
+                  ),
+                SizedBox(height: 20,), 
+                 
+                                          
+                 SizedBox(height: 18,), 
+              
+                    Text('Vous vous dirigé vers',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                            SizedBox(width: 12,),
+                              Text(destination,
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.italic,
+                                fontSize: 17.0
+                            ),),
+                               
+              ],
+            ),
+          ),
+       
+      );
+                    }else{
+                      return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
+                    }
+                  }
+              ),
+       
+      
+      ]
+      ),
+   actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('OK'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
+
+  );
+ });
+    
+        
+  }
   void _markerUserPressed(String userId){
      showDialog(context: context, builder:(context){
   return AlertDialog(
@@ -738,7 +825,7 @@ Future<void> _handlePressButton() async {
                       return  Text(
                           '');
                     }else{
-                      return Text('Loading');
+                      return Text('');
                     }
                   }
               ),
@@ -756,7 +843,7 @@ Future<void> _handlePressButton() async {
                         focusColor: Colors.white,
                    ),
                   ),
-         
+
             Container(
                      width: 40.0,
                      height: 40.0,
@@ -795,6 +882,20 @@ Future<void> _handlePressButton() async {
                       onPressed: () =>onMembreButtonPressed(),
                       child: Icon(
                        Icons.view_list,
+                      size: 25.0,
+                       ),
+                        backgroundColor: const Color(0xff339899),
+                        focusColor: Colors.white,
+                   ),
+                  ),
+                   Container(
+                     width: 40.0,
+                     height: 40.0,
+                      child: FloatingActionButton(
+                      heroTag: 'btn15',
+                      onPressed: (){ }, 
+                      child: Icon(
+                       Icons.add_alert,
                       size: 25.0,
                        ),
                         backgroundColor: const Color(0xff339899),
@@ -1494,6 +1595,9 @@ void _onMessageButtonPressed(String currentGroupe){
        
        ListTile(
    title:  TextField(
+      keyboardType: TextInputType.multiline,
+      maxLength: null,
+      maxLines: null,
      decoration: InputDecoration(
        hintText: "Envoyer..",
                        suffixIcon : IconButton(icon:Icon(Icons.camera_alt,color: Colors.greenAccent),onPressed:()async{
@@ -1652,8 +1756,7 @@ _onGroupButtonPressed(String currentUser){
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if ((snapshot.hasData)&& (document['id']!='10000000')) {
            Map<String, dynamic> documentFields = snapshot.data.data;
-           bool isSwitched = documentFields['statu'];
-
+bool isSwitched=documentFields['statu'];
            return  ListTile(
     title:Row (
        
@@ -1709,31 +1812,15 @@ _onGroupButtonPressed(String currentUser){
                         textAlign: TextAlign.left,
                         ),
      ),
-                      Switch(
+               Switch(
             value: isSwitched,
-             onChanged: (value) {
-            Firestore.instance.runTransaction((transaction) async {
-              DocumentSnapshot freshSnap = await transaction.get(ref);
-              await transaction.update(freshSnap.reference, {
-                "statu": value
-              });
-            });
-          },
-            /*onChanged: (value) {
-              if (_current_grp_adminID != _current_userId){
+            onChanged: (value) async{
               setState(() {
                 isSwitched = value;
                 print(isSwitched);
-                
               });
-                Firestore.instance.runTransaction((transaction) async {
-                      DocumentSnapshot freshSnap = await transaction.get(ref);
-                      await transaction.update(freshSnap.reference, {
-                        "statu": value
-                      });
-                    });
-              /* ref.updateData({"statu": isSwitched});*/} else afficher_alerte();
-            },*/
+              await ref.updateData({"statu": !(documentFields['statu'])});
+            },
             activeTrackColor: Colors.lightGreenAccent,
             activeColor: Colors.green,
           ),
@@ -1993,7 +2080,7 @@ void creeGroupe(){
                   if(_formKey.currentState.validate()){ 
                     
                     CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user,destination, _time, listMembre, nom,_current_userId);
-                    CreationGroupeServises(uid: _id.toString()).marquer_Alerte(_id.toString(), "Votre destination", lang, latt, _current_userId, "destination");
+                    CreationGroupeServises(uid: _id.toString()).marquer_Alerte(_id.toString(), destination, lang, latt, _current_userId, "destination");
 
                  allMarkers.add(new Marker(
                          position: new LatLng(latt,lang),

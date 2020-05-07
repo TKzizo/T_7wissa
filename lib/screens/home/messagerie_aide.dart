@@ -135,8 +135,14 @@ class _MessageHelpPageState extends State<MessageHelpPage> {
                           ),
                           textAlign: TextAlign.left                
                           ),],),
-       
-         
+             SizedBox(
+                      height: 300,
+                      width: 300,
+                      child: Image(
+                       image: AssetImage('assets/illustrationMessagerie.png'),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
         
 
 

@@ -154,7 +154,7 @@ class _ForgotpswdState extends State<Forgotpswd> {
       width: 1000,
       height: 26,
       child: Text(
-      "Ajouter un point de repos ",
+      "Changer votre mot de passe",
       style: const TextStyle(
           color:  const Color(0xde204f6f),
           fontWeight: FontWeight.w500,

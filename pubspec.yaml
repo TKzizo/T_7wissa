@@ -45,6 +45,7 @@ dependencies:
   camera: ^0.5.7+4
   loading: ^1.0.2
   path_provider: ^1.6.5
+  flutter_email_sender: ^3.0.1
   geocoder: ^0.2.1
   flutter_placeholder_textlines: ^1.0.4
   video_player: any

@@ -115,10 +115,10 @@ class _HelpPageState extends State<HelpPage> {
          Divider(height: 15.0,color: const Color(0xFFFF5722),),
         ListTile( 
             leading: SizedBox(
-                height:25,
-                width: 25,
+                height:60,
+                width: 55,
                 child: Image(
-                  image: AssetImage(''),
+                  image: AssetImage('assets/aideMessagerie.png'),
                   fit: BoxFit.contain,
                 ),
               ),title: 
