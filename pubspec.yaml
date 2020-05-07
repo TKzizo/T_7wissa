@@ -51,6 +51,7 @@ dependencies:
   image_picker : any
   share: any
   url_launcher: any
+  mobile_popup: ^1.2.0
   firebase_core: any 
   get_it : any 
 flutter_icons:

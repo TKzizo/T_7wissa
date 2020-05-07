@@ -202,7 +202,6 @@ void _clear(){
        color: Colors.greenAccent,),
        onPressed:(){
         uploadImage();
-        Navigator.pop(context);
        
         
         }

@@ -11,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:loading/loading.dart';
+import 'package:mobile_popup/mobile_popup.dart';
 import 'package:myapp/screens/home/camera.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/screens/home/components/ProfilePicture.dart';
@@ -194,15 +195,13 @@ void setCustomMapPin() async {
   }
     List<Marker> allMarkers = []; 
  Widget _mapWidget() {
-
-    return StreamBuilder(
+       return StreamBuilder(
       stream: Firestore.instance.collection('groupe').document(_current_grp).collection('Markers').snapshots(),
       builder: (context, snapshot) {
         
         if (!snapshot.hasData) return Container(child : Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
         for (int i = 0; i < snapshot.data.documents.length; i++) {
           String icon= (snapshot.data.documents[i]['icon']).toString() ==null ?' ': (snapshot.data.documents[i]['icon']).toString();
-          print(icon); 
           if(icon=='route'){
             allMarkers.add(new Marker(
               position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
@@ -328,7 +327,6 @@ Widget _eachUserMarker(){
         if (!snapshot.hasData) return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),); 
         for (int i = 0; i < snapshot.data.documents.length; i++) {
           if(allUsers.contains((snapshot.data.documents[i]['uid']).toString() ==null ?"uid": (snapshot.data.documents[i]['uid']).toString())){
-             print((snapshot.data.documents[i]['uid']).toString() ==null ?"uid": (snapshot.data.documents[i]['uid']).toString()); 
               allMarkers.add(new Marker(
               position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
@@ -339,7 +337,6 @@ Widget _eachUserMarker(){
                         onTap:  ()=> _markerUserPressed((snapshot.data.documents[i]['uid']).toString() ==null ?null: (snapshot.data.documents[i]['uid']).toString()),
                     ),
               ));
-              // updatePinOnMap((snapshot.data.documents[i]['uid']).toString() ==null ?"uid": (snapshot.data.documents[i]['uid']).toString(), (snapshot.data.documents[i]['identifiant']).toString() ==null ?"uid": (snapshot.data.documents[i]['identifiant']).toString());
           }
          
         }  
@@ -360,8 +357,6 @@ Widget _eachUserMarker(){
       builder: (context, snapshot){
         if (!snapshot.hasData) return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
         for (int i = 0; i < snapshot.data.documents.length; i++) { 
-          print('userListeMarkers'); 
-          print(i); 
           allUsers.add((snapshot.data.documents[i]['user']).toString() ==null ?" ": (snapshot.data.documents[i]['user']).toString());              
         }  
     return  _eachUserMarker(); 
@@ -704,8 +699,8 @@ Future<void> _handlePressButton() async {
                       _img = userData.image_url;
                       _current_user=userData.identifiant; 
                       print(_img);
-                      updateuserLocation(_current_userId);
-                      updatePinOnMap(_current_userId,_current_user);
+                   //   updateuserLocation(_current_userId);
+                    //  updatePinOnMap(_current_userId,_current_user);
                       return  Text(
                           '');
                     }else{
@@ -1021,7 +1016,27 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                       ),
 
 
-
+        onTap:()  {
+          showMobilePopup(
+    context: context,
+    builder: (context) => MobilePopUp(
+        title: document['sender'].toString(),
+                    leadingColor: Colors.white,
+        child: Builder(
+           builder: (navigator) => Scaffold(
+                            body: SingleChildScrollView(
+                              child: Column(
+                                children: <Widget>[
+                                   Image.network(document['image']),
+                                  
+                                ],
+                              ),
+                            ),
+                          ),
+        ),
+    ),
+);
+        }
 
                       )
                   );}
@@ -1659,15 +1674,29 @@ _onGroupButtonPressed(String currentUser){
      ),
                       Switch(
             value: isSwitched,
-            onChanged: (value) {
-              if (_current_grp_adminID == _current_userId){
+             onChanged: (value) {
+            Firestore.instance.runTransaction((transaction) async {
+              DocumentSnapshot freshSnap = await transaction.get(ref);
+              await transaction.update(freshSnap.reference, {
+                "statu": value
+              });
+            });
+          },
+            /*onChanged: (value) {
+              if (_current_grp_adminID != _current_userId){
               setState(() {
                 isSwitched = value;
                 print(isSwitched);
                 
               });
-               ref.updateData({"statu": isSwitched});} else afficher_alerte();
-            },
+                Firestore.instance.runTransaction((transaction) async {
+                      DocumentSnapshot freshSnap = await transaction.get(ref);
+                      await transaction.update(freshSnap.reference, {
+                        "statu": value
+                      });
+                    });
+              /* ref.updateData({"statu": isSwitched});*/} else afficher_alerte();
+            },*/
             activeTrackColor: Colors.lightGreenAccent,
             activeColor: Colors.green,
           ),
@@ -1721,14 +1750,18 @@ _onGroupButtonPressed(String currentUser){
                                    return h;
                             }
                       _current_grp = document['id'].toString(); 
+                      print(_current_grp); 
                      _current_grp_admin = document.data['admin'].toString();
                      _current_grp_destinaton=document.data['destination'].toString();
                      _current_grp_adminID = getid(_current_grp_admin);
                       pass = document.data;
-                       setState(() {
-                      allMarkers.clear(); 
-                        _child=_mapWidget();
-                    });
+               //      allMarkers.clear(); 
+               setState(() {
+           allMarkers.removeWhere((item) => item != null);
+           print(allMarkers.length); 
+                 _child=_mapWidget();
+              });
+                   
                          },
                       ) ;  }else{
                         return SizedBox(height: 1,); 
@@ -1789,9 +1822,7 @@ void creeGroupe(){
                        focusColor: Colors.white,
                        highlightColor: Colors.white,
                      onPressed:   _handlePressButton,
-
-                   
-                child: Container(
+  child: Container(
                     alignment: Alignment.center,
                     height: 50.0,
                     child: Row(
@@ -1805,13 +1836,13 @@ void creeGroupe(){
                                 
                                   SizedBox(
                                     height: 20,
-                                    width: 270, 
-                                   child: Text(
+                                    width: 270,  
+                                    child: Text(
                                       destination ==null ?'Destination':destination,
                                       style: TextStyle(
-                                          color: Colors.deepOrange,
+                                          color: Colors.black,
                                           fontWeight: FontWeight.normal,
-                                          fontSize: 18.0),
+                                          fontSize: 17.0),
                                     ),
                                   ),
                                 ],
@@ -1868,9 +1899,9 @@ void creeGroupe(){
                                   Text(
                                     " $_time",
                                     style: TextStyle(
-                                        color: Colors.deepOrange,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18.0),
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 17.0),
                                   ),
                                 ],
                               ),
@@ -1923,8 +1954,21 @@ void creeGroupe(){
                 ),
                 onPressed: () async {
                   if(_formKey.currentState.validate()){ 
-                  
+                    
                     CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user,destination, _time, listMembre, nom,_current_userId);
+                    CreationGroupeServises(uid: _id.toString()).marquer_Alerte(_id.toString(), "Votre destination", lang, latt, _current_userId, "destination");
+
+                 allMarkers.add(new Marker(
+                         position: new LatLng(latt,lang),
+                          markerId: MarkerId('destination'),
+                          icon:destinationIcon, 
+              ));    
+              setState(() {
+                               
+
+                
+                 _child=_mapWidget();
+              });
                   }
                 }
               ),
@@ -2545,9 +2589,24 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
     stream: provideDocumentFieldStream("utilisateur",document['user']),
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if ((snapshot.hasData)&&(document['user']!='membreDefaut')) {
-           Map<String, dynamic> documentFields = snapshot.data.data;
-           return  ListTile(
-       
+Map<String, dynamic> documentFields = snapshot.data.data;
+        if(document['user']!=_current_userId){
+             return  ListTile(
+     leading: (
+                Container(
+                  width: 50.0,
+                  height: 50.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(
+                        '${documentFields['image_url']}'
+                      ),
+                    ),
+                  ),
+                )
+              ),  
     title: Text(
                 documentFields['identifiant'],
                       style: const TextStyle(
@@ -2573,6 +2632,54 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
 
 
                       );
+        }else{
+           return  ListTile(
+     leading: (
+                Container(
+                  width: 50.0,
+                  height: 50.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(
+                        '${documentFields['image_url']}'
+                      ),
+                    ),
+                  ),
+                )
+              ),  
+    title: Text(
+                documentFields['identifiant'],
+                      style: const TextStyle(
+                          color:  const Color(0xde000000),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left                
+                      ),
+      subtitle: Text(
+                'Vous',
+                      style: const TextStyle(
+                          color:  Colors.deepOrange,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 12.0
+                      ),
+                      textAlign: TextAlign.left                
+                      ),
+      trailing: IconButton(icon: Icon(Icons.place,
+      color : const Color(0xff339899)), onPressed: ()=>{
+      _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: 
+        LatLng(documentFields['latitude'],documentFields['longitude']),
+        zoom: 16.0),)),
+      }),
+     );
+        }  
+          
         }else{
           return Container();
         }
@@ -2662,7 +2769,7 @@ showModalBottomSheet(context: context, builder:(context){
                 height:100,
                 width: 100,
                 child: Image(
-                  image: AssetImage(url),
+                  image: NetworkImage(document['image_url'].toString()),
                   fit: BoxFit.contain,
                 ),
               ),
