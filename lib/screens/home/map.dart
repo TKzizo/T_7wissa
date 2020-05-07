@@ -208,7 +208,7 @@ void setCustomMapPin() async {
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
                    icon:routeIcon,
-                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['image']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['image']).toString()),
  
               ));
           }else{
@@ -218,7 +218,7 @@ void setCustomMapPin() async {
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
                    icon:radarIcon,
-                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['image']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['image']).toString()),
  
               ));
           }else{
@@ -228,7 +228,7 @@ void setCustomMapPin() async {
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
                    icon:pauseIcon,
-                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['image']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['image']).toString()),
  
               ));
           }else{
@@ -238,7 +238,7 @@ void setCustomMapPin() async {
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
                    icon:aideIcon,
-                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['image']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['image']).toString()),
  
               ));
           }else{
@@ -248,7 +248,7 @@ void setCustomMapPin() async {
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
                    icon:animauxIcon,
-                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['image']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['image']).toString()),
  
               ));
           }else{
@@ -258,7 +258,7 @@ void setCustomMapPin() async {
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
                    icon:barrageIcon,
-                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['image']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['image']).toString()),
  
               ));
           }else{
@@ -268,7 +268,7 @@ void setCustomMapPin() async {
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
                    icon:accidentIcon,
-                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['image']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['image']).toString()),
  
               ));
           }else{
@@ -278,7 +278,7 @@ void setCustomMapPin() async {
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
                    icon:panneIcon,
-                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['image']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['image']).toString()),
  
               ));
           }else{
@@ -299,7 +299,7 @@ void setCustomMapPin() async {
                    markerId: MarkerId(i.toString()),
                    icon:animauxIcon,
                  
-                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['text']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['text']).toString()),
+                onTap:  ()=> _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['image']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['image']).toString()),
  
               ));
               }
@@ -374,24 +374,14 @@ Widget map(){
                 );
   
 }
-  
-   void _markerAlertPressed(String userId,String alerte){
-      showModalBottomSheet(context: context, builder:(context){
-     return Container(
-        color: const Color(0xff737373),
-       width: 360,
-      height: 240,
-      child:Container(
-      decoration: BoxDecoration(
-       color: const Color(0xffffffff),
-      borderRadius:  BorderRadius.only(
-          topLeft:  const Radius.circular(30) ,
-          topRight:  const Radius.circular(30) ,
-        ),
-      ),
-      
-       child: Stack(children: [
-         Text('On vous signale une alerte ! ',
+  void _markerAlertPressed(String userId, String alerte){
+     showDialog(context: context, builder:(context){
+  return AlertDialog(
+    elevation: 1,
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20.0))
+),
+  title :  Text('On vous signale une alerte !',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.deepOrange,
@@ -400,20 +390,62 @@ Widget map(){
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 19.0
                             ),),
+
+  content: Stack(children: [
     StreamBuilder<UserData>(
                   stream: DatabaseService(uid:userId).utilisateursDonnees,
                   builder: (context,snapshot){
+                    String icone; 
                     if(snapshot.hasData){
                       UserData userData=snapshot.data;
+
+                    if(alerte=='route'){
+                        icone='assets/routeendommagée';
+
+                    }else{
+                      if(alerte=='radar'){
+                        icone='assets/radar.png';
+                      }else{
+                        if(alerte=='pause'){
+                          icone='assets/pause.png';
+                        }else{
+                          if(alerte=='aide'){
+                            icone='assets/besoindaide.png';
+                          }else{
+                            if(alerte=='animaux'){
+                              icone='assets/animaux.png';
+                            }else{
+                              if(alerte=='barrage'){
+                                icone='assets/barrage.png';
+                              }else{
+                               if(alerte=='accident'){
+                                 icone='assets/accident.png';
+                               }else{
+                                 if(alerte=='panne'){
+                                   icone='assets/jesuisenpanne.png';
+                                 }else{
+                                  icone='assets/destination.png';
+                                 }
+                               }
+                              }
+
+                            }
+                          }
+                        }
+                      }
+                    }
+                   
                       print(userData.identifiant);
                       return    Container( 
-     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     padding: EdgeInsets.symmetric(vertical:0.0,horizontal :20.0),
       child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
+                 Image(
+                    image: AssetImage(icone),
+                    fit: BoxFit.contain,
+                  ),
                 SizedBox(height: 20,), 
-                Row(
-                  children: <Widget>[
                     Text('Votre partenaire de route',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -424,7 +456,7 @@ Widget map(){
                                 fontSize: 17.0
                             ),),
                             SizedBox(width: 7,),
-                              Text(userData.nom,
+                              Text(userData.identifiant,
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.teal,
@@ -433,21 +465,9 @@ Widget map(){
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 17.0
                             ),),
-                             SizedBox(width: 7,),
-                              Text(userData.prenom,
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color:  Colors.teal,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.normal,
-                                fontSize: 17.0
-                            ),),
-                  ],
-                ),
-                 SizedBox(height: 20,), 
-                Row(
-                  children: <Widget>[
+                                          
+                 SizedBox(height: 18,), 
+              
                     Text('Vous signale une alerte',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -467,8 +487,7 @@ Widget map(){
                                 fontStyle:  FontStyle.italic,
                                 fontSize: 17.0
                             ),),
-                  ],
-                ),                
+                               
               ],
             ),
           ),
@@ -482,20 +501,30 @@ Widget map(){
        
       
       ]
-      )
-         
-          ),
-        
-          );
-          
+      ),
+   actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('OK'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
+
+  );
+ });
     
-        }
-        );
-         
+        
   }
+  
   void _markerUserPressed(String userId){
      showDialog(context: context, builder:(context){
   return AlertDialog(
+    elevation: 1,
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20.0))
+),
   title :  Text('Informations sur votre partenaire de route ',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -506,7 +535,7 @@ Widget map(){
                                 fontSize: 19.0
                             ),),
   content: Stack(children: [
-       
+    
     StreamBuilder<UserData>(
                   stream: DatabaseService(uid:userId).utilisateursDonnees,
                   builder: (context,snapshot){
@@ -514,10 +543,12 @@ Widget map(){
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
                       return    Container( 
-     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     padding: EdgeInsets.symmetric(vertical:0.0,horizontal :20.0),
       child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
+                
+               
                     Text('Votre partenaire de route',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -561,15 +592,18 @@ Widget map(){
                                 fontSize: 17.0
                             ),),
                             SizedBox(width: 12,),
-                              Text(userData.vitesse.toString(),
+                              SizedBox(
+                                width: 40,height: 20,
+                                                              child: Text(userData.vitesse.toString(),
                     textAlign: TextAlign.center,
                             style: const TextStyle(
-                                color:  Colors.deepOrange,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.italic,
-                                fontSize: 17.0
+                                  color:  Colors.deepOrange,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: "Roboto",
+                                  fontStyle:  FontStyle.italic,
+                                  fontSize: 17.0
                             ),),
+                              ),
                                 
               ],
             ),
@@ -1327,7 +1361,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
                    icon:radarIcon,
-                onTap:  ()=> _markerAlertPressed(_current_userId,"Alerte radar"),
+                onTap:  ()=> _markerAlertPressed(_current_userId,"radar"),
               ));
      setState(() {
                  _child=_mapWidget();
@@ -1593,6 +1627,9 @@ _onGroupButtonPressed(String currentUser){
  showDialog(context: context, builder:(context){
   return AlertDialog(
   title : Text('Alerte'),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20.0))
+),
   content: Text('vous n avez pas le droit de lancer cette fonctionalité '),
   actions: <Widget>[
     MaterialButton(
@@ -2099,73 +2136,38 @@ void creeGroupe(){
  }
   }
   void _onBreakConfirmationPressed(){
-      showModalBottomSheet(context: context, builder:(context){
-     return Container(
-        color: const Color(0xff737373),
-       width: 360,
-      height: 240,
-      child:Container(
-      decoration: BoxDecoration(
-       color: const Color(0xffffffff),
-      borderRadius:  BorderRadius.only(
-          topLeft:  const Radius.circular(30) ,
-          topRight:  const Radius.circular(30) ,
-        ),
-      ),
-      
-       child: Stack(children: [
-  PositionedDirectional(
-    top: 35,
-    start: 38,
-    child: 
-        SizedBox(
-      width: 1000,
-      height: 26,
-      child: Text(
-      "Ajouter un point de repos ",
-      style: const TextStyle(
-          color:  const Color(0xde204f6f),
-          fontWeight: FontWeight.w500,
-          fontFamily: "Roboto",
-          fontStyle:  FontStyle.normal,
-          fontSize: 19.0
-      ),
-      textAlign: TextAlign.left                
-      )),
-  ),
-     
-     Container( 
-     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
-     child:Form(
-     
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                SizedBox(height: 20,), 
-                Text('Voulez vous confirmer ? ',
+    showDialog(context: context, builder:(context){
+  return AlertDialog(
+  title :  Text('Voulez vous confirmer ? ',
                 textAlign: TextAlign.center,
                         style: const TextStyle(
-                            color:  Colors.black,
+                            color:  const Color(0xde204f6f),
                             fontWeight: FontWeight.w500,
                             fontFamily: "Roboto",
                             fontStyle:  FontStyle.normal,
                             fontSize: 19.0
                         ),),
-                 SizedBox(height: 10.0),
-                Row(children: <Widget>[
-                  SizedBox(width: 20,),
-                   Material( borderRadius: BorderRadius.circular(30.0),
-                  color: Colors.deepOrange,
-                  child:
-
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20.0))
+),
+/* content: Stack(children: [
+  
+      
+      ]
+      ),*/
+  actions: <Widget>[
+    Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        SizedBox(width: 20,),
                   MaterialButton(
-                      minWidth: 100,
+                       minWidth: 100,
                       height: 36,
                       child:
                       Text("OUI",
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                            color:  const Color(0xffffffff),
+                            color:  Colors.deepOrange,
                             fontWeight: FontWeight.w500,
                             fontFamily: "Roboto",
                             fontStyle:  FontStyle.normal,
@@ -2183,13 +2185,10 @@ void creeGroupe(){
                  _child=_mapWidget();
               });
               print('done');
+              Navigator.of(context).pop();
                       }
                   ),
-                ),
-                SizedBox(width: 65,height: 70,),
-                      Material( borderRadius: BorderRadius.circular(30.0),
-                  color: Colors.deepOrange,
-                  child:
+                     SizedBox(width: 20,),               
                   MaterialButton(
                       minWidth: 100,
                       height: 36,
@@ -2197,7 +2196,7 @@ void creeGroupe(){
                       Text("NON",
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                            color:  const Color(0xffffffff),
+                            color: Colors.deepOrange,
                             fontWeight: FontWeight.w500,
                             fontFamily: "Roboto",
                             fontStyle:  FontStyle.normal,
@@ -2206,26 +2205,13 @@ void creeGroupe(){
                       ),
                       onPressed: () {Navigator.of(context).pop();}
                   ),
-                ),
+                 SizedBox(width: 20,),
                 ],),
-            
-              ],
-            ),
-          ),
-       
-      ))
-       
-      
-      ]
-      )
-         
-          ),
-        
-          );
-          
-    
-        }
-        );
+  ],
+
+  );
+ });
+  
          
   }
   void _onBreakButtonPressed(){
