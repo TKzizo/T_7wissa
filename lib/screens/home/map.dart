@@ -1866,19 +1866,30 @@ bool isSwitched=documentFields['statu'];
            ],
          ),
                        onTap:(){
-                     String getid( String value){
-                              String h;
-                              Firestore.instance.collection("utilisateur")..where("identifiant" , isEqualTo: value ).getDocuments().then((val){
-                                   h = val.documents[0].data["uid"].toString();                       });
-                                   print(h);
-                                   return h;
-                            }
-                      _current_grp = document['id'].toString(); 
-                      print(_current_grp); 
-                     _current_grp_admin = document.data['admin'].toString();
-                     _current_grp_destinaton=document.data['destination'].toString();
-                     _current_grp_adminID = getid(_current_grp_admin);
-                      pass = document.data;
+                                _current_grp = document['id'].toString();
+                Firestore.instance
+                    .collection("groupe")
+                    .document(_current_grp)
+                    .get()
+                    .then((value) {
+                  _current_grp_admin = value.data["admin"];
+                });
+                Firestore.instance
+                    .collection("groupe")
+                    .document(_current_grp)
+                    .get()
+                    .then((value) {
+                  _current_grp_destinaton = value.data["destination"];
+                });
+                Firestore.instance
+                    .collection("utilisateur")
+                    .where("identifiant", isEqualTo: _current_grp_admin)
+                    .getDocuments()
+                    .then((value) {
+                  _current_grp_adminID = value.documents[0].data["uid"];
+                });
+                pass = document.data;
+
                //      allMarkers.clear(); 
                setState(() {
            allMarkers.removeWhere((item) => item != null);
@@ -2591,7 +2602,9 @@ void onMembreButtonPressed(){
         SizedBox(
       
       child:FloatingActionButton(heroTag: 'btn8',onPressed:() {
-        currentUser.uid == _current_grp_adminID ? showSearch(context: context, delegate: UserSeach(pass)) : showSearch(context: context, delegate: UserSearch(pass));
+        currentUser.uid == _current_grp_adminID 
+        ? showSearch(context: context, delegate: UserSeach(pass)) 
+        : showSearch(context: context, delegate: UserSearch(pass));
       },
          child: Icon(Icons.add,
          size: 40,
