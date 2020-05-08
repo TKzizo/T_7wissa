@@ -191,7 +191,7 @@ void setCustomMapPin() async {
     }
   void updateuserLocation(String userId){
     _getCurrentLocation();
-      Firestore.instance.collection('utilisateur').document(userId).updateData({'vitesse': position.speed==null? 0.0: position.speed.toDouble(),'latitude': position.latitude.toDouble(), 'longitude':position.longitude.toDouble()});
+      Firestore.instance.collection('utilisateur').document(userId).updateData({'vitesse': position.speed==null? 0.0: position.speed.toDouble(),'latitude': position.latitude==null? 0.0: position.latitude.toDouble(), 'longitude':position.longitude==null? 0.0: position.longitude.toDouble()});
   }
     List<Marker> allMarkers = []; 
  Widget _mapWidget() {
@@ -912,9 +912,8 @@ Future<void> _handlePressButton() async {
                       UserData userData=snapshot.data;
                       _img = userData.image_url;
                       _current_user=userData.identifiant; 
-                      print(_img);
-                  //    updateuserLocation(_current_userId);
-                  //  updatePinOnMap(_current_userId,_current_user);
+                      updateuserLocation(_current_userId);
+                  updatePinOnMap(_current_userId,_current_user);
                       return  Text(
                           '');
                     }else{
