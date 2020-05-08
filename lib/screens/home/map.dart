@@ -191,6 +191,7 @@ void setCustomMapPin() async {
     }
   void updateuserLocation(String userId){
     _getCurrentLocation();
+    //
       Firestore.instance.collection('utilisateur').document(userId).updateData({'vitesse': position.speed==null? 0.0: position.speed.toDouble(),'latitude': position.latitude==null? 0.0: position.latitude.toDouble(), 'longitude':position.longitude==null? 0.0: position.longitude.toDouble()});
   }
     List<Marker> allMarkers = []; 
