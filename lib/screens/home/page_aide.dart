@@ -43,7 +43,7 @@ class _HelpPageState extends State<HelpPage> {
                       'Votre profil et vos paramètres',
                       style: const TextStyle(
                           color:  const Color(0xff000000),
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.w500,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
                           fontSize: 18.0
@@ -85,7 +85,7 @@ class _HelpPageState extends State<HelpPage> {
                       'Votre page d’acceuil',
                       style: const TextStyle(
                           color:  const Color(0xff000000),
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.w500,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
                           fontSize: 18.0
@@ -121,14 +121,15 @@ class _HelpPageState extends State<HelpPage> {
                   image: AssetImage('assets/aideMessagerie.png'),
                   fit: BoxFit.contain,
                 ),
-              ),title: 
+              ),
+              title: 
             Text(
                       'Messagerie',
                       style: const TextStyle(
                           color:  const Color(0xff000000),
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.w500,
                           fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
+                          fontStyle: FontStyle.normal, 
                           fontSize: 18.0
                       ),
                       textAlign: TextAlign.left                
@@ -164,10 +165,10 @@ class _HelpPageState extends State<HelpPage> {
                 ),
               ), title: 
             Text(
-                      'Espace d assistance',
+                      "Espace d'assistance",
                       style: const TextStyle(
                           color:  const Color(0xff000000),
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.w500,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
                           fontSize: 18.0
@@ -176,7 +177,7 @@ class _HelpPageState extends State<HelpPage> {
                       ),
           
           subtitle: Text(
-                      'N hesitez pas à poser vos questions, aidez nous à amiliorer cette version',
+                      'Posez vos questions, et aidez nous à améliorer notre produit',
                       style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,

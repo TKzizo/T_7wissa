@@ -41,7 +41,7 @@ class _HomeHelpPageState extends State<HomeHelpPage> {
                           textAlign: TextAlign.left                
                           ),
       children: <Widget> [Text(
-                          '\n      Dans cette map vous allez trouvez\n      votre position, et la position de chaque\n      membre du même groupe que vous.\n',
+                          '\n      Sur cette map vous allez trouver\n      votre position, et la position de vos\n      partenaires de roûte appartenant au même\n      groupe.\n',
 
 
                           style: const TextStyle(
@@ -97,7 +97,7 @@ class _HomeHelpPageState extends State<HomeHelpPage> {
                           textAlign: TextAlign.left                
                           ),
       children: <Widget> [Text(
-                          '\n  Pour voir la liste de membres \n  1-choisissez un  groupe\n  2-Cliquez sur l’icone qui represente une liste\n   en bas de votre page\n   Dans cette section vous pouvez voir tous\n   les membres de ce groupe \n',
+                          '\n  Pour voir la liste des membres \n  1-choisissez un  groupe\n  2-Cliquez sur l’icone qui represente une liste\n   en bas de votre page\n   Dans cette section vous pouvez voir tous\n   les membres de ce groupe \n',
 
 
                           style: const TextStyle(
@@ -123,7 +123,7 @@ class _HomeHelpPageState extends State<HomeHelpPage> {
                           textAlign: TextAlign.left                
                           ),
       children: <Widget> [Text(
-                          '\n      Pour accèder à votre système de notifications\n      Cliquez sur l icone qui represente une cloche\n      en bas de votre page.\n',
+                          "\n      Pour accèder à votre système de notifications\n      Cliquez sur l'icone qui represente une cloche\n      en bas de votre page.\n",
 
 
                           style: const TextStyle(
@@ -138,6 +138,14 @@ class _HomeHelpPageState extends State<HomeHelpPage> {
        ] ),
          
         
+             SizedBox(
+                      height: 300,
+                      width: 300,
+                      child: Image(
+                       image: AssetImage('assets/pageacceuil.png'),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
 
 
 
