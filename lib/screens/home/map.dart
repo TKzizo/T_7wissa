@@ -66,7 +66,7 @@ String _time = "Not set";
   Marker marker;
   Circle circle;
   GoogleMapController _controller;
-  Position position;
+  Position position=Position(speed: 0);
   String searchAddr;
   double vitesse;
 String text; 
@@ -291,6 +291,7 @@ void setCustomMapPin() async {
                    infoWindow: InfoWindow(
                         title: 'Votre destination',
                     ),
+                    onTap: ()=> _markerDestinationPressed(_current_userId,(snapshot.data.documents[i]['text']) ==null ?0.0: (snapshot.data.documents[i]['text'])),
               )); 
               }else{
                  allMarkers.add(new Marker(
@@ -447,10 +448,11 @@ Widget map(){
                   ),
                 SizedBox(height: 20,), 
                     Text('Votre partenaire de route',
+
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.black,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 fontFamily: "Roboto",
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 17.0
@@ -460,7 +462,7 @@ Widget map(){
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.teal,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 fontFamily: "Roboto",
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 17.0
@@ -472,7 +474,7 @@ Widget map(){
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.black,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 fontFamily: "Roboto",
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 17.0
@@ -517,7 +519,10 @@ Widget map(){
     
         
   }
-    void _markerDestinationPressed(String userId, String destination){
+  
+  
+
+ void _markerDestinationPressed(String userId, String destination){
      showDialog(context: context, builder:(context){
   return AlertDialog(
     elevation: 1,
@@ -538,7 +543,6 @@ Widget map(){
     StreamBuilder<UserData>(
                   stream: DatabaseService(uid:userId).utilisateursDonnees,
                   builder: (context,snapshot){
-                    String icone; 
                     if(snapshot.hasData){
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
@@ -567,6 +571,93 @@ Widget map(){
                             ),),
                             SizedBox(width: 12,),
                               Text(destination,
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.italic,
+                                fontSize: 17.0
+                            ),),
+                               
+              ],
+            ),
+          ),
+       
+      );
+                    }else{
+                      return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
+                    }
+                  }
+              ),
+       
+      
+      ]
+      ),
+   actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('OK'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
+
+  );
+ });
+    
+        
+  }
+   void _markerPausePressed(String userId, String pause){
+     showDialog(context: context, builder:(context){
+  return AlertDialog(
+    elevation: 1,
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20.0))
+),
+  title :  Text('Un arrêt est prévu',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 19.0
+                            ),),
+
+  content: Stack(children: [
+    StreamBuilder<UserData>(
+                  stream: DatabaseService(uid:userId).utilisateursDonnees,
+                  builder: (context,snapshot){
+                    if(snapshot.hasData){
+                      UserData userData=snapshot.data;
+                      print(userData.identifiant);
+                      return    Container( 
+     padding: EdgeInsets.symmetric(vertical:0.0,horizontal :20.0),
+      child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                 Image(
+                    image: AssetImage('assets/pause.png'),
+                    fit: BoxFit.contain,
+                  ),
+                SizedBox(height: 20,), 
+                 
+                                          
+                 SizedBox(height: 18,), 
+              
+                    Text('Votre partenaire de route',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                            SizedBox(width: 12,),
+                    Text(destination,
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.deepOrange,
@@ -634,37 +725,39 @@ Widget map(){
       child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                
+                ClipOval(
+                   child: SizedBox(
+                     width: 120.0,
+                     height: 120.0,
+                     
+                     child: Image.network(userData.image_url.toString(),fit: BoxFit.fill,),
+                     
+                   ),
+                   ),
+                  SizedBox(height: 10,), 
                
                     Text('Votre partenaire de route',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.black,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 fontFamily: "Roboto",
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 17.0
                             ),),
                             SizedBox(width: 7,),
-                              Text(userData.nom,
+                              Text(userData.identifiant,
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.teal,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 fontFamily: "Roboto",
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 17.0
                             ),),
                              SizedBox(width: 7,),
-                              Text(userData.prenom,
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color:  Colors.teal,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.normal,
-                                fontSize: 17.0
-                            ),),
+                            
+                            
                   
                 
                  SizedBox(height: 20,), 
@@ -673,7 +766,7 @@ Widget map(){
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.black,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 fontFamily: "Roboto",
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 17.0
@@ -820,8 +913,8 @@ Future<void> _handlePressButton() async {
                       _img = userData.image_url;
                       _current_user=userData.identifiant; 
                       print(_img);
-                   //   updateuserLocation(_current_userId);
-                    //  updatePinOnMap(_current_userId,_current_user);
+                  //    updateuserLocation(_current_userId);
+                  //  updatePinOnMap(_current_userId,_current_user);
                       return  Text(
                           '');
                     }else{
@@ -1812,7 +1905,7 @@ bool isSwitched=documentFields['statu'];
                         textAlign: TextAlign.left,
                         ),
      ),
-               Switch(
+        /*       Switch(
             value: isSwitched,
             onChanged: (value) async{
               setState(() {
@@ -1823,7 +1916,7 @@ bool isSwitched=documentFields['statu'];
             },
             activeTrackColor: Colors.lightGreenAccent,
             activeColor: Colors.green,
-          ),
+          ),*/
                       ],),
                       
                       ]),
@@ -2097,6 +2190,7 @@ void creeGroupe(){
                          position: new LatLng(latt,lang),
                           markerId: MarkerId('destination'),
                           icon:destinationIcon, 
+                          onTap: ()=> _markerDestinationPressed(_current_userId,destination),
               ));    
               setState(() {
                                
