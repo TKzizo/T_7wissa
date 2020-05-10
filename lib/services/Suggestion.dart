@@ -47,7 +47,8 @@ class UserSearch extends SearchDelegate<String> {
 //addd spinenr
     if (obj != null) {
       return Confirmation(
-        obj: obj);
+        obj: obj
+        dom: dom);
     } else {
       return Center(
         child: Row(
@@ -148,8 +149,9 @@ class UserSearch extends SearchDelegate<String> {
 
 class Confirmation extends StatefulWidget {
  final obj;
+ final dom;
  
- const Confirmation ({ Key key, this.obj }): super(key: key);
+ const Confirmation ({ Key key, this.obj ,this.dom}): super(key: key);
 
   @override
   _ConfirmationState createState() => _ConfirmationState();
@@ -222,11 +224,11 @@ Color  col = Colors.grey[350] ;
           children: <Widget>[
             botton = ay ?  RaisedButton(onPressed:() {
 
-              Firestore.instance.collection('utilisateur').document((widget.obj["uid"]).toString()).collection('Invitations').document().setData({
-                      'groupeID':'5672',
-                      'admin': 'ammalimouna', 
-                      'destination': 'Alger', 
-                      'groupe': 'Famille',                      
+              Firestore.instance.collection('groupe').document((widget.dom["groupeID"]).toString()).collection('suggestion').document().setData({
+                       'groupeID':widget.dom["groupeID"].toString(),
+                      'admin': widget.dom["admin"].toString(), 
+                      'destination': widget.dom["destination"].toString(), 
+                      'groupe': widget.dom["groupe"].toString(),            
                   });
                setState(() {
                 col = green;

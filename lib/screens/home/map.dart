@@ -1966,13 +1966,11 @@ bool isSwitched=documentFields['statu'];
                     .get()
                     .then((value) {
                   _current_grp_admin = value.data["admin"];
-                });
-                Firestore.instance
-                    .collection("groupe")
-                    .document(_current_grp)
-                    .get()
-                    .then((value) {
                   _current_grp_destinaton = value.data["destination"];
+                  pass["admin"] = value.data["admin"];
+                  pass["destination"] = value.data["destination"];
+                  pass["groupe"] = value.data["nom"];
+                  pass["groupeID"] = value.data["uid"];
                 });
                 Firestore.instance
                     .collection("utilisateur")
@@ -1981,7 +1979,6 @@ bool isSwitched=documentFields['statu'];
                     .then((value) {
                   _current_grp_adminID = value.documents[0].data["uid"];
                 });
-                pass = document.data;
 
                //      allMarkers.clear(); 
                setState(() {
