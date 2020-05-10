@@ -34,6 +34,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:myapp/services/Usersearch.dart';
 import 'package:myapp/services/Suggestion.dart'; 
 import 'page_aide.dart'; 
+import 'package:auto_size_text/auto_size_text.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -79,7 +80,7 @@ String  _current_grp_adminID;
 String  _current_grp_admin;
 String _current_grp_destinaton;
 
-Map<String,dynamic> pass;
+Map<String,dynamic> pass = new Map();
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
    
 
@@ -1689,7 +1690,7 @@ void _onMessageButtonPressed(String currentGroupe){
     start:(MediaQuery.of(context).size.width) * 0.1,
        child: SizedBox(
       width:(MediaQuery.of(context).size.width) * 0.8,
-      height: (MediaQuery.of(context).size.height) * 0.05,
+      height: (MediaQuery.of(context).size.height) * 0.08,
       child:
        
        ListTile(
@@ -1844,7 +1845,7 @@ _onGroupButtonPressed(String currentUser){
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(20.0))
 ),
-  content: Text('Vous n''avez pas le droit de lancer cette fonctionalité car vous n''êtes pas l''admin de ce groupe.'),
+  content: Text("Vous n'avez pas le droit de lancer cette fonctionalité car vous n'êtes pas l'administrateur de ce groupe."),
   actions: <Widget>[
     MaterialButton(
       elevation: 5.0,
@@ -2020,30 +2021,27 @@ title:Row (
                              ),
            ],
          ),
-                       onTap:(){
+                       onTap:() async{
                                 _current_grp = document['id'].toString();
-                Firestore.instance
+                await Firestore.instance
                     .collection("groupe")
                     .document(_current_grp)
                     .get()
                     .then((value) {
                   _current_grp_admin = value.data["admin"];
-                });
-                Firestore.instance
-                    .collection("groupe")
-                    .document(_current_grp)
-                    .get()
-                    .then((value) {
                   _current_grp_destinaton = value.data["destination"];
+                  pass["admin"] = value.data["admin"];
+                  pass["destination"] = value.data["destination"];
+                  pass["groupe"] = value.data["nom"];
+                  pass["groupeID"] = value.data["uid"];
                 });
-                Firestore.instance
+                await Firestore.instance
                     .collection("utilisateur")
                     .where("identifiant", isEqualTo: _current_grp_admin)
                     .getDocuments()
                     .then((value) {
                   _current_grp_adminID = value.documents[0].data["uid"];
                 });
-                pass = document.data;
                   
                   for (int j = 0; j< allMarkers.length; j++){
                     allMarkers.removeAt(0); 
@@ -2874,9 +2872,9 @@ void onMembreButtonPressed(){
         SizedBox(
       
       child:FloatingActionButton(heroTag: 'btn8',onPressed:() {
-        currentUser.uid == _current_grp_adminID 
-        ? showSearch(context: context, delegate: UserSeach(pass)) 
-        : showSearch(context: context, delegate: UserSearch(pass));
+        if (currentUser.uid == _current_grp_adminID )
+        { showSearch(context: context, delegate: UserSeach(pass)); }
+         else{ showSearch(context: context, delegate: UserSearch(pass));}
       },
          child: Icon(Icons.add,
          size: 40,
@@ -3722,6 +3720,17 @@ _accepterSugg(String docId,String grpID,String userID) {
 void updatePinOnMap(String id,String user) async {
    
    // create a new CameraPosition instance
+   // every time the location changes, so the camera
+   // follows the pin as it moves with an animation
+          CameraPosition cPosition = CameraPosition(
+   zoom: 16,
+   tilt: 80,
+   bearing: 30,
+   target: LatLng(position.latitude,
+      position.longitude),
+   );
+   
+_controller.animateCamera(CameraUpdate.newCameraPosition(cPosition));
    // every time the location changes, so the camera
    // follows the pin as it moves with an animation
    

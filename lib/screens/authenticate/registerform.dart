@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/services/auth.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 
 
@@ -148,8 +149,8 @@ class _RegisterFormState extends State<RegisterForm> {
   List<Step> _mySteps(){
     List<Step> _steps= [
       Step(
-        title: Text('Etape 1 '),
-        subtitle: Text('Infos basiques'),
+        title: AutoSizeText('Etape 1 '),
+        subtitle: AutoSizeText('Infos basiques'),
         content:Column(children: <Widget>[
           /*Champs Nom*/ 
           SizedBox(height: (MediaQuery.of(context).size.height) * 0.05) ,
@@ -274,8 +275,8 @@ class _RegisterFormState extends State<RegisterForm> {
         isActive: _currentStep >=0, 
         state: _getState(1), ),
         Step(
-        title: Text('Etape 2'),
-        subtitle: Text('Infos du compte'),
+        title: AutoSizeText('Etape 2'),
+        subtitle: AutoSizeText('Infos du compte'),
         content:Column(children: <Widget>[
            /*Champs nom d'utilisateur*/ 
              SizedBox(height:(MediaQuery.of(context).size.height) * 0.05),
@@ -392,8 +393,8 @@ class _RegisterFormState extends State<RegisterForm> {
          
         ),
         Step(
-        title: Text('Etape 3 '),
-        subtitle: Text('Validation'),
+        title: AutoSizeText('Etape 3 '),
+        subtitle: AutoSizeText('Validation'),
           content:Column(children: <Widget>[
               Text('Un mail de confirmation vous a été envoyé ! ',
               textAlign: TextAlign.center,
