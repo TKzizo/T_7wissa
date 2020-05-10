@@ -224,14 +224,11 @@ Color  col = Colors.grey[350] ;
             botton = ay ?  RaisedButton(onPressed:() {
               
               Firestore.instance.collection('utilisateur').document((widget.obj["uid"]).toString()).collection('Invitations').document().setData({
-                     /* 'groupeID':widget.dom["uid"].toString(),
+                     'groupeID':widget.dom["groupeID"].toString(),
                       'admin': widget.dom["admin"].toString(), 
                       'destination': widget.dom["destination"].toString(), 
-                      'groupe': widget.dom["nom"].toString(),                 */     
-                      'groupeID':'1315',
-                      'admin': 'ana',
-                      'destination': 'adrar',
-                      'groupe': 'bobagra'
+                      'groupe': widget.dom["groupe"].toString(),                  
+                      
                   });
                setState(() {
                 col = green;
