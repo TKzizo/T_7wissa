@@ -1845,7 +1845,7 @@ _onGroupButtonPressed(String currentUser){
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(20.0))
 ),
-  content: Text('Vous n''avez pas le droit de lancer cette fonctionalité car vous n''êtes pas l''admin de ce groupe.'),
+  content: Text("Vous n'avez pas le droit de lancer cette fonctionalité car vous n'êtes pas l'administrateur de ce groupe."),
   actions: <Widget>[
     MaterialButton(
       elevation: 5.0,
@@ -3720,6 +3720,17 @@ _accepterSugg(String docId,String grpID,String userID) {
 void updatePinOnMap(String id,String user) async {
    
    // create a new CameraPosition instance
+   // every time the location changes, so the camera
+   // follows the pin as it moves with an animation
+          CameraPosition cPosition = CameraPosition(
+   zoom: 16,
+   tilt: 80,
+   bearing: 30,
+   target: LatLng(position.latitude,
+      position.longitude),
+   );
+   
+_controller.animateCamera(CameraUpdate.newCameraPosition(cPosition));
    // every time the location changes, so the camera
    // follows the pin as it moves with an animation
    
