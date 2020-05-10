@@ -238,7 +238,7 @@ Color  col = Colors.grey[350] ;
             },
             padding: EdgeInsets.all(20),
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            child: Text("Suggerrer '${widget.obj["identifiant"]}' a l'admin",
+            child: Text("Suggérer '${widget.obj["identifiant"]}' a l'admin",
             style: TextStyle(
               color: Colors.black,
               fontSize: 15
@@ -248,7 +248,7 @@ Color  col = Colors.grey[350] ;
               child:Row(
                 children: <Widget>[
                     Icon(Icons.done ,size: 40, color: Colors.white,),
-                    Text("Suggestion a été envoyée", style: TextStyle(fontSize: 20, color: Colors.white), )
+                    Text("Suggestion envoyée", style: TextStyle(fontSize: 20, color: Colors.white), )
                 ],
                 ),
             ),
