@@ -238,7 +238,7 @@ Color  col = Colors.grey[350] ;
             },
             padding: EdgeInsets.all(20),
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            child: Text("Suggérer '${widget.obj["identifiant"]}' a l'admin",
+            child: Text("Suggérer '${widget.obj["identifiant"]}' à l'administrateur",
             style: TextStyle(
               color: Colors.black,
               fontSize: 15
