@@ -11,7 +11,10 @@ class Launch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+<<<<<<< HEAD
       debugShowCheckedModeBanner: false,
+=======
+>>>>>>> 87ae19c19636d26874e75d1992da53f1f862f264
       home: SplashScreen(),  
      );
   }
