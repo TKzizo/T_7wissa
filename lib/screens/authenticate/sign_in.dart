@@ -30,7 +30,7 @@ class _SignInState extends State<SignIn> {
       body: Container(
 
         color: Colors.white,
-        padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height) * 0.02, horizontal: (MediaQuery.of(context).size.width) * 0.05),
+        padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height) * 0.063, horizontal: (MediaQuery.of(context).size.width) * 0.05),
         child : SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -182,7 +182,7 @@ class _SignInState extends State<SignIn> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-                     Text("    Pas encore membre,",
+                     Text("            Pas encore membre,",
                         textAlign: TextAlign.left,
                         style: const TextStyle(
                             color: const Color(0xde3d3d3d),

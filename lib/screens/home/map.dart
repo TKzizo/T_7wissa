@@ -53,9 +53,10 @@ class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormState>(); //pour identifier le formulaire 
   // text field state
   String nom = '';
-  String lieu = '';
+  String lieu = 'Votre destination';
   String error =''; 
   String heure ='';
+  String _supp = '';
   String _current_user; 
   String _current_userId; 
   String destination="Votre destination"; 
@@ -728,7 +729,7 @@ Widget map(){
               children: <Widget>[
                 ClipOval(
                    child: SizedBox(
-                     width: (MediaQuery.of(context).size.width) * 0.15,
+                     width: (MediaQuery.of(context).size.width) * 0.2,
                      height: (MediaQuery.of(context).size.height) * 0.12,
                      
                      child: Image.network(userData.image_url.toString(),fit: BoxFit.fill,),
@@ -890,12 +891,14 @@ Future<void> _handlePressButton() async {
     return Scaffold(
  resizeToAvoidBottomInset: true,
       /*Bar*/
-      appBar: AppBar(
+       appBar: PreferredSize(
+        preferredSize: Size.fromHeight(45.0),
+        child : AppBar(
         backgroundColor: Colors.deepOrange.withOpacity(0.7),
-        elevation: 0.0,
+        elevation: 3.0,
         title: Text('Acceuil'),
 
-      )  ,
+      ) ),
       /*MENU*/
       bottomNavigationBar:   BottomAppBar(
           color: Colors.white.withOpacity(0.5),
@@ -1764,9 +1767,16 @@ _onGroupButtonPressed(String currentUser){
       textAlign: TextAlign.left                
       )),
   ),
+  
      
      Container( 
-     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     padding: EdgeInsets.only(
+       
+     top: (MediaQuery.of(context).size.height) * 0.075,
+     bottom: (MediaQuery.of(context).size.height) * 0.02,
+     left: (MediaQuery.of(context).size.width) * 0.04,
+     right: (MediaQuery.of(context).size.width) * 0.04,
+       ),
      child: StreamBuilder(
      stream: Firestore.instance.collection('utilisateur').document(_current_userId).collection('ListeGroupe').snapshots(),
      builder: (context,snapshot){
@@ -1796,8 +1806,11 @@ _onGroupButtonPressed(String currentUser){
        
       ) , 
        PositionedDirectional(
-    top: 300,
-    start: 275,
+
+
+
+    top: (MediaQuery.of(context).size.height) * 0.44,
+    start: (MediaQuery.of(context).size.width) * 0.8,
     child: 
         SizedBox(
       
@@ -1855,7 +1868,52 @@ _onGroupButtonPressed(String currentUser){
            Map<String, dynamic> documentFields = snapshot.data.data;
 //bool isSwitched=documentFields['statu'];
            return  ListTile(
-    title:Row (
+title:Row (
+       
+        crossAxisAlignment: CrossAxisAlignment.start,
+       
+        children : <Widget>[
+       Text(
+      documentFields['nom'].toString(),
+      style: const TextStyle(
+          color:  const Color(0xff3d3d3d),
+          fontWeight: FontWeight.w400,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 17.0
+      ),
+      textAlign: TextAlign.left                
+      ),
+      Spacer(flex:1,),
+     SizedBox(
+        width: (MediaQuery.of(context).size.width) * 0.14,
+       height: (MediaQuery.of(context).size.height) * 0.045,
+            child: Text(  "à : "+ documentFields['destination'],
+                        style: const TextStyle(
+                            color:  const Color(0xff52bf90),
+                            fontWeight: FontWeight.w400,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 14.0
+                        ),
+                        textAlign: TextAlign.left,
+                        ),
+     ),
+     ]),
+     subtitle :   Text(
+                      "Admin : "+ documentFields['admin'].toString(),
+                      style: const TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 14.0
+                      ),
+                      textAlign: TextAlign.left                
+                      ),
+
+
+    /*title:Row (
        
         crossAxisAlignment: CrossAxisAlignment.start,
        
@@ -1877,7 +1935,7 @@ _onGroupButtonPressed(String currentUser){
       ),
       
      SizedBox(
-      height: 58,
+      height: (MediaQuery.of(context).size.height) * 0.06,
       child : Text(
                       "Admin : "+ documentFields['admin'],
                       style: const TextStyle(
@@ -1923,7 +1981,7 @@ _onGroupButtonPressed(String currentUser){
           ),*/
                       ],),
                       
-                      ]),
+                      ]),*/
 
      /*subtitle :   Text(
                       "Admin : "+ documentFields['admin'],
@@ -1953,9 +2011,9 @@ _onGroupButtonPressed(String currentUser){
             activeTrackColor: Colors.lightGreenAccent,
             activeColor: Colors.green,
           ),*/
-             IconButton(onPressed:()=> _quittergroupe(document.documentID),
+             IconButton(onPressed:()=> _quittergroupe(document.documentID,documentFields['uid']),
                              icon: Icon(
-                            Icons.arrow_forward,
+                            Icons.exit_to_app,
                              color:  const Color(0xffff5722),
                             ),
                           
@@ -1986,6 +2044,11 @@ _onGroupButtonPressed(String currentUser){
                   _current_grp_adminID = value.documents[0].data["uid"];
                 });
                 pass = document.data;
+                  
+                  for (int j = 0; j< allMarkers.length; j++){
+                    allMarkers.removeAt(0); 
+                  }
+
 
                //      allMarkers.clear(); 
                setState(() {
@@ -2001,11 +2064,23 @@ _onGroupButtonPressed(String currentUser){
                       })
       ); //
                     }
-_quittergroupe(docId) {
+_quittergroupe(docId,docgrpID) {
 
             Firestore.instance.collection('utilisateur').document(_current_userId).collection('ListeGroupe').document(docId).delete().catchError((e){
               print(e);});
-              print('supp');           
+              print('supp'); 
+              Firestore.instance
+                    .collection("groupe").document(docgrpID).collection('ListeMembre')
+                    .where("user", isEqualTo: _current_userId)
+                    .getDocuments()
+                    .then((value) {
+                  _supp = value.documents[0].documentID;
+                  
+                  Firestore.instance.collection("groupe").document(docgrpID).collection('ListeMembre').document(_supp).delete().catchError((e){
+              print(e);})    ; 
+
+                });   
+                  
             /*Firestore.instance.collection('groupe').document(docId).collection('ListeMembre').document().catchError((e){
               print(e);});
               print('supp');*/
@@ -2017,198 +2092,245 @@ void creeGroupe(){
      return Container(
 
         color: const Color(0xff737373),
-       width: 360,
-        height: 600,
+       width: (MediaQuery.of(context).size.width) * 0.360,
+      height: (MediaQuery.of(context).size.height) * 0.535,
         child: Container(
         decoration: BoxDecoration(
        color: const Color(0xffffffff),
         borderRadius:  BorderRadius.only(
-          topLeft:  const Radius.circular(60) ,
-          topRight:  const Radius.circular(60) ,
+          topLeft:  const Radius.circular(30) ,
+          topRight:  const Radius.circular(30) ,
         ),
         ),
-      child : Container(
-        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
-        child : Form(
-          key : _formKey,
-      child: Column( 
-        mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(height: 30.0),
-              TextFormField(
-                decoration: const InputDecoration(
-                 hintText: 'Nom du groupe',
-                  ),
-                validator: (val) => val.isEmpty ? 'Donner un nom ' : null,
-                onChanged: (val) {
-                  setState(() => nom = val);
-                },
-              ),
-              SizedBox(height: 15.0),
-            Material(
-                    elevation: 2.5,
-                    borderRadius: BorderRadius.circular(30.0),
-                    color: Colors.white,
-                    shadowColor: Colors.white,
-                     child: FlatButton(
-                       focusColor: Colors.white,
-                       highlightColor: Colors.white,
-                     onPressed:   _handlePressButton,
-  child: Container(
-                    alignment: Alignment.center,
-                    height: 50.0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Container(
-                              child: Row(
-                                children: <Widget>[
-                                
-                                  SizedBox(
-                                    height: 20,
-                                    width: 270,  
-                                    child: Text(
-                                      destination ==null ?'Destination':destination,
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.normal,
-                                          fontSize: 17.0),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                         Icon(
-                                    Icons.search,
-                                    size: 18.0,
-                                    color: Colors.deepOrange,
-                                  ),
-                      ],
-                    ),
-                ),
-                color: Colors.white,
-              ),
-                  ),
-              SizedBox(height: 15.0),
-              /*Heure de depart*/ 
-               Material(
-                    elevation: 2.5,
-                    borderRadius: BorderRadius.circular(30.0),
-                    color: Colors.white,
-                    shadowColor: Colors.white,
-                     child: FlatButton(
-                       focusColor: Colors.white,
-                       highlightColor: Colors.white,
-                     onPressed: () {
-                    DatePicker.showTimePicker(context,
-                        theme: DatePickerTheme(
-                          containerHeight: 210.0,
-                        ),
-                        showTitleActions: true, onConfirm: (time) {
-                      print('confirm $time');
-                      
-                      _time = '${time.hour} : ${time.minute} : ${time.second}';
-                      setState(() {});
-                    }, currentTime: DateTime.now(), locale: LocaleType.en);
-                    setState(() {});
-                }, 
-                child: Container(
-                    alignment: Alignment.center,
-                    height: 50.0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Container(
-                              child: Row(
-                                children: <Widget>[
-                                
-                                  Text(
-                                    " $_time",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 17.0),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                         Icon(
-                                    Icons.access_time,
-                                    size: 18.0,
-                                    color: Colors.deepOrange,
-                                  ),
-                      ],
-                    ),
-                ),
-                color: Colors.white,
-              ),
-                  ), 
-                  /*HEURE DE DEPART */
-           
-              Row(
-                 children: <Widget>[
-                   SizedBox(height: 80,),
-                   SizedBox(width: 100,),
-                   FlatButton.icon(
-                     icon: Icon(Icons.add_circle,color: Color(0xffff5722), size: 40,),
-                     label: Text("Ajoutez les membres"),
-                     
-                     onPressed: () => showSearch(context: context, delegate: UserSeach(pass))
-                    ),
-                  ],      
-              ),
-              SizedBox(height: 20.0),
-              Material(
-                borderRadius: BorderRadius.circular(30.0),
-                color: Colors.deepOrange,
-                child: 
-                MaterialButton(
-                minWidth: 174,
-                height: 36,
-                child: 
-                Text("Créer le groupe",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      color:  const Color(0xffffffff),
-                      fontWeight: FontWeight.w500,
-                      fontFamily: "Roboto",
-                      fontStyle:  FontStyle.normal,
-                      fontSize: 16.0
-                  ),
-                ),
-                onPressed: () async {
-                  if(_formKey.currentState.validate()){ 
-                    
-                    CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user,destination, _time, listMembre, nom,_current_userId);
-                    CreationGroupeServises(uid: _id.toString()).marquer_Alerte(_id.toString(), destination, lang, latt, _current_userId, "destination");
-
-                 allMarkers.add(new Marker(
-                         position: new LatLng(latt,lang),
-                          markerId: MarkerId('destination'),
-                          icon:destinationIcon, 
-                          onTap: ()=> _markerDestinationPressed(_current_userId,destination),
-              ));    
-              setState(() {
-                               
-
+      child : Stack(
+              children: <Widget>[ 
+                 PositionedDirectional(
+    top: (MediaQuery.of(context).size.height) * 0.035,
+    start: (MediaQuery.of(context).size.width) * 0.1,
+    child: 
+        SizedBox(
+      width: (MediaQuery.of(context).size.width) * 0.4,
+      height: (MediaQuery.of(context).size.height) * 0.03,
+      child: Text(
+      "Créer un groupe ",
+      style: const TextStyle(
+          color:  const Color(0xde204f6f),
+          fontWeight: FontWeight.w500,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 19.0
+      ),
+      textAlign: TextAlign.left                
+      )),
+  ),
                 
-                 _child=_mapWidget();
-              });
+                
+                Container(
+          padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height) * 0.01, horizontal:(MediaQuery.of(context).size.width) * 0.1),
+          child : Form(
+            key : _formKey,
+        child: Column( 
+          mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(height: (MediaQuery.of(context).size.height) * 0.03),
+                TextFormField(
+                  decoration: const InputDecoration(
+                   hintText: '   Nom du groupe',
+                    ),
+                  validator: (val) => val.isEmpty ? 'Donner un nom ' : null,
+                  onChanged: (val) {
+                    setState(() => nom = val);
+                  },
+                ),
+                SizedBox(height: (MediaQuery.of(context).size.height) * 0.015),
+              Material(
+                      elevation: 2.5,
+                      //borderRadius: BorderRadius.circular(30.0),
+                      borderRadius: BorderRadius.zero,
+                      color: Colors.white,
+                      shadowColor: Colors.white,
+                       child: FlatButton(
+                         focusColor: Colors.white,
+                         highlightColor: Colors.white,
+                       onPressed:   _handlePressButton,
+  child: Container(
+                      alignment: Alignment.center,
+                      height: (MediaQuery.of(context).size.height) * 0.05,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                child: Row(
+                                  children: <Widget>[
+                                  
+                                    SizedBox(
+                                      height: (MediaQuery.of(context).size.height) * 0.03,
+                                      width: (MediaQuery.of(context).size.width) * 0.4,  
+                                      child: Text(
+                                        destination ==null ?'Destination':destination,
+                                        style: TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 16.0
+                      ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                           Icon(
+                                      Icons.search,
+                                      size: 18.0,
+                                      color: Colors.deepOrange,
+                                    ),
+                        ],
+                      ),
+                  ),
+                  color: Colors.white,
+                ),
+                    ),
+                SizedBox(height: (MediaQuery.of(context).size.height) * 0.015),
+                /*Heure de depart*/ 
+                 Material(
+                      elevation: 2.5,
+                      borderRadius: BorderRadius.zero,
+                      color: Colors.white,
+                      shadowColor: Colors.white,
+                       child: FlatButton(
+                         focusColor: Colors.white,
+                         highlightColor: Colors.white,
+                       onPressed: () {
+                      DatePicker.showTimePicker(context,
+                          theme: DatePickerTheme(
+                            containerHeight: 210.0,
+                          ),
+                          showTitleActions: true, onConfirm: (time) {
+                        print('confirm $time');
+                        
+                        _time = '${time.hour} : ${time.minute} : ${time.second}';
+                        setState(() {});
+                      }, currentTime: DateTime.now(), locale: LocaleType.en);
+                      setState(() {});
+                  }, 
+                  child: Container(
+                      alignment: Alignment.center,
+                      height: (MediaQuery.of(context).size.height) * 0.05,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                child: Row(
+                                  children: <Widget>[
+                                  
+                                    Text(
+                                      " $_time",
+                                      style: TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 16.0
+                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                           Icon(
+                                      Icons.access_time,
+                                      size: 18.0,
+                                      color: Colors.deepOrange,
+                                    ),
+                        ],
+                      ),
+                  ),
+                  color: Colors.white,
+                ),
+                    ), 
+                    /*HEURE DE DEPART */
+             
+                Row(
+                   children: <Widget>[
+                     SizedBox(height: (MediaQuery.of(context).size.height) * 0.09,),
+                     SizedBox(width: (MediaQuery.of(context).size.width) * 0.65,),
+                    SizedBox(
+                      height:(MediaQuery.of(context).size.height) * 0.05 ,
+                      width: (MediaQuery.of(context).size.width) * 0.1,
+                       child: FloatingActionButton(
+                         backgroundColor: Color(0xffff5722),
+                         heroTag: 'btn10000',
+                         child: Icon(Icons.add, 
+
+                          size: 30,),
+                         
+                         
+                         onPressed: () => showSearch(context: context, delegate: UserSeach(pass))
+                        ),
+                     ),
+                    ],      
+                ),
+                
+                 Row(
+                   children: <Widget>[
+                     SizedBox(width:(MediaQuery.of(context).size.width) * 0.6,),
+                     Text('Ajouter des\n membres'),
+                   ],
+                 ),
+                
+                SizedBox(height:(MediaQuery.of(context).size.height) * 0.02),
+                Material(
+                  borderRadius: BorderRadius.circular(30.0),
+                  color: Colors.deepOrange,
+                  child: 
+                  MaterialButton(
+                  minWidth: (MediaQuery.of(context).size.width) * 0.35,
+                  height: (MediaQuery.of(context).size.height) * 0.036,
+                  child: 
+                  Text("Créer",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        color:  const Color(0xffffffff),
+                        fontWeight: FontWeight.w500,
+                        fontFamily: "Roboto",
+                        fontStyle:  FontStyle.normal,
+                        fontSize: 16.0
+                    ),
+                  ),
+                  onPressed: () async {
+                    if(_formKey.currentState.validate()){ 
+                      
+                      CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user,destination, _time, listMembre, nom,_current_userId);
+                      CreationGroupeServises(uid: _id.toString()).marquer_Alerte(_id.toString(), destination, lang, latt, _current_userId, "destination");
+
+                   allMarkers.add(new Marker(
+                           position: new LatLng(latt,lang),
+                            markerId: MarkerId('destination'),
+                            icon:destinationIcon, 
+                            onTap: ()=> _markerDestinationPressed(_current_userId,destination),
+                ));    
+                setState(() {
+                                 
+
+                  
+                   _child=_mapWidget();
+                });
+                    }
                   }
-                }
-              ),
-              ), 
-            ],
+                ),
+                ), 
+              ],
+            ),
           ),
-        ),
+        ),],
       ),
       )
      );
@@ -2224,8 +2346,8 @@ void creeGroupe(){
     showModalBottomSheet(context: context, builder:(context){
      return Container(
         color: const Color(0xff737373),
-       width: 360,
-      height: 535,
+       width: (MediaQuery.of(context).size.width) * 0.360,
+      height: (MediaQuery.of(context).size.height) * 0.535,
       child:Container(
       decoration: BoxDecoration(
        color: const Color(0xffffffff),
@@ -2238,12 +2360,12 @@ void creeGroupe(){
        child: Stack(children: [
   // ✏️ Headline 6 
   PositionedDirectional(
-    top: 35,
-    start: 38,
+    top: (MediaQuery.of(context).size.height) * 0.035,
+    start: (MediaQuery.of(context).size.width) * 0.1,
     child: 
         SizedBox(
-      width: 200,
-      height: 26,
+      width: (MediaQuery.of(context).size.width) * 0.7,
+      height: (MediaQuery.of(context).size.height) * 0.03,
       child: Text(
       "Changer destination",
       style: const TextStyle(
@@ -2258,64 +2380,104 @@ void creeGroupe(){
   ),
      
      Container( 
-     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+               padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height) * 0.1, horizontal:(MediaQuery.of(context).size.width) * 0.1),
      child: Form(
           key : _formKey,
       child: Column( 
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              SizedBox(height: 30.0),
+              SizedBox(height:(MediaQuery.of(context).size.height) * 0.01),
             
            
-                    TextFormField(
-                      autofocus: false,
-                      cursorColor: Colors.deepOrange,
-                      obscureText: false,
-                      //TEXT
-                      style: TextStyle(
-                          color:  Colors.grey[900],
+                    Material(
+                      elevation: 2.5,
+                      //borderRadius: BorderRadius.circular(30.0),
+                      borderRadius: BorderRadius.zero,
+                      color: Colors.white,
+                      shadowColor: Colors.white,
+                       child: FlatButton(
+                         focusColor: Colors.white,
+                         highlightColor: Colors.white,
+                       onPressed:   _handlePressButton,
+  child: Container(
+                      alignment: Alignment.center,
+                      height: (MediaQuery.of(context).size.height) * 0.05,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                child: Row(
+                                  children: <Widget>[
+                                  
+                                    SizedBox(
+                                      height: (MediaQuery.of(context).size.height) * 0.03,
+                                      width: (MediaQuery.of(context).size.width) * 0.4,  
+                                      child: Text(
+                                        lieu ==null ?'Destination':lieu,
+                                        style: TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
                           fontSize: 16.0
                       ),
-                      //SHAPE
-                         
-                      decoration: InputDecoration(
-                          hintText: "Entrez une adresse ",
-                         suffixIcon: IconButton(
-                        icon: Icon(Icons.search, color: Colors.deepOrange,),
-                        onPressed:
-                          _handlePressButton,
-                        
-                        iconSize: 30.0),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                           Icon(
+                                      Icons.search,
+                                      size: 18.0,
+                                      color: Colors.deepOrange,
+                                    ),
+                        ],
                       ),
-                      //Validation de l'entrée
-                      validator: (val) => val.isEmpty ? 'Entrez une adresse' : null,
-                       onChanged: (val) {
-                  setState(() {
-                    lieu = val;
-                    
-                  });})])),),
+                  ),
+                  color: Colors.white,
+                ),
+                    ),
+                  
+                  ])),),
        PositionedDirectional(
-    top: 300,
-    start: 275,
+    top: (MediaQuery.of(context).size.height) * 0.3,
+    start: (MediaQuery.of(context).size.width) * 0.3,
     child: 
         SizedBox(
       
-      child:FloatingActionButton(onPressed:()=>{ if(_formKey.currentState.validate()){ 
+      child:Material(
+                  borderRadius: BorderRadius.circular(30.0),
+                  color: Colors.deepOrange,
+                  child: 
+                  MaterialButton(
+                  minWidth: (MediaQuery.of(context).size.width) * 0.35,
+                  height: (MediaQuery.of(context).size.height) * 0.036,
+                  child: 
+                  Text("Changer",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        color:  const Color(0xffffffff),
+                        fontWeight: FontWeight.w500,
+                        fontFamily: "Roboto",
+                        fontStyle:  FontStyle.normal,
+                        fontSize: 16.0
+                    ),
+                  ),
+        onPressed:()=>{ if(_formKey.currentState.validate()){ 
          
     ref.updateData({"destination": lieu})         
                     
                   }},
-         child: Icon(Icons.change_history,
-         size: 40,
-         ),
-         backgroundColor: const Color(0xffff5722),
-         focusColor: Colors.white,
-         ),
+         
+                  ),
         ),
-  ), ]
-      )
+  ), 
+  ),
+       ],),
          
           ),
         
@@ -2355,10 +2517,10 @@ void creeGroupe(){
     Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        SizedBox(width: 20,),
+        SizedBox(width: (MediaQuery.of(context).size.width) * 0.1),
                   MaterialButton(
-                       minWidth: 100,
-                      height: 36,
+                       minWidth: (MediaQuery.of(context).size.width) * 0.2,
+                      height: (MediaQuery.of(context).size.height) * 0.036,
                       child:
                       Text("OUI",
                         textAlign: TextAlign.center,
@@ -2384,10 +2546,10 @@ void creeGroupe(){
               Navigator.of(context).pop();
                       }
                   ),
-                     SizedBox(width: 20,),               
+                    SizedBox(width: (MediaQuery.of(context).size.width) * 0.1),    
                   MaterialButton(
-                      minWidth: 100,
-                      height: 36,
+                       minWidth: (MediaQuery.of(context).size.width) * 0.2,
+                      height: (MediaQuery.of(context).size.height) * 0.036,
                       child:
                       Text("NON",
                         textAlign: TextAlign.center,
@@ -2401,7 +2563,7 @@ void creeGroupe(){
                       ),
                       onPressed: () {Navigator.of(context).pop();}
                   ),
-                 SizedBox(width: 20,),
+                 SizedBox(width: (MediaQuery.of(context).size.width) * 0.1),
                 ],),
   ],
 
@@ -2414,8 +2576,8 @@ void creeGroupe(){
     showModalBottomSheet(context: context, builder:(context){
      return Container(
         color: const Color(0xff737373),
-       width: 360,
-      height: 535,
+      width: (MediaQuery.of(context).size.width) * 0.360,
+      height: (MediaQuery.of(context).size.height) * 0.535,
       child:Container(
       decoration: BoxDecoration(
        color: const Color(0xffffffff),
@@ -2426,13 +2588,13 @@ void creeGroupe(){
       ),
       
        child: Stack(children: [
-  PositionedDirectional(
-    top: 35,
-    start: 38,
+ PositionedDirectional(
+    top: (MediaQuery.of(context).size.height) * 0.035,
+    start: (MediaQuery.of(context).size.width) * 0.1,
     child: 
         SizedBox(
-      width: 10000,
-      height: 26,
+      width: (MediaQuery.of(context).size.width) * 0.8,
+      height: (MediaQuery.of(context).size.height) * 0.03,
       child: Text(
       "Ajouter un point de repos ",
       style: const TextStyle(
@@ -2447,14 +2609,13 @@ void creeGroupe(){
   ),
      
      Container( 
-     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
-     child:Form(
+     padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height) * 0.1, horizontal:(MediaQuery.of(context).size.width) * 0.1),
           key: _formKey,
           child: SingleChildScrollView(
             child:SingleChildScrollView(
                           child: Column(
                 children: <Widget>[
-                  SizedBox(height: 12,),       
+                  SizedBox(height: (MediaQuery.of(context).size.height) * 0.012),       
             Material(
                     elevation: 2.5,
                     borderRadius: BorderRadius.circular(30.0),
@@ -2468,7 +2629,7 @@ void creeGroupe(){
                    
                 child: Container(
                     alignment: Alignment.center,
-                    height: 50.0,
+                    height: (MediaQuery.of(context).size.height) * 0.05,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -2479,14 +2640,17 @@ void creeGroupe(){
                                 children: <Widget>[
                                 
                                   SizedBox(
-                                    height: 20,
-                                    width: 270,  
+                                    height: (MediaQuery.of(context).size.height) * 0.03,
+                                    width: (MediaQuery.of(context).size.width) * 0.5,  
                                     child: Text(
                                       pause ==null ?'Position':pause,
                                       style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.normal,
-                                          fontSize: 17.0),
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 16.0
+                      ),
                                     ),
                                   ),
                                 ],
@@ -2505,7 +2669,7 @@ void creeGroupe(){
                 color: Colors.white,
               ),
                   ),
-                  SizedBox(height: 12,),
+                  SizedBox(height: (MediaQuery.of(context).size.height) * 0.012),
                 
                   Material(
                     elevation: 2.5,
@@ -2530,7 +2694,7 @@ void creeGroupe(){
                 }, 
                 child: Container(
                     alignment: Alignment.center,
-                    height: 50.0,
+                    height: (MediaQuery.of(context).size.height) * 0.05,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -2543,9 +2707,12 @@ void creeGroupe(){
                                   Text(
                                     " $_time",
                                     style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 17.0),
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 16.0
+                      ),
                                   ),
                                 ],
                               ),
@@ -2563,14 +2730,14 @@ void creeGroupe(){
                 color: Colors.white,
               ),
                   ), 
-                   SizedBox(height: 40.0),
+                   SizedBox(height: (MediaQuery.of(context).size.height) * 0.04),
                   Material(
                     borderRadius: BorderRadius.circular(30.0),
                     color: Colors.deepOrange,
                     child:
                     MaterialButton(
-                        minWidth: 174,
-                        height: 36,
+                        minWidth: (MediaQuery.of(context).size.width) * 0.3,
+                        height:(MediaQuery.of(context).size.height) * 0.036,
                         child:
                         Text("AJOUTER",
                           textAlign: TextAlign.center,
@@ -2590,7 +2757,8 @@ void creeGroupe(){
             ),
           ),
        
-      ))
+      ),
+       
        
       
       ]
@@ -2629,8 +2797,8 @@ void onMembreButtonPressed(){
     showModalBottomSheet(context: context, builder:(context){
      return Container(
         color: const Color(0xff737373),
-       width: 360,
-      height: 535,
+      width: (MediaQuery.of(context).size.width) * 0.360,
+      height: (MediaQuery.of(context).size.height) * 0.535,
       child:Container(
       decoration: BoxDecoration(
        color: const Color(0xffffffff),
@@ -2643,12 +2811,12 @@ void onMembreButtonPressed(){
        child: Stack(children: [
   // ✏️ Headline 6 
   PositionedDirectional(
-    top: 35,
-    start: 38,
+    top: (MediaQuery.of(context).size.height) * 0.035,
+    start: (MediaQuery.of(context).size.width) * 0.1,
     child: 
         SizedBox(
-      width: 100,
-      height: 26,
+      width: (MediaQuery.of(context).size.width) * 0.8,
+      height: (MediaQuery.of(context).size.height) * 0.03,
       child: Text(
       "Membres",
       style: const TextStyle(
@@ -2663,7 +2831,13 @@ void onMembreButtonPressed(){
   ),
      
      Container( 
-     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+      padding: EdgeInsets.only(
+       
+     top: (MediaQuery.of(context).size.height) * 0.075,
+     bottom: (MediaQuery.of(context).size.height) * 0.02,
+     left: (MediaQuery.of(context).size.width) * 0.04,
+     right: (MediaQuery.of(context).size.width) * 0.04,
+       ),
      child: StreamBuilder(
      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('ListeMembre').snapshots(),
      builder: (context,snapshot){
@@ -2694,8 +2868,8 @@ void onMembreButtonPressed(){
        
       ) , 
        PositionedDirectional(
-    top: 300,
-    start: 275,
+    top: (MediaQuery.of(context).size.height) * 0.43,
+    start: (MediaQuery.of(context).size.width) * 0.75,
     child: 
         SizedBox(
       
@@ -2713,8 +2887,8 @@ void onMembreButtonPressed(){
         ),
   ), 
    PositionedDirectional(
-    top: 370,
-    start: 275,
+    top: (MediaQuery.of(context).size.height) * 0.43,
+    start: (MediaQuery.of(context).size.width) * 0.60,
     child: 
         SizedBox(
       
@@ -2778,8 +2952,8 @@ Map<String, dynamic> documentFields = snapshot.data.data;
              return  ListTile(
      leading: (
                 Container(
-                  width: 50.0,
-                  height: 50.0,
+                  width: (MediaQuery.of(context).size.width) * 0.13,
+                  height: (MediaQuery.of(context).size.height) * 0.1,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
@@ -2820,8 +2994,8 @@ Map<String, dynamic> documentFields = snapshot.data.data;
            return  ListTile(
      leading: (
                 Container(
-                  width: 50.0,
-                  height: 50.0,
+                  width: (MediaQuery.of(context).size.width) * 0.13,
+                  height: (MediaQuery.of(context).size.height) * 0.1,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
@@ -2881,11 +3055,14 @@ Map<String, dynamic> documentFields = snapshot.data.data;
   creatAlertDialog( BuildContext context){
  return showDialog(context: context, builder:(context){
   return AlertDialog(
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20.0))
+),
   title : Text('Suggestions'),
   content:  Container(
-              padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
-              height: 300.0, // Change as per your requirement
-      width: double.maxFinite,
+              padding: EdgeInsets.symmetric(vertical:(MediaQuery.of(context).size.height) * 0.01, horizontal:(MediaQuery.of(context).size.width) * 0.01),
+              height: (MediaQuery.of(context).size.height) * 0.4, // Change as per your requirement
+      width: (MediaQuery.of(context).size.width) * 0.7,
      child: StreamBuilder(
      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('suggestions').snapshots(),
      builder: (context,snapshot){
@@ -2934,29 +3111,37 @@ showModalBottomSheet(context: context, builder:(context){
      print(phonenum);
      return Container(
         color: const Color(0xff737373),
-       width: 360,
-        height: 600,
+       width: (MediaQuery.of(context).size.width) * 0.360,
+      height: (MediaQuery.of(context).size.height) * 0.535,
         child: Container(
         decoration: BoxDecoration(
        color: const Color(0xffffffff),
         borderRadius:  BorderRadius.only(
-          topLeft:  const Radius.circular(60) ,
-          topRight:  const Radius.circular(60) ,
+          topLeft:  const Radius.circular(30) ,
+          topRight:  const Radius.circular(30) ,
         ),
         ),
       child: Stack(children: [
   
      Container( 
-     padding: EdgeInsets.symmetric(vertical:40,horizontal :20.0),
+      padding: EdgeInsets.only(
+       
+     top: (MediaQuery.of(context).size.height) * 0.05,
+     bottom: (MediaQuery.of(context).size.height) * 0.02,
+     left: (MediaQuery.of(context).size.width) * 0.04,
+     right: (MediaQuery.of(context).size.width) * 0.04,
+       ),
      child: ListView(children: [
-                SizedBox(
-                height:100,
-                width: 100,
-                child: Image(
-                  image: NetworkImage(document['image_url'].toString()),
-                  fit: BoxFit.contain,
-                ),
-              ),
+       ClipOval(
+                   child: SizedBox(
+                     width: (MediaQuery.of(context).size.width) * 0.01,
+                     height: (MediaQuery.of(context).size.height) * 0.1,
+                     
+                     child: Image.network(document['image_url'].toString(),fit: BoxFit.contain,)),
+                     
+                   ), 
+                   SizedBox(height:(MediaQuery.of(context).size.height) * 0.02 ,),
+                
                 ListTile(
                   leading: Icon(Icons.person, color: Colors.greenAccent,),
                   title: Text(document['identifiant'] ,
@@ -2975,6 +3160,7 @@ showModalBottomSheet(context: context, builder:(context){
                   ),
               
                 ),
+                
                 ListTile(
                   leading: Icon(Icons.person, color: Colors.greenAccent,),
                   title: Text(document['nom'] +" " + document['prenom'],
@@ -3012,8 +3198,8 @@ showModalBottomSheet(context: context, builder:(context){
     
      
      PositionedDirectional(
-    top: 290,
-    start:100,
+    top: (MediaQuery.of(context).size.height) * 0.4,
+    start:(MediaQuery.of(context).size.width) * 0.37,
        child:  FlatButton(
           onPressed:()=>custom_lunch('tel:$phonenum'),
                       
@@ -3057,101 +3243,17 @@ showModalBottomSheet(context: context, builder:(context){
 
 
 });}
-_buildMemberlistItem2(BuildContext ctx,DocumentSnapshot document) {
-        final user = Provider.of<User>(context);
-          StreamBuilder<UserData>(
-                  stream: DatabaseService(uid: user.uid).utilisateursDonnees,
-                  builder: (context,snapshot){
-                    if(snapshot.hasData){
-                      UserData userData=snapshot.data;
-                      print(userData.identifiant);
-                      return(  StreamBuilder<DocumentSnapshot>(
-    stream: provideDocumentFieldStream("groupe",_current_grp),
-    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasData) {
-           Map<String, dynamic> documentAdmin = snapshot.data.data;
-           if (documentAdmin['admin']==userData.identifiant){
-            list_suggestion(context, _current_grp);
-           }
-           }
-    }));          
-                           }else{
-                      return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
-                    }
-                  }
-              );
-     return(  StreamBuilder<DocumentSnapshot>(
-    stream: provideDocumentFieldStream("utilisateur",document['user']),
-    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasData) {
-           Map<String, dynamic> documentFields = snapshot.data.data;
-           return  ListTile(
-    title: Text(
-                documentFields['identifiant'],
-                      style: const TextStyle(
-                          color:  const Color(0xde000000),
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left                
-                      ),
-     onTap: ()=> _afficherMembre(documentFields),
-                      );
-        }
-    }
-)
-                  );
-  }
-  void list_suggestion(BuildContext context,String idGroup){
-   Container(
-      color: const Color(0xff737373),
-      child:Container(
-      decoration: BoxDecoration(
-       color: const Color(0xffffffff),
-      borderRadius:  BorderRadius.only(
-          topLeft:  const Radius.circular(60) ,
-          topRight:  const Radius.circular(60) ,
-        ),
-      ),
-       child: Stack(children: [
-     Container( 
-     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
-     child: StreamBuilder(
-     stream: Firestore.instance.collection('groupe').document(idGroup).collection('suggestions').snapshots(),
-     builder: (context,snapshot){
-     if (!snapshot.hasData) return const Text("aucune suggestion",
-      style: const TextStyle(
-      color:  const Color(0xff3d3d3d),
-      fontWeight: FontWeight.w400,
-      fontFamily: "Roboto",
-      fontStyle:  FontStyle.normal,
-      fontSize: 17.0
-  ),
-  textAlign: TextAlign.left 
-     );
-   return  ListView.builder(
-     itemExtent: 80.0,
-     itemCount:snapshot.data.documents.length,
-    itemBuilder: (ctx,index )=> (
-    buildSugglistItem(ctx,snapshot.data.documents[index],idGroup)),
-      );
-     }
-      )
-      ) , 
-      ]
-      )
-          ),
-          );
-        }
+
+ 
 
 void list_invitations(BuildContext context, String userID){
    showModalBottomSheet(context: context, builder:(context){
      return Container(
         color: const Color(0xff737373),
-       width: 360,
-      height: 535,
+      
+      width: (MediaQuery.of(context).size.width) * 0.360,
+      height: (MediaQuery.of(context).size.height) * 0.535,
+
       child:Container(
       decoration: BoxDecoration(
        color: const Color(0xffffffff),
@@ -3164,12 +3266,12 @@ void list_invitations(BuildContext context, String userID){
        child: Stack(children: [
   // ✏️ Headline 6 
   PositionedDirectional(
-    top: 35,
-    start: 38,
+    top: (MediaQuery.of(context).size.height) * 0.035,
+    start: (MediaQuery.of(context).size.width) * 0.1,
     child: 
         SizedBox(
-      width: 150,
-      height: 50,
+      width: (MediaQuery.of(context).size.width) * 0.8,
+      height: (MediaQuery.of(context).size.height) * 0.03,
       child: Text(
       "Invitations",
       style: const TextStyle(
@@ -3177,7 +3279,7 @@ void list_invitations(BuildContext context, String userID){
           fontWeight: FontWeight.w500,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 25.0
+          fontSize: 19.0
       ),
       textAlign: TextAlign.left                
       ),
@@ -3187,7 +3289,13 @@ void list_invitations(BuildContext context, String userID){
   ),
      
      Container( 
-     padding: EdgeInsets.symmetric(vertical:65.0,horizontal :20.0),
+     padding: EdgeInsets.only(
+       
+     top: (MediaQuery.of(context).size.height) * 0.075,
+     bottom: (MediaQuery.of(context).size.height) * 0.02,
+     left: (MediaQuery.of(context).size.width) * 0.04,
+     right: (MediaQuery.of(context).size.width) * 0.04,
+       ),
      child: StreamBuilder(
      stream: Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').snapshots(),
      builder: (context,snapshot){
@@ -3240,22 +3348,26 @@ void list_invitations(BuildContext context, String userID){
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 20.0
+          fontSize: 17.0
       ),
       textAlign: TextAlign.left                
       ),
       Spacer(flex:1,),
-     Text(
-                      "à : "+ document['destination'],
-                      style: const TextStyle(
-                          color:  const Color(0xff52bf90),
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      //textAlign: TextAlign.left              
-                      ),
+       SizedBox(
+       width: (MediaQuery.of(context).size.width) * 0.14,
+       height: (MediaQuery.of(context).size.height) * 0.045,
+            child: Text(  "à : "+ document['destination'],
+                        style: const TextStyle(
+                            color:  const Color(0xff52bf90),
+                            fontWeight: FontWeight.w400,
+                            fontFamily: "Roboto",
+                            fontStyle:  FontStyle.normal,
+                            fontSize: 14.0
+                        ),
+                        //textAlign: TextAlign.left,
+                        ),
+     ), 
+     
                       IconButton(onPressed:()=> _refuserInvitation(document.documentID,userID) /*_refuserInvitation(document.documentID)*/,
                          icon: Icon(
                         Icons.cancel,
@@ -3303,8 +3415,8 @@ void list_invitations(BuildContext context, String userID){
  
      return Container(
         color: const Color(0xff737373),
-       width: 360,
-        height: 600,
+       width: (MediaQuery.of(context).size.width) * 0.360,
+      height: (MediaQuery.of(context).size.height) * 0.535,
         child: Container(
         decoration: BoxDecoration(
        color: const Color(0xffffffff),
@@ -3315,12 +3427,12 @@ void list_invitations(BuildContext context, String userID){
         ),
       child: Stack(children: [
   PositionedDirectional(
-    top: 35,
-    start: 38,
+    top: (MediaQuery.of(context).size.height) * 0.035,
+    start: (MediaQuery.of(context).size.width) * 0.1,
     child: 
         SizedBox(
-      width:360,
-      height: 28,
+      width: (MediaQuery.of(context).size.width) * 0.8,
+      height: (MediaQuery.of(context).size.height) * 0.03,
       child: Text(
       "Paramètre du compte  ",
       style: const TextStyle(
@@ -3336,7 +3448,13 @@ void list_invitations(BuildContext context, String userID){
   
      
      Container( 
-     padding: EdgeInsets.symmetric(vertical:70,horizontal :20.0),
+    padding: EdgeInsets.only(
+       
+     top: (MediaQuery.of(context).size.height) * 0.075,
+     bottom: (MediaQuery.of(context).size.height) * 0.02,
+     left: (MediaQuery.of(context).size.width) * 0.04,
+     right: (MediaQuery.of(context).size.width) * 0.04,
+       ),
      child: ListView(children: [
                 SizedBox(
                 
@@ -3348,16 +3466,16 @@ void list_invitations(BuildContext context, String userID){
              children: <Widget>[
                Container(
                 color: Colors.white24,
-                height: 30.0,
-                width: 50.0,
+                height: (MediaQuery.of(context).size.height) * 0.03,
+                width: (MediaQuery.of(context).size.width) * 0.1,
                ),
                Align(
                  alignment: Alignment.center,
                 
                    child: ClipOval(
                    child: SizedBox(
-                     width: 80.0,
-                     height: 80.0,
+                     width: (MediaQuery.of(context).size.width) * 0.16,
+                     height: (MediaQuery.of(context).size.height) * 0.08,
                      
                      child: Image.network(_img,fit: BoxFit.fill,),
                      /*child:Image(
@@ -3370,8 +3488,8 @@ void list_invitations(BuildContext context, String userID){
                ),
                Container(
                 color: Colors.white24,
-                height: 30.0,
-                width: 50.0,
+                height: (MediaQuery.of(context).size.height) * 0.03,
+                width: (MediaQuery.of(context).size.width) * 0.1,
                ),
                 
                      
@@ -3463,11 +3581,11 @@ void list_invitations(BuildContext context, String userID){
      ),
      
      PositionedDirectional(
-    top: 20,
-    start:100,
+    top: (MediaQuery.of(context).size.height) * 0.07,
+    start:(MediaQuery.of(context).size.width) * 0.27,
        child:  FlatButton(
          
-         padding: EdgeInsets.only(top:350,left: 30),
+         padding: EdgeInsets.only(top:(MediaQuery.of(context).size.height) * 0.35,left: (MediaQuery.of(context).size.width) * 0.06),
           onPressed: () {
 
              Navigator.push(
@@ -3528,12 +3646,27 @@ buildSugglistItem(BuildContext ctx,DocumentSnapshot document,String idGroup) {
          
           return ListView(
             children :<Widget>[ ListTile(
+              /*leading: (
+                Container(
+                  width: (MediaQuery.of(context).size.width) * 0.13,
+                  height: (MediaQuery.of(context).size.height) * 0.1,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(
+                        '${documentFields['image_url']}'
+                      ),
+                    ),
+                  ),
+                )
+              ),  */
        
     title: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children : <Widget>[  Text(
-                documentFields['identifiant'],
+                documentFields['identifiant'].toString(),
                       style: const TextStyle(
                           color:  const Color(0xde000000),
                           fontWeight: FontWeight.w400,

@@ -54,7 +54,7 @@ class _RegisterFormState extends State<RegisterForm> {
       
      body: Center(
        //widthFactor: 20,
-       child: SingleChildScrollView(
+       
        child: Form(
           key: _formKey,
           child: Stepper(
@@ -143,7 +143,7 @@ class _RegisterFormState extends State<RegisterForm> {
              else
                this._currentStep=0; 
            });
-         }, ), ),), ),);
+         }, ), ), ),);
   }
   List<Step> _mySteps(){
     List<Step> _steps= [
