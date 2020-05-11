@@ -35,8 +35,13 @@ import 'package:myapp/services/Usersearch.dart';
 import 'package:myapp/services/Suggestion.dart';
 import 'page_aide.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+<<<<<<< Updated upstream
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:myapp/services/MessageHandler.dart';
+=======
+import 'package:flutter/src/rendering/box.dart';
+import 'package:flutter/src/rendering/shifted_box.dart';
+>>>>>>> Stashed changes
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -72,6 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Position position = Position(speed: 0);
   String searchAddr;
   double vitesse;
+<<<<<<< Updated upstream
   String text;
   FirebaseUser currentUser;
   Widget _child;
@@ -85,6 +91,21 @@ class _MyHomePageState extends State<MyHomePage> {
   GoogleMapsPlaces _places =
       GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
       String changer_dest;
+=======
+String text; 
+FirebaseUser currentUser;
+Widget _child; 
+String _img='';
+String _current_grp = '10000000';
+String  _current_grp_adminID;
+String  _current_grp_admin;
+String _current_grp_destinaton;
+String alerte='';
+Map<String,dynamic> pass = new Map();
+GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
+   
+
+>>>>>>> Stashed changes
 
   @override
   void initState() {
@@ -214,6 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
           position.longitude == null ? 0.0 : position.longitude.toDouble()
     });
   }
+<<<<<<< Updated upstream
 
   List<Marker> allMarkers = [];
   Widget _mapWidget() {
@@ -273,6 +295,145 @@ class _MyHomePageState extends State<MyHomePage> {
                     (snapshot.data.documents[i]['image']).toString() == null
                         ? "Alerte ! "
                         : (snapshot.data.documents[i]['image']).toString()),
+=======
+    List<Marker> allMarkers = []; 
+Widget _mapWidget() {
+       return StreamBuilder(
+      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('Markers').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return Container(child : Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
+        for (int i = 0; i < snapshot.data.documents.length; i++) {
+          String icon= (snapshot.data.documents[i]['icon']).toString() ==null ?' ': (snapshot.data.documents[i]['icon']).toString();
+          print("icon");  
+          print(icon); 
+          alerte=(snapshot.data.documents[i]['icon']).toString() ==null ?'alerte': (snapshot.data.documents[i]['icon']).toString(); 
+          if(icon=='route'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:routeIcon,
+                    infoWindow: InfoWindow(
+                        title: ("alerte"),
+                        onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
+                    ),
+               
+ 
+              ));
+          }else{
+             if(icon=='radar'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:radarIcon,
+                    infoWindow: InfoWindow(
+                        title: ("alerte"),
+                        onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
+                    ),
+              ));
+          }else{
+             if(icon=='pause'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:pauseIcon,
+                     infoWindow: InfoWindow(
+                        title: ("alerte"),
+                        onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
+                    ),
+ 
+              ));
+          }else{
+              if(icon=='aide'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:aideIcon,
+                     infoWindow: InfoWindow(
+                        title: ("alerte"),
+                        onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
+                    ),
+ 
+              ));
+          }else{
+             if(icon=='animaux'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:animauxIcon,
+                     infoWindow: InfoWindow(
+                        title: ("alerte"),
+                        onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
+                    ),
+ 
+              ));
+          }else{
+              if(icon=='barrage'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:barrageIcon,
+                     infoWindow: InfoWindow(
+                        title: ("alerte"),
+                        onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
+                    ),
+ 
+              ));
+          }else{
+            if(icon=='accident'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:accidentIcon,
+                     infoWindow: InfoWindow(
+                        title: ("alerte"),
+                        onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
+                    ),
+ 
+              ));
+          }else{
+            if(icon=='panne'){
+            allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:panneIcon,
+                     infoWindow: InfoWindow(
+                        title: ("alerte"),
+                        onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
+                    ),
+      
+              ));
+          }else{
+              if(icon=='destination'){
+               allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:destinationIcon,
+                   infoWindow: InfoWindow(
+                        title: 'Votre destination',
+                    ),
+                    onTap: ()=> _markerDestinationPressed(_current_userId,(snapshot.data.documents[i]['text']) ==null ?0.0: (snapshot.data.documents[i]['text'])),
+              )); 
+              }else{
+                 allMarkers.add(new Marker(
+              position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
+                 (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
+                   markerId: MarkerId(i.toString()),
+                   icon:animauxIcon,
+                 
+  infoWindow: InfoWindow(
+                        title: ("alerte"),
+                        onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['image']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['image']).toString()),
+                    ), 
+>>>>>>> Stashed changes
               ));
             } else {
               if (icon == 'pause') {
@@ -581,6 +742,7 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
   }
+<<<<<<< Updated upstream
 
   void _markerAlertPressed(String userId, String alerte) {
     showDialog(
@@ -930,6 +1092,547 @@ class _MyHomePageState extends State<MyHomePage> {
 
 void _markerUserPressed(String userId){
      showDialog(context: context, builder:(context){
+=======
+Widget map(){ 
+    return    GoogleMap(
+                markers: Set.from(allMarkers),
+                initialCameraPosition: CameraPosition(
+                target: LatLng(position.latitude,position.longitude),
+                zoom: 12.0),
+                onMapCreated: (GoogleMapController controller) {_controller = controller; },
+                );
+  
+}
+void _markerAlertPressed(String uid, String alerte){
+     showDialog(context: context, builder:(context){
+       String icone=''; 
+        if(alerte=='route'){
+                        icone='assets/routeendommagée';
+
+                    }else{
+                      if(alerte=='radar'){
+                        icone='assets/radar.png';
+                      }else{
+                        if(alerte=='pause'){
+                          icone='assets/pause.png';
+                        }else{
+                          if(alerte=='aide'){
+                            icone='assets/besoindaide.png';
+                          }else{
+                            if(alerte=='animaux'){
+                              icone='assets/animaux.png';
+                            }else{
+                              if(alerte=='barrage'){
+                                icone='assets/barrage.png';
+                              }else{
+                               if(alerte=='accident'){
+                                 icone='assets/accident.png';
+                               }else{
+                                 if(alerte=='panne'){
+                                   icone='assets/jesuisenpanne.png';
+                                 }else{
+                                  icone='assets/destination.png';
+                                 }
+                               }
+                              }
+
+                            }
+                          }
+                        }
+                      }
+                    }
+>>>>>>> Stashed changes
+  return AlertDialog(
+    elevation: 1,
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20.0))
+),
+<<<<<<< Updated upstream
+  title :  Text('Informations sur votre partenaire de route ',
+=======
+  title :  Text('On vous signale une alerte ! ',
+>>>>>>> Stashed changes
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 19.0
+                            ),),
+  content: Stack(children: [
+    
+<<<<<<< Updated upstream
+    StreamBuilder<UserData>(
+                  stream: DatabaseService(uid:userId).utilisateursDonnees,
+                  builder: (context,snapshot){
+                    if(snapshot.hasData){
+                      UserData userData=snapshot.data;
+                      print(userData.identifiant);
+                      return    Container( 
+=======
+   Container( 
+>>>>>>> Stashed changes
+     padding: EdgeInsets.symmetric(vertical:0.0,horizontal :20.0),
+      child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+<<<<<<< Updated upstream
+                ClipOval(
+                   child: SizedBox(
+                     width: 120.0,
+                     height: 120.0,
+                     
+                     child: Image.network(userData.image_url.toString(),fit: BoxFit.fill,),
+                     
+                   ),
+                   ),
+                  SizedBox(height: 10,), 
+               
+                    Text('Votre partenaire de route',
+=======
+               Image(
+                    image: AssetImage(icone),
+                    fit: BoxFit.contain,
+                  ),
+                  SizedBox(height: 10,), 
+               
+                    Text('une alerte a été signalée : ',
+>>>>>>> Stashed changes
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.black,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                            SizedBox(width: 7,),
+                              Text(alerte,
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.teal,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+<<<<<<< Updated upstream
+                            ),),
+                             SizedBox(width: 7,),
+                            
+                            
+                  
+                
+                 SizedBox(height: 20,), 
+               
+                    Text('Roule à une vitesse de : ',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.black,
+                                fontWeight: FontWeight.w400,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                            SizedBox(width: 12,),
+                              SizedBox(
+                                width: 40,height: 20,
+                                                              child: Text(userData.vitesse.toString(),
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                  color:  Colors.deepOrange,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: "Roboto",
+                                  fontStyle:  FontStyle.italic,
+                                  fontSize: 17.0
+                            ),),
+                              ),
+                                
+=======
+                            ),),                
+>>>>>>> Stashed changes
+              ],
+            ),
+          ),
+       
+<<<<<<< Updated upstream
+      );
+                    }else{
+                           
+                      return Column(
+                        children: <Widget>[
+                          SizedBox(height: 60,), 
+                          PlaceholderLines(count: 3, animate: true, color: Colors.grey,align: TextAlign.center, minOpacity: 0.2, maxOpacity: 0.4, ),
+                        ],
+                      );
+                    }
+                  }
+              ),
+=======
+      ),
+>>>>>>> Stashed changes
+       
+      
+      ]
+      ),
+   actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('OK'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
+
+  );
+ });
+    
+        
+         
+<<<<<<< Updated upstream
+  }
+  void showToast(message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
+=======
+>>>>>>> Stashed changes
+  }
+
+  String pause = "Planifiez votre pause";
+  double latt;
+  double lang;
+/*METHODES RECHERCHES ET AUTOCOMPLETE*/
+  Future<Null> displayPrediction(Prediction p) async {
+    if (p != null) {
+      // get detail (lat/lng)
+      PlacesDetailsResponse detail =
+          await _places.getDetailsByPlaceId(p.placeId);
+      final lat = detail.result.geometry.location.lat;
+      final lng = detail.result.geometry.location.lng;
+      latt = lat;
+      lang = lng;
+      final coordinates = new Coordinates(lat, lng);
+      List<Address> addresses =
+          await Geocoder.local.findAddressesFromCoordinates(coordinates);
+      final first = addresses.first;
+      pause = "${first.featureName} : ${first.addressLine}";
+      destination = "${first.featureName} : ${first.addressLine}";
+      changer_dest = "${first.featureName} : ${first.addressLine}";
+
+      _controller.animateCamera(CameraUpdate.newCameraPosition(
+          CameraPosition(target: LatLng(lat, lng), zoom: 16.0)));
+    }
+  }
+
+<<<<<<< Updated upstream
+  Future<void> _handlePressButton() async {
+=======
+  content: Stack(children: [
+    StreamBuilder<UserData>(
+                  stream: DatabaseService(uid:userId).utilisateursDonnees,
+                  builder: (context,snapshot){
+                    if(snapshot.hasData){
+                      UserData userData=snapshot.data;
+                      print(userData.identifiant);
+                      return    Container( 
+     padding: EdgeInsets.symmetric(vertical:0.0,horizontal :(MediaQuery.of(context).size.height) * 0.02),
+      child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                 Image(
+                    image: AssetImage('assets/destination.png'),
+                    fit: BoxFit.contain,
+                  ),
+                SizedBox(height: (MediaQuery.of(context).size.height) * 0.02,), 
+                 
+                                          
+                 SizedBox(height: (MediaQuery.of(context).size.height) * 0.02,), 
+              
+                    Text('Vous vous dirigé vers',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                            SizedBox(width: (MediaQuery.of(context).size.width) * 0.02,),
+                              Text(destination,
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.italic,
+                                fontSize: 17.0
+                            ),),
+                               
+              ],
+            ),
+          ),
+       
+      );
+                    }else{
+                      return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
+                    }
+                  }
+              ),
+       
+      
+      ]
+      ),
+   actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('OK'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
+
+  );
+ });
+    
+        
+  }
+   void _markerPausePressed(String userId, String pause){
+     showDialog(context: context, builder:(context){
+  return AlertDialog(
+    elevation: 1,
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20.0))
+),
+  title :  Text('Un arrêt est prévu',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 19.0
+                            ),),
+
+  content: Stack(children: [
+    StreamBuilder<UserData>(
+                  stream: DatabaseService(uid:userId).utilisateursDonnees,
+                  builder: (context,snapshot){
+                    if(snapshot.hasData){
+                      UserData userData=snapshot.data;
+                      print(userData.identifiant);
+                      return    Container( 
+     padding: EdgeInsets.symmetric(vertical:0.0,horizontal :(MediaQuery.of(context).size.height) * 0.02),
+      child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                 Image(
+                    image: AssetImage('assets/pause.png'),
+                    fit: BoxFit.contain,
+                  ),
+                SizedBox(height: (MediaQuery.of(context).size.height) * 0.02,), 
+                 
+                                          
+                 SizedBox(height: (MediaQuery.of(context).size.height) * 0.02,), 
+              
+                    Text('Votre partenaire de route',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 17.0
+                            ),),
+                            SizedBox(width: 12,),
+                    Text(destination,
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.italic,
+                                fontSize: 17.0
+                            ),),
+                               
+              ],
+            ),
+          ),
+       
+      );
+                    }else{
+                      return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
+                    }
+                  }
+              ),
+       
+      
+      ]
+      ),
+   actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('OK'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
+
+  );
+ });
+    
+        
+  }
+
+/************************************************** */
+  void _markerUserPressed(String userId){
+     showDialog(context: context, builder:(context){
+       String icone=''; 
+  return AlertDialog(
+    elevation: 1,
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(20.0))
+),
+  title :  Text('Information sur votre partenaire de route  ',
+                    textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color:  Colors.deepOrange,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: "Roboto",
+                                fontStyle:  FontStyle.normal,
+                                fontSize: 19.0
+                            ),),
+  content: Container(
+    height: 300,
+    width: 200,
+    child: Stack(children: [
+      
+     
+          StreamBuilder<UserData>(
+                    stream: DatabaseService(uid:userId).utilisateursDonnees,
+                    builder: (context,snapshot){
+                      if(snapshot.hasData){
+                        UserData userData=snapshot.data;
+                        print(userData.identifiant);
+                        return    Container( 
+       padding: EdgeInsets.symmetric(vertical:0.0,horizontal :20.0),
+        
+              child: Column(
+                children: <Widget>[
+                  ClipOval(
+                     child: SizedBox(
+                       width: 120.0,
+                       height: 120.0,
+                       
+                       child: Image.network(userData.image_url.toString(),fit: BoxFit.fill,),
+                       
+                     ),
+                     ),
+                    SizedBox(height: 10,), 
+                 
+                      Text('Votre partenaire de route',
+                      textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  color:  Colors.black,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: "Roboto",
+                                  fontStyle:  FontStyle.normal,
+                                  fontSize: 17.0
+                              ),),
+                              SizedBox(width: 7,),
+                                Text(userData.identifiant,
+                      textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  color:  Colors.teal,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: "Roboto",
+                                  fontStyle:  FontStyle.normal,
+                                  fontSize: 17.0
+                              ),),
+                               SizedBox(width: 7,),
+                              
+                              
+                    
+                  
+                   SizedBox(height: 20,), 
+                 
+                      Text('Roule à une vitesse de : ',
+                      textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  color:  Colors.black,
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: "Roboto",
+                                  fontStyle:  FontStyle.normal,
+                                  fontSize: 17.0
+                              ),),
+                              SizedBox(width: 12,),
+                                SizedBox(
+                                  width: 40,height: 20,
+                                                                child: Text(userData.vitesse.toString(),
+                      textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                    color:  Colors.deepOrange,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: "Roboto",
+                                    fontStyle:  FontStyle.italic,
+                                    fontSize: 17.0
+                              ),),
+                                ),
+                                  
+                ],
+              ),
+            
+         
+        );
+                      }else{
+                             
+                        return Column(
+                          children: <Widget>[
+                            SizedBox(height: 60,), 
+                            PlaceholderLines(count: 3, animate: true, color: Colors.grey,align: TextAlign.center, minOpacity: 0.2, maxOpacity: 0.4, ),
+                          ],
+                        );
+                      }
+                    }
+                ),
+         
+        
+         
+        
+        ]
+        ),
+  ),
+   actions: <Widget>[
+    MaterialButton(
+      elevation: 5.0,
+      child: Text('OK'),
+      onPressed:() {
+        Navigator.of(context).pop();
+      },
+     )
+  ],
+
+  );
+ });
+    
+        
+         
+  }
+
+
+
+
+  /********************************** */
+/*void _markerUserPressed(String userId){
+     showDialog(context: context, builder:(context){
   return AlertDialog(
     elevation: 1,
     shape: RoundedRectangleBorder(
@@ -1052,8 +1755,9 @@ void _markerUserPressed(String userId){
     
         
          
-  }
-  void showToast(message) {
+  }*/
+  
+   void showToast(message){
     Fluttertoast.showToast(
         msg: message,
         toastLength: Toast.LENGTH_SHORT,
@@ -1061,36 +1765,36 @@ void _markerUserPressed(String userId){
         timeInSecForIos: 1,
         backgroundColor: Colors.red,
         textColor: Colors.white,
-        fontSize: 16.0);
+        fontSize: 16.0
+    );
   }
-
-  String pause = "Planifiez votre pause";
-  double latt;
-  double lang;
-/*METHODES RECHERCHES ET AUTOCOMPLETE*/
-  Future<Null> displayPrediction(Prediction p) async {
-    if (p != null) {
-      // get detail (lat/lng)
-      PlacesDetailsResponse detail =
-          await _places.getDetailsByPlaceId(p.placeId);
-      final lat = detail.result.geometry.location.lat;
-      final lng = detail.result.geometry.location.lng;
-      latt = lat;
-      lang = lng;
-      final coordinates = new Coordinates(lat, lng);
-      List<Address> addresses =
-          await Geocoder.local.findAddressesFromCoordinates(coordinates);
-      final first = addresses.first;
-      pause = "${first.featureName} : ${first.addressLine}";
-      destination = "${first.featureName} : ${first.addressLine}";
-      changer_dest = "${first.featureName} : ${first.addressLine}";
-
-      _controller.animateCamera(CameraUpdate.newCameraPosition(
-          CameraPosition(target: LatLng(lat, lng), zoom: 16.0)));
-    }
+  String pause="Planifiez votre pause"; 
+  double latt; 
+  double lang; 
+/*METHODES RECHERCHES ET AUTOCOMPLETE*/ 
+Future<Null> displayPrediction(Prediction p) async {
+  if (p != null) {
+    // get detail (lat/lng)
+    PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
+    final lat = detail.result.geometry.location.lat;
+    final lng = detail.result.geometry.location.lng;
+    latt=lat; 
+    lang=lng; 
+    final coordinates = new Coordinates(lat, lng);
+    List<Address> addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    final first = addresses.first;
+    pause= "${first.featureName} : ${first.addressLine}";
+    destination= "${first.featureName} : ${first.addressLine}";
+    lieu = "${first.featureName} : ${first.addressLine}";
+    _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      target: 
+           LatLng(lat, lng),
+           zoom: 16.0
+    )));
   }
-
-  Future<void> _handlePressButton() async {
+}
+Future<void> _handlePressButton() async {
+>>>>>>> Stashed changes
     // show input autocomplete with selected mode
     // then get the Prediction selected
     Prediction p = await PlacesAutocomplete.show(
@@ -2384,6 +3088,7 @@ void _markerUserPressed(String userId){
     /*Firestore.instance.collection('groupe').document(docId).collection('ListeMembre').document().catchError((e){
               print(e);});
               print('supp');*/
+<<<<<<< Updated upstream
   }
 
   void creeGroupe() {
@@ -2401,6 +3106,116 @@ void _markerUserPressed(String userId){
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(30),
                     topRight: const Radius.circular(30),
+=======
+            }
+void creeGroupe(){
+  int _id = random.nextInt(10000);
+    showModalBottomSheet(context: context, builder:(context){
+        
+     return Container(
+
+        color: const Color(0xff737373),
+       width: (MediaQuery.of(context).size.width) * 0.360,
+      height: (MediaQuery.of(context).size.height) * 0.535,
+        child: Container(
+        decoration: BoxDecoration(
+       color: const Color(0xffffffff),
+        borderRadius:  BorderRadius.only(
+          topLeft:  const Radius.circular(30) ,
+          topRight:  const Radius.circular(30) ,
+        ),
+        ),
+      child : Stack(
+              children: <Widget>[ 
+                 PositionedDirectional(
+    top: (MediaQuery.of(context).size.height) * 0.035,
+    start: (MediaQuery.of(context).size.width) * 0.1,
+    child: 
+        SizedBox(
+      width: (MediaQuery.of(context).size.width) * 0.4,
+      height: (MediaQuery.of(context).size.height) * 0.03,
+      child: Text(
+      "Créer un groupe ",
+      style: const TextStyle(
+          color:  const Color(0xde204f6f),
+          fontWeight: FontWeight.w500,
+          fontFamily: "Roboto",
+          fontStyle:  FontStyle.normal,
+          fontSize: 19.0
+      ),
+      textAlign: TextAlign.left                
+      )),
+  ),
+                
+                
+                Container(
+          padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height) * 0.01, horizontal:(MediaQuery.of(context).size.width) * 0.1),
+          child : Form(
+            key : _formKey,
+        child: Column( 
+          mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(height: (MediaQuery.of(context).size.height) * 0.03),
+                TextFormField(
+                  decoration: const InputDecoration(
+                   hintText: '   Nom du groupe',
+                    ),
+                  validator: (val) => val.isEmpty ? 'Donner un nom ' : null,
+                  onChanged: (val) {
+                    setState(() => nom = val);
+                    
+                  },
+                ),
+                SizedBox(height: (MediaQuery.of(context).size.height) * 0.015),
+              Material(
+                      elevation: 2.5,
+                      //borderRadius: BorderRadius.circular(30.0),
+                      borderRadius: BorderRadius.zero,
+                      color: Colors.white,
+                      shadowColor: Colors.white,
+                       child: FlatButton(
+                         focusColor: Colors.white,
+                         highlightColor: Colors.white,
+                       onPressed:   _handlePressButton,
+  child: Container(
+                      alignment: Alignment.center,
+                      height: (MediaQuery.of(context).size.height) * 0.05,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                child: Row(
+                                  children: <Widget>[
+                                  
+                                    SizedBox(
+                                      height: (MediaQuery.of(context).size.height) * 0.03,
+                                      width: (MediaQuery.of(context).size.width) * 0.4,  
+                                      child: Text(
+                                        destination ==null ?'Destination':destination,
+                                        style: TextStyle(
+                          color:  const Color(0xde3d3d3d),
+                          fontWeight: FontWeight.w400,
+                          fontFamily: "Roboto",
+                          fontStyle:  FontStyle.normal,
+                          fontSize: 16.0
+                      ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                           Icon(
+                                      Icons.search,
+                                      size: 18.0,
+                                      color: Colors.deepOrange,
+                                    ),
+                        ],
+                      ),
+>>>>>>> Stashed changes
                   ),
                 ),
                 child: Stack(
@@ -2681,6 +3496,7 @@ void _markerUserPressed(String userId){
                     ),
                   ],
                 ),
+<<<<<<< Updated upstream
               ));
         });
   }
@@ -2705,6 +3521,35 @@ void _markerUserPressed(String userId){
                     topLeft: const Radius.circular(30),
                     topRight: const Radius.circular(30),
                   ),
+=======
+                    ), 
+                    /*HEURE DE DEPART */
+             
+                Row(
+                   children: <Widget>[
+                     SizedBox(height: (MediaQuery.of(context).size.height) * 0.09,),
+                     SizedBox(width: (MediaQuery.of(context).size.width) * 0.65,),
+                    SizedBox(
+                      height:(MediaQuery.of(context).size.height) * 0.05 ,
+                      width: (MediaQuery.of(context).size.width) * 0.1,
+                       child: FloatingActionButton(
+                         backgroundColor: Color(0xffff5722),
+                         heroTag: 'btn10000',
+                         child: Icon(Icons.add, 
+
+                          size: 30,),
+                         
+                         
+                         onPressed: () async {
+                            pass["admin"] = _current_user;
+                  pass["destination"] = destination;
+                  pass["groupe"] = nom;
+                  pass["groupeID"] = _id;
+                           showSearch(context: context, delegate: UserSeach(pass));}
+                        ),
+                     ),
+                    ],      
+>>>>>>> Stashed changes
                 ),
                 child: Stack(
                   children: [
@@ -2724,6 +3569,25 @@ void _markerUserPressed(String userId){
                                   fontSize: 19.0),
                               textAlign: TextAlign.left)),
                     ),
+<<<<<<< Updated upstream
+=======
+                  ),
+                  onPressed: () async {
+                    if(_formKey.currentState.validate()){ 
+                     
+                      
+                      CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user,destination, _time, listMembre, nom,_current_userId);
+                      CreationGroupeServises(uid: _id.toString()).marquer_Alerte(_id.toString(), destination, lang, latt, _current_userId, "destination");
+
+                   allMarkers.add(new Marker(
+                           position: new LatLng(latt,lang),
+                            markerId: MarkerId('destination'),
+                            icon:destinationIcon, 
+                            onTap: ()=> _markerDestinationPressed(_current_userId,destination),
+                ));    
+                setState(() {
+                                 
+>>>>>>> Stashed changes
 
                     Container(
                       padding: EdgeInsets.symmetric(
@@ -4005,6 +4869,7 @@ void _markerUserPressed(String userId){
       print(e);
     });
 
+<<<<<<< Updated upstream
     //supprimer l'invitation
     Firestore.instance
         .collection('groupe')
@@ -4033,6 +4898,35 @@ void _markerUserPressed(String userId){
     // follows the pin as it moves with an animation
 
     setState(() {
+=======
+_refuserSugg(String groupId,String docId) {
+   Firestore.instance.collection('groupe').document(groupId).collection('suggestions').document(docId).delete().catchError((e){
+   print(e);}); }
+
+_accepterSugg(String docId,String grpID,String userID) {
+            //ajouter linvitation à la liste d'invi de cet utilisateur
+            Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').document().setData({
+                      'groupeID':_current_grp,
+                      'admin': 'ammalimouna', 
+                      'destination': 'Alger', 
+                      'groupe': 'Famille', 
+            }).catchError((e){print(e);});
+            
+            //supprimer l'invitation
+            Firestore.instance.collection('groupe').document(grpID).collection('suggestions').document(docId).delete().catchError((e){
+              print(e);});
+          }         
+   
+
+void updatePinOnMap(String id,String user) async {
+   
+   // create a new CameraPosition instance
+   // every time the location changes, so the camera
+   // follows the pin as it moves with an animation
+   
+   
+   setState(() {
+>>>>>>> Stashed changes
       // updated position
       var pinPosition = LatLng(position.latitude, position.longitude);
       allMarkers.removeWhere((m) => m.markerId.value == id);
