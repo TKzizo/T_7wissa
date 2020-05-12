@@ -37,6 +37,9 @@ import 'page_aide.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/src/rendering/box.dart';
 import 'package:flutter/src/rendering/shifted_box.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:myapp/services/MessageHandler.dart';
+
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -83,6 +86,7 @@ String  _current_grp_admin;
 String _current_grp_destinaton;
 String alerte='';
 String placetogo=''; 
+ FirebaseMessaging _fcm = FirebaseMessaging();
 Map<String,dynamic> pass = new Map();
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
    
@@ -1035,6 +1039,11 @@ Future<void> _handlePressButton() async {
         child : AppBar(
         backgroundColor: Colors.deepOrange.withOpacity(0.7),
         elevation: 3.0,
+        actions: <Widget>[
+              IconButton(icon: Icon(Icons.notifications_active), onPressed:() {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MsgHandler()));
+              } )
+            ],
         title: Text('Acceuil'),
 
       ) ),
@@ -2160,7 +2169,12 @@ title:Row (
            ],
          ),
                        onTap:() async{
-                                _current_grp = document['id'].toString();
+
+                          if (_current_grp != null) {
+                 await _fcm.unsubscribeFromTopic("groupe/$_current_grp/Markers");
+
+                 _current_grp = document['id'].toString();
+
                 await Firestore.instance
                     .collection("groupe")
                     .document(_current_grp)
@@ -2180,6 +2194,8 @@ title:Row (
                     .then((value) {
                   _current_grp_adminID = value.documents[0].data["uid"];
                 });
+
+                 await _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
                   
                   for (int j = 0; j< allMarkers.length; j++){
                     allMarkers.removeAt(0); 
