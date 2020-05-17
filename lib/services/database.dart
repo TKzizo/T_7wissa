@@ -59,6 +59,9 @@ class DatabaseService {
       return utilisateurCollection.document(uid).snapshots()
       .map(_userDataFromSnapchot); 
     }
+    
+    
+    
     Future addPhoto(String url) async{
   try{
       utilisateurCollection.document(uid).updateData({

@@ -6,8 +6,12 @@ import 'package:myapp/services/chat.dart';
 import 'package:camera/camera.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+
 import 'package:image_picker/image_picker.dart';
+
+
 import 'package:myapp/services/database.dart';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
@@ -99,6 +103,7 @@ void _clear(){
     storageBucket: 'gs://myapp-4df98.appspot.com'
   );
   StorageUploadTask _uploadTask;
+
   Future<String> _startUpLoad()async{
    try {String filePath ='images/${DateTime.now()}.png';
     setState(() {
@@ -130,10 +135,8 @@ void _clear(){
       ) async {
     // Set some loading value to db and show it to user
    /* imageUploadProvider.setToLoading();*/
-
     // Get url from the image bucket
     String url = await _startUpLoad();
-    
     // Hide loading
     final user = Provider.of<User>(context);
     String _current_userId; 
@@ -155,11 +158,7 @@ void _clear(){
                     }
                   });
    /* imageUploadProvider.setToIdle();*/
-   print('object');
-   print(_current_userId);
    DatabaseService(uid:_current_userId.toString()).addPhoto(url);
-    
-   
   }
    
   @override

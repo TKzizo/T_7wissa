@@ -14,7 +14,8 @@ class MsgHandler extends StatefulWidget {
 }
 
 class _MsgHandlerState extends State<MsgHandler> {
-List <Map<String , dynamic>> tab = [];
+List <Map<String , dynamic>> tab = [{'icon':'accident','text':'help me'},{'icon':'panne','text':'attendez moi'}];
+
 final Firestore _ins = Firestore.instance;
 final FirebaseMessaging _fcm = FirebaseMessaging();
 
@@ -49,7 +50,9 @@ final FirebaseMessaging _fcm = FirebaseMessaging();
     return Scaffold(
       appBar: AppBar(
         title: Text("Notification"),
+        backgroundColor: Colors.deepOrange.withOpacity(0.7),
         leading: IconButton(icon: Icon(Icons.arrow_back), 
+        
         onPressed: (){
           Navigator.pop(context);
         }),
@@ -64,11 +67,11 @@ final FirebaseMessaging _fcm = FirebaseMessaging();
                       shadowColor: Colors.grey[900],
                       elevation: 15,
                       child: ListTile(
-                        leading:Icon(Icons.stop) ,
+                        leading:Icon(Icons.track_changes, color: Colors.red,) , 
                         title:
-                            Text(tab[index]["notification"]["title"]),
+                            Text(tab[index]["icon"]),
                         subtitle:
-                            Text(tab[index]["notification"]["body"]),
+                            Text(tab[index]["text"]),
                       ),
                     )),
                 itemCount: tab.length,

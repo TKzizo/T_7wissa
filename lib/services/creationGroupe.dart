@@ -10,6 +10,7 @@ class CreationGroupeServises {
 final CollectionReference chatCollection = Firestore.instance.collection('chat');
 final CollectionReference groupeCollection = Firestore.instance.collection('groupe');
 final CollectionReference utilisateurCollection = Firestore.instance.collection('utilisateur');
+
   Future creerGroupe(String admin, String dist, String heure , List<dynamic> listMembre , String nom,String adminID) async {
     try {
       groupeCollection.document(uid).collection('ListeMembre').document('zzzzzzzzzzzzzz').setData({
@@ -21,13 +22,11 @@ final CollectionReference utilisateurCollection = Firestore.instance.collection(
       groupeCollection.document(uid).collection('Markers').document().setData({
         'image': ''
       });
-
      groupeCollection.document(uid).setData
       ({
         'admin': admin,
         'destination': dist,
         'heureDepart': heure,
-        
         'nom':nom,
         'statu': true ,
         'uid' : this.uid,
@@ -35,13 +34,8 @@ final CollectionReference utilisateurCollection = Firestore.instance.collection(
       utilisateurCollection.document(adminID).collection('ListeGroupe').document().setData({
       'id': this.uid,
       });
-      chatCollection.document(uid).collection('messages').document().setData({
-        
-      }); // your answer missing *.document()*  before setData
-
-       chatCollection.document(uid).setData({
-       
-    });
+      chatCollection.document(uid).collection('messages').document().setData({}); // your answer missing *.document()*  before setData
+       chatCollection.document(uid).setData({});
     } catch (error) {
       print(error.toString()); 
       return null;
