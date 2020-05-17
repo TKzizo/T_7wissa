@@ -224,11 +224,8 @@ Color  col = Colors.grey[350] ;
           children: <Widget>[
             botton = ay ?  RaisedButton(onPressed:() {
 
-              Firestore.instance.collection('groupe').document((widget.dom["groupeID"]).toString()).collection('suggestion').document().setData({
-                      'groupeID':widget.dom["groupeID"].toString(),
-                      'admin': widget.dom["admin"].toString(), 
-                      'destination': widget.dom["destination"], 
-                      'groupe': widget.dom["groupe"].toString(),                      
+              Firestore.instance.collection('groupe').document((widget.dom["groupeID"]).toString()).collection('suggestions').document().setData({
+                     'user': widget.obj['uid'],                   
                   });
                setState(() {
                 col = green;
