@@ -84,6 +84,7 @@ String _current_grp = '10000000';
 String  _current_grp_adminID;
 String  _current_grp_admin;
 String _current_grp_destinaton;
+String _current_grp_name;
 String alerte='';
 String placetogo=''; 
  FirebaseMessaging _fcm = FirebaseMessaging();
@@ -2188,6 +2189,7 @@ title:Row (
                     .then((value) {
                   _current_grp_admin = value.data["admin"];
                   _current_grp_destinaton = value.data["destination"];
+                  _current_grp_name=value.data["nom"];
                   pass["admin"] = value.data["admin"];
                   pass["destination"] = value.data["destination"];
                   pass["groupe"] = value.data["nom"];
@@ -3880,10 +3882,10 @@ _refuserSugg(String groupId,String docId) {
 _accepterSugg(String docId,String grpID,String userID) {
             //ajouter linvitation à la liste d'invi de cet utilisateur
             Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').document().setData({
-                      'groupeID':_current_grp,
-                      'admin': 'ammalimouna', 
-                      'destination': 'Alger', 
-                      'groupe': 'Famille', 
+                       'groupeID':_current_grp,
+                      'admin': _current_grp_admin, 
+                      'destination': _current_grp_destinaton, 
+                      'groupe': _current_grp_name, 
             }).catchError((e){print(e);});
             
             //supprimer l'invitation
