@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/authenticate/forgot_pswd.dart';
 import 'package:myapp/services/auth.dart';
-import 'package:myapp/screens/home/home.dart';
+import 'package:myapp/screens/home/map.dart';
 
 class SignIn extends StatefulWidget {
 
@@ -15,11 +15,9 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
 
   final AuthService _auth = AuthService();
+  final AuthService googleSignIn = AuthService();
   final _formKey = GlobalKey<FormState>();
   String error = '';
-    String errorMessage = '';
-  String successMessage = '';
-  bool isGoogleSignIn = false;
 
   // text field state
   String email = '';
@@ -28,26 +26,28 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       resizeToAvoidBottomInset: true,
       body: Container(
 
         color: Colors.white,
-        padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+        padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height) * 0.063, horizontal: (MediaQuery.of(context).size.width) * 0.05),
+        child : SingleChildScrollView(
         child: Form(
           key: _formKey,
-          child: SingleChildScrollView(
+          
             child: Column(
               //  crossAxisAlignment: CrossAxisAlignment.center,
               //  mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 SizedBox(
-                  height: 250,
-                  width: 159,
+                  height: (MediaQuery.of(context).size.height) * 0.4,
+                  width: (MediaQuery.of(context).size.width) * 0.4,
                   child: Image(
                     image: AssetImage('assets/logo.png'),
                     fit: BoxFit.contain,
                   ),
                 ),
-                SizedBox(height: 50.0),
+                //SizedBox(height: 50.0),
                 /*Champs Email*/
                 Material(
                   elevation: 6.5,
@@ -81,7 +81,7 @@ class _SignInState extends State<SignIn> {
                 ),
 
                 /*Champs Mot de passe*/
-                SizedBox(height: 20.0),
+                SizedBox(height: (MediaQuery.of(context).size.height) * 0.02,),
                 Material(
                   elevation: 6.5,
                   borderRadius: BorderRadius.circular(30.0),
@@ -116,7 +116,7 @@ class _SignInState extends State<SignIn> {
 
 
                 /*Mot de passe oublié*/
-                SizedBox(height: 30),
+                SizedBox(height:(MediaQuery.of(context).size.height) * 0.01,),
                 Material(
 
                   child: FlatButton(
@@ -136,20 +136,24 @@ class _SignInState extends State<SignIn> {
                         MaterialPageRoute(builder: (context) => Forgotpswd()),
                       );
                     },
+                    color:  const Color(0xffffffff),
+                    disabledColor:const Color(0xffffffff) ,
+                    hoverColor: const Color(0xffffffff),
+                    splashColor: const Color(0xffffffff),
                   ),
                 ),
 
                 /*Mot de passe oublié*/
 
                 /*CONNEXION*/
-                SizedBox(height: 50.0),
+                SizedBox(height: (MediaQuery.of(context).size.height) * 0.03,),
                 Material(
                   borderRadius: BorderRadius.circular(30.0),
                   color: Colors.deepOrange,
                   child:
                   MaterialButton(
-                      minWidth: 174,
-                      height: 36,
+                      minWidth:(MediaQuery.of(context).size.width) * 0.5,
+                      height:(MediaQuery.of(context).size.height) * 0.036,
                       child:
                       Text("CONNEXION",
                         textAlign: TextAlign.center,
@@ -175,10 +179,10 @@ class _SignInState extends State<SignIn> {
                 ),
                 /*CONNEXION*/
                 /*Mot de passe oublié*/
-                ButtonBar(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-                    FlatButton(
-                      child: Text("Pas encore membre,",
+                     Text("            Pas encore membre,",
                         textAlign: TextAlign.left,
                         style: const TextStyle(
                             color: const Color(0xde3d3d3d),
@@ -187,8 +191,7 @@ class _SignInState extends State<SignIn> {
                             fontStyle:  FontStyle.normal,
                             fontSize: 15.0
                         ),
-                      ), onPressed: () {},
-                    ),
+                      ), 
                     FlatButton(
                       child:
                       Text("Inscivez-vous",
@@ -197,36 +200,59 @@ class _SignInState extends State<SignIn> {
                             color: const Color(0xff00838f),
                             fontFamily: "Roboto-light",
                             fontStyle:  FontStyle.normal,
-                            fontSize: 17.0
+                            fontSize: 15.0
                         ),
                       ),
                       onPressed: () => widget.toggleView(),
                     ),
                   ],
                 ),
-                SizedBox(height: 11),
+                SizedBox(height: (MediaQuery.of(context).size.height) * 0.023,),
 
 
                 /*Mot de passe oublié*/
                 //Message d'erreur à la connexion
-                SizedBox(height: 12.0),
+                
                 Text(
                   error,
                   style: TextStyle(color: Colors.red, fontSize: 14.0),
                 ),
-                (!isGoogleSignIn
-              ? OutlineButton(
-                splashColor: Colors.grey,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-                highlightElevation: 0,
-                borderSide: BorderSide(color: Colors.grey),
-                   child: Padding(
+                SizedBox(height: 0),
+                _signInButton(),
+              ],
+            ),
+
+          
+
+        ),),
+      ),
+    );
+  }
+
+  Widget _signInButton() {
+    return OutlineButton(
+      splashColor: Colors.grey,
+      onPressed: () async {
+        await googleSignIn.signInWithGoogle(); {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return MyHomePage();
+              },
+            ),
+          );
+        }
+      },
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+      highlightElevation: 0,
+      borderSide: BorderSide(color: Colors.grey),
+      child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image(image: AssetImage("assets/google_logo.png"), height: 25.0),
+            Image(image: AssetImage("assets/google_logo.png"), height: (MediaQuery.of(context).size.height) * 0.025,),
             Padding(
               padding: const EdgeInsets.only(left: 10),
               child: Text(
@@ -240,44 +266,6 @@ class _SignInState extends State<SignIn> {
           ],
         ),
       ),
-                   onPressed: () {
-                    _auth.googleSignin(context).then((user) {
-                      if (user != null) {
-                        print('Logged in successfully.');
-                        setState(() {
-                          isGoogleSignIn = true;
-                         Navigator.push(context, new MaterialPageRoute(
-                           builder: (context) => new MyHomePage()),);
-                         
-                        });
-                      } else {
-                        print('Error while Login.');
-                      }
-                    });
-                  },
-        )
-              : OutlineButton(
-                  child: Text('Google Logout'),
-                  onPressed: () {
-                    _auth.googleSignout().then((response) {
-                      if (response) {
-                        setState(() {
-                          isGoogleSignIn = false;
-                          successMessage = '';
-                        });
-                      }
-                    });
-                  },
-                )),
-            
-              ],
-            ),
-
-          ),
-
-        ),
-      ),
     );
   }
-
 }

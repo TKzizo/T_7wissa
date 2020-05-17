@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/services/database.dart';
@@ -6,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/screens/authenticate/forgot_pswd.dart';
 import 'package:myapp/services/auth.dart';
-import 'package:myapp/screens/authenticate/register.dart';
+
 
 class EditProfileView extends StatefulWidget {
   @override
@@ -89,6 +90,7 @@ Future<Null> _focusNodeListener() async {
           stream: DatabaseService(uid: user.uid).utilisateursDonnees,
           builder: (context,snapshot){
             if (!snapshot.hasData){
+              
           return Text(
               'Chargement de données ..!',
                       style: const TextStyle(
@@ -106,6 +108,10 @@ Future<Null> _focusNodeListener() async {
 
            else{
               UserData userData =snapshot.data;
+              nom = userData.nom;
+              prenom = userData.prenom;
+              utilisateur = userData.identifiant;
+              phoneNumber = userData.numtel;
              
              return  SingleChildScrollView(
             child: Stack(
@@ -120,6 +126,7 @@ Future<Null> _focusNodeListener() async {
               SizedBox(height: 30.0),
               TextFormField(
                 initialValue: userData.nom,
+                
                  decoration: const InputDecoration(
                  icon: Icon(Icons.person,
                   color:  Colors.teal),
@@ -127,6 +134,7 @@ Future<Null> _focusNodeListener() async {
                  labelText: 'Nom *',
                     ),
                 validator: (val) => val.isEmpty ? 'Donner un nom ' : null,
+                
                 onChanged: (val) {
                   setState(() => nom = val);
                 },
@@ -205,7 +213,7 @@ Future<Null> _focusNodeListener() async {
                  hintText: 'entrer votre mot de passe',
                  labelText: 'Mot de passe actuel *',
                     ),
-                  validator: (val) => val.length < 6 ? 'Mot de passe érroné' : null,
+                  //validator: (val) => val.length < 6 ? 'Mot de passe érroné' : null,
                     onChanged: (val) {
                       setState(() => password = val);
                     },),
@@ -277,73 +285,22 @@ Future<Null> _focusNodeListener() async {
                  onPressed: () async {
             
           if(_formKey.currentState.validate() )
-                {   await DatabaseService(uid: user.uid).updateUserData(
-                  nom,prenom,utilisateur,phoneNumber
-                );
+                {   await Firestore.instance.collection('utilisateur').document(user.uid).updateData({
+                    'nom':nom,
+                    'prenom':prenom,
+                    'identifiant':utilisateur,
+                    'numtel':phoneNumber,
+                });
+                  //nom,prenom,utilisateur,phoneNumber
                 
                  }
-                  Navigator.pop(context);
+                  //Navigator.pop(context);
                 },
               ))
                
             ],
           ),
-        ),
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        ])
+        ),  ])
                ],
              ),
            );
@@ -359,4 +316,5 @@ Future<Null> _focusNodeListener() async {
        
         );
   }
+  
 }
