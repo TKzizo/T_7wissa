@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String nom = '';
   String lieu = 'Votre destination';
   String error =''; 
+  Future<Position> _future;
   String heure ='';
   String _supp = '';
   String _current_user; 
@@ -97,7 +98,7 @@ GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1
 
   @override
   void initState() {
-    
+    _child = map();
     setCustomMapPin();
     _getCurrentLocation();
     getPermission();
@@ -414,7 +415,7 @@ StatefulWidget map(){
     return    GoogleMap(
                 markers: Set.from(allMarkers),
                 initialCameraPosition: CameraPosition(
-                target: LatLng(position.latitude,position.longitude),
+                target: LatLng(36.705064, 3.173873),
                 zoom: 12.0),
                 onMapCreated: (GoogleMapController controller) {_controller = controller; },
                 );
@@ -895,9 +896,9 @@ Future<void> _handlePressButton() async {
    
     displayPrediction(p);
   }
-void subscribe() async{
+/*void subscribe() async{
    _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
-}
+}*/
 
 
 
@@ -906,6 +907,8 @@ void subscribe() async{
 
 
  
+
+
 
 
 /*COMPOSANTS*/ 
@@ -954,7 +957,7 @@ void subscribe() async{
                       _current_user=userData.identifiant; 
                       updateuserLocation(_current_userId);
                   updatePinOnMap(_current_userId,_current_user);
-                   subscribe();
+                   //subscribe();
                       return  Text(
                           '');
                     }else{
@@ -2057,7 +2060,7 @@ title:Row (
                           
 
                           
-                  _fcm.unsubscribeFromTopic("groupe/$_current_grp/Markers");
+                  //_fcm.unsubscribeFromTopic("groupe/$_current_grp/Markers");
 
                  _current_grp = document['id'].toString();
 
@@ -2082,7 +2085,7 @@ title:Row (
                   _current_grp_adminID = value.documents[0].data["uid"];
                 });
 
-                  _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
+                  //_fcm.subscribeToTopic("groupe/$_current_grp/Markers");
                   
                   for (int j = 0; j< allMarkers.length; j++){
                     allMarkers.removeAt(0); 
