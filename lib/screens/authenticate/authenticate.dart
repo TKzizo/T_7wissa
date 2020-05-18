@@ -1,3 +1,6 @@
+/*Teste si l'utilisateur va se connecter ou s'inscrire*/
+
+
 import 'package:myapp/screens/authenticate/registerform.dart';
 import 'package:myapp/screens/authenticate/sign_in.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +15,6 @@ class _AuthenticateState extends State<Authenticate> {
 
   bool showSignIn = true;
   void toggleView(){
-    //print(showSignIn.toString());
     setState(() => showSignIn = !showSignIn);
   }
 

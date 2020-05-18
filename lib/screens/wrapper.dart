@@ -1,3 +1,5 @@
+/*Renvoie à la page d'authentification ou à la page principale*/
+
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/authenticate/authenticate.dart';
 import 'package:myapp/screens/home/map.dart';

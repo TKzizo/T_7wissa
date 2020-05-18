@@ -1,3 +1,5 @@
+/*Messagerie*/
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 class ChatService {
     final String uid;

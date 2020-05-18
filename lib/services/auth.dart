@@ -1,3 +1,5 @@
+/*Méthodes inscription et connexion*/
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/services/database.dart';
@@ -50,7 +52,7 @@ class AuthService {
     } 
   }
 
-  // sign out
+ /*Déconnexion*/
   Future signOut() async {
     try {
       return await _auth.signOut();
@@ -68,6 +70,7 @@ class AuthService {
   String email;
   String imageUrl;
 
+/*Connexion avec google*/
   Future<String> signInWithGoogle() async {
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
     final GoogleSignInAuthentication googleSignInAuthentication =
@@ -104,9 +107,4 @@ class AuthService {
     return 'signInWithGoogle succeeded: $user';
   }
 
-  void signOutGoogle() async {
-    await googleSignIn.signOut();
-
-    print("User Sign Out");
-  }
 }

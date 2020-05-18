@@ -1,14 +1,13 @@
+/*Page principale de l'application*/
+
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:math';
-import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_placeholder_textlines/placeholder_lines.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:loading/loading.dart';
 import 'package:mobile_popup/mobile_popup.dart';
@@ -26,7 +25,6 @@ import 'package:myapp/services/chat.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'modifierProfil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:share/share.dart';
@@ -34,9 +32,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:myapp/services/Usersearch.dart';
 import 'package:myapp/services/Suggestion.dart'; 
 import 'page_aide.dart'; 
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/src/rendering/box.dart';
-import 'package:flutter/src/rendering/shifted_box.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:myapp/services/MessageHandler.dart';
 
@@ -81,12 +76,15 @@ FirebaseUser currentUser;
 Widget _child; 
 String _img='';
 String _current_grp = '10000000';
+
 String  _current_grp_adminID;
 String  _current_grp_admin;
 String _current_grp_destinaton;
+String _current_grp_name;
 String alerte='';
 String placetogo=''; 
  FirebaseMessaging _fcm = FirebaseMessaging();
+ 
 Map<String,dynamic> pass = new Map();
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
    
@@ -95,60 +93,64 @@ GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1
   @override
   void initState() {
     setCustomMapPin();
+    _getCurrentLocation();
     getPermission();
+   
     super.initState();
-    _loadCurrentUser();
-
+    _loadCurrentUser(); 
   }
+/*Déclaration des diffirents*/
   BitmapDescriptor pinLocationIcon;
-   BitmapDescriptor panneIcon;
-   BitmapDescriptor accidentIcon;
-   BitmapDescriptor animauxIcon;
-   BitmapDescriptor barrageIcon;
-   BitmapDescriptor aideIcon;
-   BitmapDescriptor pauseIcon;
-   BitmapDescriptor radarIcon;
-   BitmapDescriptor routeIcon;
-   BitmapDescriptor maleIcon;
-   BitmapDescriptor femaleIcon; 
-   BitmapDescriptor destinationIcon; 
+  BitmapDescriptor panneIcon;
+  BitmapDescriptor accidentIcon;
+  BitmapDescriptor animauxIcon;
+  BitmapDescriptor barrageIcon;
+  BitmapDescriptor aideIcon;
+  BitmapDescriptor pauseIcon;
+  BitmapDescriptor radarIcon;
+  BitmapDescriptor routeIcon;
+  BitmapDescriptor maleIcon; 
+  BitmapDescriptor femaleIcon; 
+  BitmapDescriptor destinationIcon; 
 
+/*Affectation des Marqueurs*/
 void setCustomMapPin() async {
       pinLocationIcon = await BitmapDescriptor.fromAssetImage(
       ImageConfiguration(size:Size(-12,-12)),
       'assets/jesuisenpanne.png');
-      //ICONE EN PANNE 
+      /*ICONE EN PANNE*/ 
        panneIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/jesuisenpanne.png');
-      //ICONE ACCIDENT
+      /*ICONE ACCIDENT*/
        accidentIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/accident.png');
-      //ICONE ANIMAUX
+      /*ICONE ANIMAUX*/
        animauxIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/animaux.png');
-      //ICONE BARRAGE
+      /*ICONE BARRAGE*/
        barrageIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)), 'assets/barrage.png');
-      //ICONE AIDE
+      /*ICONE AIDE*/
        aideIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/besoindaide.png');
-      //ICONDE PAUSE 
+      /*ICONDE PAUSE*/ 
        pauseIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/pause.png');
-      //ICONE RADAR
+      /*ICONE RADAR*/
        radarIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/radar.png');
-      //ICONE ROUTE
+      /*ICONE ROUTE*/
        routeIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/route.png');
-      //ICONE UTILISATEUR MALE
+      /*ICONE UTILISATEUR MALE*/
        maleIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/utilisateurmale.png');
-      //ICONE UTILISATEUR FEMALE
+      /*ICONE UTILISATEUR FEMALE*/
        destinationIcon = await BitmapDescriptor.fromAssetImage(ImageConfiguration(size:Size(-12,-12)),'assets/destination.png');
-      //ICONE DESTINATION
-
+      /*ICONE DESTINATION*/
    }
+
+/*Update l'utilisateur courant dans la base de données*/
   void _loadCurrentUser() {
     FirebaseAuth.instance.currentUser().then((FirebaseUser user) {
       setState(() { // call setState to rebuild the view
-        this.currentUser = user;
-        print(user.uid); 
+        this.currentUser = user; 
       });
     });
   }
-
+  
+/*Récupération de l'email à partir du service FireBase authentificate*/
   String _email() {
     if (currentUser != null) {
       return currentUser.email;
@@ -157,11 +159,20 @@ void setCustomMapPin() async {
     }
   }
 
+/*Récupère la position de l'utilisateut courant*/
+  void _getCurrentLocation() async {
+  Position res = await Geolocator().getCurrentPosition();
+  setState(() {
+      position = res;
+      vitesse = position.speed==null? 0.0: position.speed; 
+       _child = _mapWidget();
+    }
+    );
+    }
 
-
-
-    Future<void> getPermission() async {
-    PermissionStatus permission = await PermissionHandler()
+/*Permission d'accès à la position de l'utilisateur*/
+  Future<void> getPermission() async {
+  PermissionStatus permission = await PermissionHandler()
         .checkPermissionStatus(PermissionGroup.location);
 
     if(permission == PermissionStatus.denied){
@@ -191,25 +202,19 @@ void setCustomMapPin() async {
         showToast('Access Granted');
         _getCurrentLocation();
     }
+
   }
-  
-   void _getCurrentLocation() async {
-    Position res = await Geolocator().getCurrentPosition();
-    setState(() {
-      position = res;
-      vitesse = position.speed==null? 0.0: position.speed; 
-       _child = _mapWidget();
-    }
-    );
-    }
 
-
+/*Update la position de l'utilisateur dans la base de données*/
   void updateuserLocation(String userId){
     _getCurrentLocation();
     //
       Firestore.instance.collection('utilisateur').document(userId).updateData({'vitesse': position.speed==null? 0.0: position.speed.toDouble(),'latitude': position.latitude==null? 0.0: position.latitude.toDouble(), 'longitude':position.longitude==null? 0.0: position.longitude.toDouble()});
   }
-    List<Marker> allMarkers = []; 
+
+  List<Marker> allMarkers = []; 
+
+
 Widget _mapWidget() {
        return StreamBuilder(
       stream: Firestore.instance.collection('groupe').document(_current_grp).collection('Markers').snapshots(),
@@ -230,8 +235,6 @@ Widget _mapWidget() {
                         title: ("alerte"),
                         onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
                     ),
-               
- 
               ));
           }else{
              if(icon=='radar'){
@@ -256,7 +259,6 @@ Widget _mapWidget() {
                         title: ("alerte"),
                         onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
                     ),
- 
               ));
           }else{
               if(icon=='aide'){
@@ -269,7 +271,6 @@ Widget _mapWidget() {
                         title: ("alerte"),
                         onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
                     ),
- 
               ));
           }else{
              if(icon=='animaux'){
@@ -282,7 +283,6 @@ Widget _mapWidget() {
                         title: ("alerte"),
                         onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
                     ),
- 
               ));
           }else{
               if(icon=='barrage'){
@@ -295,7 +295,6 @@ Widget _mapWidget() {
                         title: ("alerte"),
                         onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
                     ),
- 
               ));
           }else{
             if(icon=='accident'){
@@ -308,7 +307,6 @@ Widget _mapWidget() {
                         title: ("alerte"),
                         onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
                     ),
- 
               ));
           }else{
             if(icon=='panne'){
@@ -321,12 +319,10 @@ Widget _mapWidget() {
                         title: ("alerte"),
                         onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),alerte),
                     ),
-      
               ));
           }else{
               if(icon=='destination'){
                    placetogo=(snapshot.data.documents[i]['text']) ==null ?0.0: (snapshot.data.documents[i]['text']); 
-
                allMarkers.add(new Marker(
               position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
@@ -342,15 +338,13 @@ Widget _mapWidget() {
               position: new LatLng((snapshot.data.documents[i]['latitude']) ==null ?0.0: (snapshot.data.documents[i]['latitude']),
                  (snapshot.data.documents[i]['longitude']) ==null ?0.0: (snapshot.data.documents[i]['longitude'])),
                    markerId: MarkerId(i.toString()),
-                   icon:animauxIcon,
-                 
+                   icon:animauxIcon,  
   infoWindow: InfoWindow(
                         title: ("alerte"),
                         onTap:  ()=>  _markerAlertPressed((snapshot.data.documents[i]['senderId']).toString() ==null ?' ': (snapshot.data.documents[i]['senderId']).toString(),(snapshot.data.documents[i]['image']).toString() ==null ?"Alerte ! ": (snapshot.data.documents[i]['image']).toString()),
                     ), 
               ));
               }
-             
           }
           }
           }
@@ -359,13 +353,28 @@ Widget _mapWidget() {
           }
           }
           }
-        }  
-      
+          }  
         return userListeMarkers();    
       },
     );
   }
+/*Récupère la liste des marqueurs des membres du même groupe*/
+   Widget  userListeMarkers(){
+    return   StreamBuilder(
+      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('ListeMembre').snapshots(),
+      builder: (context, snapshot){
+        if (!snapshot.hasData) return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
+        for (int i = 0; i < snapshot.data.documents.length; i++) { 
+          allUsers.add((snapshot.data.documents[i]['user']).toString() ==null ?" ": (snapshot.data.documents[i]['user']).toString());              
+        }  
+    return  _eachUserMarker(); 
+      },
+    );
+  }
+
 List<String> allUsers = []; 
+
+/*Affichage des marqueurs des membres du même groupe*/
 Widget _eachUserMarker(){
      return StreamBuilder(
       stream: Firestore.instance.collection('utilisateur').snapshots(),
@@ -384,7 +393,6 @@ Widget _eachUserMarker(){
                     ),
               ));
           }
-         
         }  
         return GoogleMap(
                 markers: Set.from(allMarkers),
@@ -397,19 +405,7 @@ Widget _eachUserMarker(){
     );
 }
   
- Widget  userListeMarkers(){
-    return   StreamBuilder(
-      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('ListeMembre').snapshots(),
-      builder: (context, snapshot){
-        if (!snapshot.hasData) return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
-        for (int i = 0; i < snapshot.data.documents.length; i++) { 
-          allUsers.add((snapshot.data.documents[i]['user']).toString() ==null ?" ": (snapshot.data.documents[i]['user']).toString());              
-        }  
-    return  _eachUserMarker(); 
-      },
-
-    );
-  }
+/*Affichage de la map*/
 Widget map(){ 
     return    GoogleMap(
                 markers: Set.from(allMarkers),
@@ -417,15 +413,15 @@ Widget map(){
                 target: LatLng(position.latitude,position.longitude),
                 zoom: 12.0),
                 onMapCreated: (GoogleMapController controller) {_controller = controller; },
-                );
-  
+                ); 
 }
+
+/*Affichage de la fenêtre des informations concerant chaque alerte*/
 void _markerAlertPressed(String uid, String alerte){
      showDialog(context: context, builder:(context){
        String icone=''; 
         if(alerte=='route'){
                         icone='assets/routeendommagée';
-
                     }else{
                       if(alerte=='radar'){
                         icone='assets/radar.png';
@@ -461,8 +457,7 @@ void _markerAlertPressed(String uid, String alerte){
   return AlertDialog(
     elevation: 1,
     shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(20.0))
-),
+    borderRadius: BorderRadius.all(Radius.circular(20.0))),
   title :  Text('On vous signale une alerte ! ',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -473,7 +468,6 @@ void _markerAlertPressed(String uid, String alerte){
                                 fontSize: 19.0
                             ),),
   content: Stack(children: [
-    
    Container( 
      padding: EdgeInsets.symmetric(vertical:0.0,horizontal :20.0),
       child: SingleChildScrollView(
@@ -484,7 +478,6 @@ void _markerAlertPressed(String uid, String alerte){
                     fit: BoxFit.contain,
                   ),
                   SizedBox(height: 10,), 
-               
                     Text('une alerte a été signalée : ',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -503,14 +496,11 @@ void _markerAlertPressed(String uid, String alerte){
                                 fontFamily: "Roboto",
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 17.0
-                            ),),                
+                            ),),
               ],
             ),
           ),
-       
       ),
-       
-      
       ]
       ),
    actions: <Widget>[
@@ -519,19 +509,14 @@ void _markerAlertPressed(String uid, String alerte){
       child: Text('OK'),
       onPressed:() {
         Navigator.of(context).pop();
-      },
-     )
+      },)
   ],
-
   );
  });
-    
-        
-         
-  }
+}
   
   
-
+/*Affichage des informations concernant la destionation du groupe si elle existe*/
 void _markerDestinationPressed(String userId, String placetogo){
      showDialog(context: context, builder:(context){
   return AlertDialog(
@@ -548,7 +533,6 @@ void _markerDestinationPressed(String userId, String placetogo){
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 19.0
                             ),),
-
   content: Stack(children: [
     StreamBuilder<UserData>(
                   stream: DatabaseService(uid:userId).utilisateursDonnees,
@@ -565,12 +549,9 @@ void _markerDestinationPressed(String userId, String placetogo){
                     image: AssetImage('assets/destination.png'),
                     fit: BoxFit.contain,
                   ),
-                SizedBox(height: 20,), 
-                 
-                                          
-                 SizedBox(height: 18,), 
-              
-                    Text('Vous vous dirigé vers',
+                SizedBox(height: 20,),                        
+                SizedBox(height: 18,), 
+                    Text('Vous vous dirigez vers',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.black,
@@ -589,19 +570,15 @@ void _markerDestinationPressed(String userId, String placetogo){
                                 fontStyle:  FontStyle.italic,
                                 fontSize: 17.0
                             ),),
-                               
               ],
             ),
           ),
-       
       );
                     }else{
                       return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
                     }
                   }
               ),
-       
-      
       ]
       ),
    actions: <Widget>[
@@ -613,12 +590,11 @@ void _markerDestinationPressed(String userId, String placetogo){
       },
      )
   ],
-
   );
  });
-    
-        
-  }
+}
+
+/*Affichage des informations concernat une pause (point de repos)*/
    void _markerPausePressed(String userId, String pause){
      showDialog(context: context, builder:(context){
   return AlertDialog(
@@ -635,7 +611,6 @@ void _markerDestinationPressed(String userId, String placetogo){
                                 fontStyle:  FontStyle.normal,
                                 fontSize: 19.0
                             ),),
-
   content: Stack(children: [
     StreamBuilder<UserData>(
                   stream: DatabaseService(uid:userId).utilisateursDonnees,
@@ -653,10 +628,7 @@ void _markerDestinationPressed(String userId, String placetogo){
                     fit: BoxFit.contain,
                   ),
                 SizedBox(height: (MediaQuery.of(context).size.height) * 0.02,), 
-                 
-                                          
-                 SizedBox(height: (MediaQuery.of(context).size.height) * 0.02,), 
-              
+                SizedBox(height: (MediaQuery.of(context).size.height) * 0.02,), 
                     Text('Votre partenaire de route',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -675,22 +647,17 @@ void _markerDestinationPressed(String userId, String placetogo){
                                 fontFamily: "Roboto",
                                 fontStyle:  FontStyle.italic,
                                 fontSize: 17.0
-                            ),),
-                               
+                            ),),                 
               ],
             ),
           ),
-       
       );
                     }else{
                       return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
                     }
                   }
               ),
-       
-      
-      ]
-      ),
+      ]),
    actions: <Widget>[
     MaterialButton(
       elevation: 5.0,
@@ -700,15 +667,12 @@ void _markerDestinationPressed(String userId, String placetogo){
       },
      )
   ],
-
   );
- });
-    
-        
+ });   
   }
 
-/************************************************** */
-  void _markerUserPressed(String userId){
+/*Affichage des informations concernant un utilisateur sur la map*/
+ void _markerUserPressed(String userId){
      showDialog(context: context, builder:(context){
        String icone=''; 
   return AlertDialog(
@@ -716,21 +680,19 @@ void _markerDestinationPressed(String userId, String placetogo){
     shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(20.0))
 ),
-  title :  Text('Information sur votre partenaire de route  ',
+  title :  Text('Informations sur votre partenaire de route  ',
                     textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color:  Colors.deepOrange,
                                 fontWeight: FontWeight.w500,
                                 fontFamily: "Roboto",
                                 fontStyle:  FontStyle.normal,
-                                fontSize: 19.0
+                                fontSize: 17.0
                             ),),
   content: Container(
     height: 300,
     width: 200,
     child: Stack(children: [
-      
-     
           StreamBuilder<UserData>(
                     stream: DatabaseService(uid:userId).utilisateursDonnees,
                     builder: (context,snapshot){
@@ -739,20 +701,17 @@ void _markerDestinationPressed(String userId, String placetogo){
                         print(userData.identifiant);
                         return    Container( 
        padding: EdgeInsets.symmetric(vertical:0.0,horizontal :20.0),
-        
               child: Column(
                 children: <Widget>[
                   ClipOval(
                      child: SizedBox(
-                       width: 120.0,
-                       height: 120.0,
-                       
+                       width: 80.0,
+                       height: 80.0,
                        child: Image.network(userData.image_url.toString(),fit: BoxFit.fill,),
-                       
                      ),
                      ),
                     SizedBox(height: 10,), 
-                 
+                    /*Affichage du nom d'utilisateur*/
                       Text('Votre partenaire de route',
                       textAlign: TextAlign.center,
                               style: const TextStyle(
@@ -760,7 +719,7 @@ void _markerDestinationPressed(String userId, String placetogo){
                                   fontWeight: FontWeight.w400,
                                   fontFamily: "Roboto",
                                   fontStyle:  FontStyle.normal,
-                                  fontSize: 17.0
+                                  fontSize: 15.0
                               ),),
                               SizedBox(width: 7,),
                                 Text(userData.identifiant,
@@ -770,15 +729,11 @@ void _markerDestinationPressed(String userId, String placetogo){
                                   fontWeight: FontWeight.w400,
                                   fontFamily: "Roboto",
                                   fontStyle:  FontStyle.normal,
-                                  fontSize: 17.0
+                                  fontSize: 15.0
                               ),),
                                SizedBox(width: 7,),
-                              
-                              
-                    
-                  
-                   SizedBox(height: 20,), 
-                 
+                   SizedBox(height: 20,),
+                   /*Affichage de la vitesse*/ 
                       Text('Roule à une vitesse de : ',
                       textAlign: TextAlign.center,
                               style: const TextStyle(
@@ -786,29 +741,24 @@ void _markerDestinationPressed(String userId, String placetogo){
                                   fontWeight: FontWeight.w400,
                                   fontFamily: "Roboto",
                                   fontStyle:  FontStyle.normal,
-                                  fontSize: 17.0
+                                  fontSize: 15.0
                               ),),
                               SizedBox(width: 12,),
-                                SizedBox(
-                                  width: 40,height: 20,
-                                                                child: Text(userData.vitesse.toString(),
+                              SizedBox(width: 40,height: 20,
+                              child: Text(userData.vitesse.toString()+" m/s",
                       textAlign: TextAlign.center,
                               style: const TextStyle(
                                     color:  Colors.deepOrange,
                                     fontWeight: FontWeight.w500,
                                     fontFamily: "Roboto",
                                     fontStyle:  FontStyle.italic,
-                                    fontSize: 17.0
+                                    fontSize: 15.0
                               ),),
                                 ),
-                                  
                 ],
-              ),
-            
-         
+              ), 
         );
-                      }else{
-                             
+                      }else{    
                         return Column(
                           children: <Widget>[
                             SizedBox(height: 60,), 
@@ -818,10 +768,6 @@ void _markerDestinationPressed(String userId, String placetogo){
                       }
                     }
                 ),
-         
-        
-         
-        
         ]
         ),
   ),
@@ -836,142 +782,12 @@ void _markerDestinationPressed(String userId, String placetogo){
   ],
 
   );
- });
-    
-        
-         
+ });       
   }
 
 
 
-
-  /********************************** */
-/*void _markerUserPressed(String userId){
-     showDialog(context: context, builder:(context){
-  return AlertDialog(
-    elevation: 1,
-    shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(20.0))
-),
-  title :  Text('Informations sur votre partenaire de route ',
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color:  Colors.deepOrange,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.normal,
-                                fontSize: 19.0
-                            ),),
-  content: Stack(children: [
-    
-    StreamBuilder<UserData>(
-                  stream: DatabaseService(uid:userId).utilisateursDonnees,
-                  builder: (context,snapshot){
-                    if(snapshot.hasData){
-                      UserData userData=snapshot.data;
-                      print(userData.identifiant);
-                      return    Container( 
-     padding: EdgeInsets.symmetric(vertical:0.0,horizontal :20.0),
-      child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                ClipOval(
-                   child: SizedBox(
-                     width: 120.0,
-                     height: 120.0,
-                     
-                     child: Image.network(userData.image_url.toString(),fit: BoxFit.fill,),
-                     
-                   ),
-                   ),
-                  SizedBox(height: 10,), 
-               
-                    Text('Votre partenaire de route',
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color:  Colors.black,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.normal,
-                                fontSize: 17.0
-                            ),),
-                            SizedBox(width: 7,),
-                              Text(userData.identifiant,
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color:  Colors.teal,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.normal,
-                                fontSize: 17.0
-                            ),),
-                             SizedBox(width: 7,),
-                            
-                            
-                  
-                
-                 SizedBox(height: 20,), 
-               
-                    Text('Roule à une vitesse de : ',
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color:  Colors.black,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.normal,
-                                fontSize: 17.0
-                            ),),
-                            SizedBox(width: 12,),
-                              SizedBox(
-                                width: 40,height: 20,
-                                                              child: Text(userData.vitesse.toString(),
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                  color:  Colors.deepOrange,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: "Roboto",
-                                  fontStyle:  FontStyle.italic,
-                                  fontSize: 17.0
-                            ),),
-                              ),
-                                
-              ],
-            ),
-          ),
-       
-      );
-                    }else{
-                           
-                      return Column(
-                        children: <Widget>[
-                          SizedBox(height: 60,), 
-                          PlaceholderLines(count: 3, animate: true, color: Colors.grey,align: TextAlign.center, minOpacity: 0.2, maxOpacity: 0.4, ),
-                        ],
-                      );
-                    }
-                  }
-              ),
-       
-      
-      ]
-      ),
-   actions: <Widget>[
-    MaterialButton(
-      elevation: 5.0,
-      child: Text('OK'),
-      onPressed:() {
-        Navigator.of(context).pop();
-      },
-     )
-  ],
-
-  );
- });
-    
-        
-         
-  }*/
-  
+/*Affichage des messages personnalisés*/
    void showToast(message){
     Fluttertoast.showToast(
         msg: message,
@@ -983,10 +799,12 @@ void _markerDestinationPressed(String userId, String placetogo){
         fontSize: 16.0
     );
   }
+
   String pause="Planifiez votre pause"; 
   double latt; 
   double lang; 
-/*METHODES RECHERCHES ET AUTOCOMPLETE*/ 
+
+/*Méthodes de recherche et d'autocomplete*/ 
 Future<Null> displayPrediction(Prediction p) async {
   if (p != null) {
     // get detail (lat/lng)
@@ -1008,6 +826,8 @@ Future<Null> displayPrediction(Prediction p) async {
     )));
   }
 }
+
+/*Rédirige vers la fenêtre d'autocomplete*/
 Future<void> _handlePressButton() async {
     // show input autocomplete with selected mode
     // then get the Prediction selected
@@ -1020,18 +840,14 @@ Future<void> _handlePressButton() async {
    
     displayPrediction(p);
   }
-/*METHODES RECHERCHES ET AUTOCOMPLETE*/ 
 
 
+void subscribe() async{
+   _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
+}
  
-
-
-/*COMPOSANTS*/ 
-
-
- 
+/*Composants*/ 
   Widget build(BuildContext context) {
-    
     final user = Provider.of<User>(context);
       BorderRadiusGeometry radius = BorderRadius.only(
       topLeft: Radius.circular(30.0),
@@ -1050,28 +866,26 @@ Future<void> _handlePressButton() async {
                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => MsgHandler()));
               } )
             ],
-        title: Text('Acceuil'),
-
+        title: Text('Accueil'),
       ) ),
       /*MENU*/
       bottomNavigationBar:   BottomAppBar(
           color: Colors.white.withOpacity(0.5),
-
       child: new Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           StreamBuilder<UserData>(
                   stream: DatabaseService(uid: user.uid).utilisateursDonnees,
-                  builder: (context,snapshot){
-                    if(snapshot.hasData){
+                  builder: (context,snapshot)  {
+                    if(snapshot.hasData)  {
                       _current_userId = user.uid;
-                      
-                      UserData userData=snapshot.data;
+                       UserData userData=snapshot.data;
                       _img = userData.image_url;
                       _current_user=userData.identifiant; 
                       updateuserLocation(_current_userId);
                   updatePinOnMap(_current_userId,_current_user);
+                  subscribe();
                       return  Text(
                           '');
                     }else{
@@ -1093,7 +907,6 @@ Future<void> _handlePressButton() async {
                         focusColor: Colors.white,
                    ),
                   ),
-
             Container(
                      width: (MediaQuery.of(context).size.width) * 0.1,
                      height: (MediaQuery.of(context).size.height) * 0.052,
@@ -1108,7 +921,6 @@ Future<void> _handlePressButton() async {
                         focusColor: Colors.white,
                    ),
                   ),
-            
               Container(
                      width: (MediaQuery.of(context).size.width) * 0.1,
                      height: (MediaQuery.of(context).size.height) * 0.052,
@@ -1123,7 +935,6 @@ Future<void> _handlePressButton() async {
                         focusColor: Colors.white,
                    ),
                   ),
-           
               Container(
                      width: (MediaQuery.of(context).size.width) * 0.1,
                      height: (MediaQuery.of(context).size.height) * 0.052,
@@ -1173,7 +984,6 @@ Future<void> _handlePressButton() async {
         ],
       ),
     ),
-        
       body:   SlidingUpPanel(
        backdropEnabled: true,
       panelBuilder: (ScrollController sc) => _scrollingmessagesList(sc),
@@ -1182,20 +992,17 @@ Future<void> _handlePressButton() async {
        borderRadius: radius ,
        minHeight: (MediaQuery.of(context).size.height) * 0.015,
       ),
+/*Espace d'utilisateur*/
       drawer: Drawer(
         child: Column(
           children: [
             SizedBox(
              height: (MediaQuery.of(context).size.height) * 0.1,
             ),
-           
            Row(
              mainAxisAlignment: MainAxisAlignment.spaceAround,
              mainAxisSize: MainAxisSize.min,
-
-             
              children: <Widget>[
-               
                Container(
                 color: Colors.white24,
                 height: (MediaQuery.of(context).size.width) * 0.05,
@@ -1206,41 +1013,29 @@ Future<void> _handlePressButton() async {
                   builder: (context,snapshot){
                     if(snapshot.hasData){
                       _current_userId = user.uid;
-                      
                       UserData userData=snapshot.data;
                       _img = userData.image_url;
-                      print(userData.identifiant);
-                      print(_img);
-
                       return   Align(
                  alignment: Alignment.center,
-                
                    child: ClipOval(
                    child: SizedBox(
                      width: (MediaQuery.of(context).size.width) * 0.3,
                      height: (MediaQuery.of(context).size.height) * 0.16,
-                     
-                     child: Image.network(_img,fit: BoxFit.fill,),
-                     
+                     child: Image.network(_img,fit: BoxFit.fill,),  
                    ),
                    ),
-                 
                );
                     }else{
                       return Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange);
                     }
                   }
               ),
-              
-
                 IconButton(
-                  
                   icon: Icon( Icons.camera_alt,
                size:(MediaQuery.of(context).size.height) * 0.035,
                  color: Colors.greenAccent
              ),
-                padding: EdgeInsets.only(top:(MediaQuery.of(context).size.height) * 0.1, right: (MediaQuery.of(context).size.height) * 0.03,), 
-                
+             padding: EdgeInsets.only(top:(MediaQuery.of(context).size.height) * 0.1, right: (MediaQuery.of(context).size.height) * 0.03,),  
              onPressed: (){
                         Navigator.push(
                         context,
@@ -1248,15 +1043,9 @@ Future<void> _handlePressButton() async {
                       );
                       }
                       ),
-                     
-             
              ]
            ),
-            
-                      SizedBox(
-             height: (MediaQuery.of(context).size.height) * 0.02,
-            ),
-           
+            SizedBox(height: (MediaQuery.of(context).size.height) * 0.02,),
             Expanded(
               flex: 1,
               child: StreamBuilder<UserData>(
@@ -1264,12 +1053,8 @@ Future<void> _handlePressButton() async {
                   builder: (context,snapshot){
                     if(snapshot.hasData){
                       _current_userId = user.uid;
-                      
                       UserData userData=snapshot.data;
                       _img = userData.image_url;
-                      print(userData.identifiant);
-                      print(_img);
-
                       return  Text(
                           userData.identifiant);
                     }else{
@@ -1278,7 +1063,6 @@ Future<void> _handlePressButton() async {
                   }
               ),
             ),
-            
             Expanded(
               flex: 2,
               child: ListView(children: [
@@ -1286,9 +1070,11 @@ Future<void> _handlePressButton() async {
                   leading: Icon(Icons.settings, color: Colors.greenAccent),
                   title: Text('Paramètres du compte'),
                   onTap: () async {
-                    Navigator.of(context).pop();
-                    _onParametrePressed();
-
+                     Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => 
+                        EditProfileView()),
+                      );
                   },
                 ),
                 ListTile(
@@ -1299,15 +1085,13 @@ Future<void> _handlePressButton() async {
                         context,
                         MaterialPageRoute(builder: (context) =>  HelpPage()),
                       );
-
                   },
                 ),
-              
                 ListTile(
                   leading: Icon(Icons.share,color: Colors.greenAccent,),
-                  title: Text("Partager l'application"),
+                  title: Text("Partagez l'application"),
                   onTap: () {
-                    Share.share('LINK TO OUR APP IN PLAY STORE ');
+                    Share.share('LINK TO OUR APP IN PLAY STORE');
                     Navigator.of(context).pop();
                   },
                 ),
@@ -1325,61 +1109,42 @@ Future<void> _handlePressButton() async {
         ),
       ),
     );
-
-
-
-
   }
+
+/*Méthode de refus d'une invitation*/  
   _refuserInvitation(docId,userID) {
               Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').document(docId).delete().catchError((e){
               print(e);});
-              
 
             }
-
+/*Méthode de l'acceptation d'une invitation*/
     _accepterInvitation(docId,grpID,userID) {
 
-            //ajouter l'utilisateur dans la liste des membres du groupe
+            /*ajouter l'utilisateur dans la liste des membres du groupe*/
      Firestore.instance.collection('groupe').document(grpID).collection('ListeMembre').document().setData({
               'user' : userID,
             }).catchError((e){print(e);});       
-            //ajouter le groupe dans la liste des groupes de l'utilistateur
+            /*ajouter le groupe dans la liste des groupes de l'utilistateur*/
             Firestore.instance.collection('utilisateur').document(userID).collection('ListeGroupe').document().setData({
               'id' : grpID,
             }).catchError((e){print(e);});
-            //supprimer l'invitation
+            /*supprimer l'invitation*/
             Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').document(docId).delete().catchError((e){
               print(e);});
-            
           }
 
-  void _onAddMarkerButtonPressed(double latitude,double longitude) {
-    InfoWindow infoWindow =
-    InfoWindow(title: "Location" + markers.length.toString());
-    Marker marker = Marker(
-      markerId: MarkerId(markers.length.toString()),
-      infoWindow: infoWindow,
-      position: new LatLng(latitude,longitude),
-      icon: pauseIcon,
-    );
-    setState(() {
-      allMarkers.add(marker);
-    });
-  }
-/*Messages  recues*/ 
+
 /*Messages  recues*/ 
 _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
-      if ((document['image'])!=null ){
-        
+  /*Vérification si le message reçu est une photo*/
+      if ((document['image'])!=null ){ 
      return(ListTile(
-       
+  /*Affichage de la photo*/
     title: Image.network(document['image']),
-    
-
-      
+  /*Affichage de la personne qui a envoyé la photo*/
      subtitle :   Text(
                        document['sender'].toString(),
-                      style: const TextStyle(
+                       style: const TextStyle(
                           color:  Colors.teal,
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
@@ -1388,6 +1153,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                       ),
                       textAlign: TextAlign.left                
                       ),
+  /*Affichage de la date et de l'heure de l'envoi du message*/                    
          trailing:    Text(
                        document['time'].toString(),
                       style: const TextStyle(
@@ -1399,39 +1165,31 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                       ),
                       textAlign: TextAlign.left                
                       ),
-
-
-        onTap:()  {
-          showMobilePopup(
-    context: context,
-    builder: (context) => MobilePopUp(
-        title: document['sender'].toString(),
+        onTap:()  { /*Agrandissement de la photo reçue dans les messages*/
+                    showMobilePopup(
+                    context: context,
+                    builder: (context) => MobilePopUp(
+                    title: document['sender'].toString(),
                     leadingColor: Colors.white,
-        child: Builder(
-           builder: (navigator) => Scaffold(
-              resizeToAvoidBottomInset: true,
+                    child: Builder(
+                    builder: (navigator) => Scaffold(
+                    resizeToAvoidBottomInset: true,
                             body: SingleChildScrollView(
                               child: Column(
                                 children: <Widget>[
-                                   Image.network(document['image']),
-                                  
+                                Image.network(document['image']),
                                 ],
                               ),
                             ),
-                          ),
-        ),
-    ),
-);
-        }
-
+                          ),),),);
+                  }
                       )
                   );}
                   else{
-                    return(ListTile(
-       
+                  return(ListTile(
     title: Text(
                        document['text'].toString(),
-                      style: const TextStyle(
+                       style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
@@ -1440,9 +1198,6 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                       ),
                       textAlign: TextAlign.left                
                       ),
-     
-
-      
      subtitle :   Text(
                        document['sender'].toString(),
                       style: const TextStyle(
@@ -1464,16 +1219,12 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                           fontSize:12.0
                       ),
                       textAlign: TextAlign.left                
-                      ),
-
-
-
-
-                      )
-                  );
+                      ),));
                   }
-  }
-  /*messages a envoyer*/
+                }
+
+              
+  /*Liste des messages prédéfinis*/
   Widget _scrollingmessagesList(ScrollController sc){
   return Container(
   padding: EdgeInsets.symmetric(vertical:(MediaQuery.of(context).size.height) * 0.04,horizontal:(MediaQuery.of(context).size.height) * 0.04),
@@ -1489,23 +1240,15 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
+          fontSize: 17.0),
+      textAlign: TextAlign.left                ),
    leading: Icon(Icons.departure_board,color: Color(0xFFFF5722),),
+   /*Appel de la méthode envoyer message*/
    trailing:  IconButton(onPressed:() async {      
-     print(_current_user);
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'On a démarré!', _current_user,_current_userId,null);
-     },
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'On a démarré!', _current_user,_current_userId,null);},
      icon: Icon(
-                        Icons.send,
-                        color: Colors.greenAccent
-                        ),
-                      
-                         ), 
-
-   ),
+                Icons.send,
+                color: Colors.greenAccent),),),
   ListTile(
    title:  Text(
       'Je suis en route !',
@@ -1514,17 +1257,13 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
-   leading: Icon(Icons.directions_car,color: Color(0xFFFF5722),),
+          fontSize: 17.0),
+      textAlign: TextAlign.left),
+    leading: Icon(Icons.directions_car,color: Color(0xFFFF5722),),
+   /*Appel de la méthode envoyer message*/
     trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Je suis en route !', _current_user,_current_userId,null);
-     },
-     icon: Icon(Icons.send,color: Colors.greenAccent),
-     ), 
-   ),
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Je suis en route !', _current_user,_current_userId,null);},
+     icon: Icon(Icons.send,color: Colors.greenAccent),),),
   ListTile(
    title:  Text(
       'Je suis arrivé !',
@@ -1533,47 +1272,36 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
-   leading: Icon(Icons.arrow_drop_down_circle,color: Color(0xFFFF5722),),
+          fontSize: 17.0),
+      textAlign: TextAlign.left),
+  leading: Icon(Icons.arrow_drop_down_circle,color: Color(0xFFFF5722),),
+  /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Je suis arrivé(e)', _current_user,_current_userId,null);
-     },
-     icon: Icon(Icons.send,color: Colors.greenAccent),
-     ), 
-   ),
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Je suis arrivé(e)', _current_user,_current_userId,null);},
+     icon: Icon(Icons.send,color: Colors.greenAccent),),),
   ListTile(
    title:  Text(
-      'J ai besoin d aide',
+      "J'ai besoin d aide",
       style: const TextStyle(
           color:  const Color(0xff3d3d3d),
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
-   leading: Icon(Icons.help,color: Color(0xFFFF5722),),
+          fontSize: 17.0),
+      textAlign: TextAlign.left),
+ leading: Icon(Icons.help,color: Color(0xFFFF5722),),
+ /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async { 
    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "j'ai besoin d'aide !", position.longitude, position.latitude, _current_userId, "aide");
      allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
                    icon: aideIcon,
-                onTap:  ()=> _markerAlertPressed(_current_userId,"j'ai besoin d'aide ! "),
-              ));     
+                onTap:  ()=> _markerAlertPressed(_current_userId,"j'ai besoin d'aide ! "),));     
               setState(() {
-                 _child=_mapWidget();
-              });
-             
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'J''ai besoin d''aide ! ', _current_user,_current_userId,null);
-     },
-     icon: Icon(Icons.send,color: Colors.greenAccent),
-     ), 
-   ),
+                 _child=_mapWidget();});
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'J''ai besoin d''aide ! ', _current_user,_current_userId,null);},
+     icon: Icon(Icons.send,color: Colors.greenAccent),),),
   ListTile(
    title:  Text(
       'Je suis en panne ! !',
@@ -1582,28 +1310,22 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
+          fontSize: 17.0),
+      textAlign: TextAlign.left),
    leading: Icon(Icons.build,color: Color(0xFFFF5722),),
- trailing:  IconButton(onPressed:() async {  
+  /*Appel de la méthode envoyer message*/
+ trailing:  IconButton(onPressed:() async { 
+   /*Affichage des marqueurs de l'alerte*/ 
     CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "je suis en panne !", position.longitude, position.latitude, _current_userId, "panne");
      allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
                    icon:panneIcon,
-                onTap:  ()=> _markerAlertPressed(_current_userId,"je suis en panne"),
-              ));
+                onTap:  ()=> _markerAlertPressed(_current_userId,"je suis en panne"),));
                setState(() {
-                 _child=_mapWidget();
-              });
-              
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Je suis en panne ! ', _current_user,_current_userId,null);
-     },
-     icon: Icon(Icons.send,color: Colors.greenAccent),
-     ), 
-   ),
+                 _child=_mapWidget();});     
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Je suis en panne ! ', _current_user,_current_userId,null);},
+     icon: Icon(Icons.send,color: Colors.greenAccent),),),
    ListTile(
    title:  Text(
       'un accident !',
@@ -1612,27 +1334,21 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
+          fontSize: 17.0),
+      textAlign: TextAlign.left),
    leading: Icon(Icons.flash_on,color: Color(0xFFFF5722),),
+   /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async {      
     CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Un accident!", position.longitude, position.latitude, _current_userId, "accident");
     allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
                    icon:accidentIcon,
-                onTap:  ()=> _markerAlertPressed(_current_userId,"accident"),
-              ));
-               setState(() {
-                 _child=_mapWidget();
-              });
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Un accident !', _current_user,_current_userId,null);
-     },
-     icon: Icon(Icons.send,color: Colors.greenAccent),
-     ), 
-   ),
+                onTap:  ()=> _markerAlertPressed(_current_userId,"accident"),));
+                setState(() {
+                 _child=_mapWidget();});
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Un accident !', _current_user,_current_userId,null);},
+     icon: Icon(Icons.send,color: Colors.greenAccent),),),
    ListTile(
    title:  Text(
       'Route endomagée !',
@@ -1641,15 +1357,12 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
+          fontSize: 17.0),
+      textAlign: TextAlign.left),
    leading: Icon(Icons.blur_off,color: Color(0xFFFF5722),),
+   /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async {     
- //  Future marquer_Alerte(String id, String text,Position position, String senderId, String icon ) async{
-
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(/*_current_grp.toString()*/_current_grp,'Route endommagée ! ', _current_user,_current_userId,null);
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Route endommagée ! ', _current_user,_current_userId,null);
     CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Route endommagée  !", position.longitude, position.latitude, _current_userId, "route");
     allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
@@ -1659,11 +1372,8 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
               ));
  setState(() {
                  _child=_mapWidget();
-              });
-     },
-     icon: Icon(Icons.send,color: Colors.greenAccent),
-     ), 
-   ),
+              });},
+     icon: Icon(Icons.send,color: Colors.greenAccent),),),
    ListTile(
    title:  Text(
       'Alerte barage !',
@@ -1672,27 +1382,22 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
+          fontSize: 17.0),
+      textAlign: TextAlign.left),
    leading: Icon(Icons.flag,color: Color(0xFFFF5722),),
+   /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async {      
     CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte barrage !", position.longitude, position.latitude, _current_userId, "barrage");
     allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
                    icon:barrageIcon,
-                onTap:  ()=> _markerAlertPressed(_current_userId,"Alerte barrage"),
-              ));
+                onTap:  ()=> _markerAlertPressed(_current_userId,"Alerte barrage"),));
  setState(() {
                  _child=_mapWidget();
               });
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Alerte Barage ! ', _current_user,_current_userId,null);
-     },
-     icon: Icon(Icons.send,color: Colors.greenAccent),
-     ), 
-   ),
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Alerte Barage ! ', _current_user,_current_userId,null);},
+     icon: Icon(Icons.send,color: Colors.greenAccent),),),
    ListTile(
    title:  Text(
       'Alerte radar !',
@@ -1701,28 +1406,21 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
-   
+          fontSize: 17.0),
+      textAlign: TextAlign.left),
    leading: Icon(Icons.router,color: Color(0xFFFF5722),),
+   /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async {      
     CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte radar!", position.longitude, position.latitude, _current_userId, "radar");
     allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
                    icon:radarIcon,
-                onTap:  ()=> _markerAlertPressed(_current_userId,"radar"),
-              ));
+                onTap:  ()=> _markerAlertPressed(_current_userId,"radar"),));
      setState(() {
-                 _child=_mapWidget();
-              });
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp.toString(),'Alerte radar !', _current_user,_current_userId,null);
-     },
-     icon: Icon(Icons.send,color: Colors.greenAccent),
-     ), 
-   ),
+                 _child=_mapWidget();});
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp.toString(),'Alerte radar !', _current_user,_current_userId,null);},
+     icon: Icon(Icons.send,color: Colors.greenAccent),),),
    ListTile(
    title:  Text(
       'Appelez moi !',
@@ -1731,18 +1429,13 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
+          fontSize: 17.0),
+      textAlign: TextAlign.left),
    leading: Icon(Icons.call,color: Color(0xFFFF5722),),
+   /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp.toString(),'Appelez moi  !', _current_user,_current_userId,null);
-     },
-     icon: Icon(Icons.send,color: Colors.greenAccent),
-     ), 
-   ),
- 
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp.toString(),'Appelez moi  !', _current_user,_current_userId,null);},
+     icon: Icon(Icons.send,color: Colors.greenAccent),),),
     ListTile(
    title:  Text(
       'OK !',
@@ -1756,21 +1449,14 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
       textAlign: TextAlign.left                
       ),
    leading: Icon(Icons.check,color: Color(0xFFFF5722),),
+   /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp.toString(),'OK  !', _current_user,_current_userId,null);
-     },
-     icon: Icon(Icons.send,color: Colors.greenAccent),
-     ), 
-   ),
-  
-    ],
-    
-  ));
- 
-}
+     ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp.toString(),'OK  !', _current_user,_current_userId,null);},
+     icon: Icon(Icons.send,color: Colors.greenAccent),),),],));
+  }
+
+/*Affichage des messages*/
 void _onMessageButtonPressed(String currentGroupe){
- 
-   
     showModalBottomSheet(context: context, builder:(context){
      return Container(
         color: const Color(0xff737373),
@@ -1782,12 +1468,8 @@ void _onMessageButtonPressed(String currentGroupe){
        color: const Color(0xffffffff),
       borderRadius:  BorderRadius.only(
           topLeft:  const Radius.circular(30) ,
-          topRight:  const Radius.circular(30) ,
-        ),
-      ),
-      
-       child: Stack(children: [
-  // ✏️ Headline 6 
+          topRight:  const Radius.circular(30) ,),),
+      child: Stack(children: [
   PositionedDirectional(
     top: (MediaQuery.of(context).size.height) * 0.035,
     start: (MediaQuery.of(context).size.width) * 0.1,
@@ -1804,103 +1486,66 @@ void _onMessageButtonPressed(String currentGroupe){
           fontStyle:  FontStyle.normal,
           fontSize: 19.0
       ),
-      textAlign: TextAlign.left                
-      )),
-  ),
-     
+      textAlign: TextAlign.left)),),
      Container( 
      padding: EdgeInsets.symmetric(vertical:(MediaQuery.of(context).size.height) * 0.065,horizontal :(MediaQuery.of(context).size.width) * 0.04),
      child: StreamBuilder(
      stream: Firestore.instance.collection('chat').document(currentGroupe).collection('messages').snapshots(),
      builder: (context,snapshot){
+  /*Si la liste des messages est vide alors affichage du message aucun message*/
      if (!snapshot.hasData) return const Text("aucun message",
       style: const TextStyle(
       color:  const Color(0xff3d3d3d),
       fontWeight: FontWeight.w400,
       fontFamily: "Roboto",
       fontStyle:  FontStyle.normal,
-      fontSize: 17.0
-  ),
-  textAlign: TextAlign.left 
-     
-     
-     );
+      fontSize: 17.0),
+  textAlign: TextAlign.left );
    return  ListView.builder(
      itemExtent: 80.0,
      itemCount:snapshot.data.documents.length,
     itemBuilder: (ctx,index )=> (
-    _buildRecievedMessageslistItem(ctx,snapshot.data.documents[index])),
-      );
-    
-     }
-         )
-    
-       
-      ) , 
+    _buildRecievedMessageslistItem(ctx,snapshot.data.documents[index])),);})) , 
 
-       PositionedDirectional(
+    PositionedDirectional(
     top: (MediaQuery.of(context).size.height) * 0.45,
     start:(MediaQuery.of(context).size.width) * 0.1,
        child: SizedBox(
       width:(MediaQuery.of(context).size.width) * 0.8,
       height: (MediaQuery.of(context).size.height) * 0.08,
       child:
-       
        ListTile(
    title:  TextField(
       keyboardType: TextInputType.multiline,
       maxLength: null,
       maxLines: null,
      decoration: InputDecoration(
-       hintText: "Envoyer..",
-                       suffixIcon : IconButton(icon:Icon(Icons.camera_alt,color: Colors.greenAccent),onPressed:()async{
-    
-                          Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) =>  ImageCapture(groupeID: _current_grp)),
-                      );})),
+       hintText: "Envoyez..",
+                      suffixIcon : IconButton(icon:Icon(Icons.camera_alt,color: Colors.greenAccent),onPressed:()async{
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) =>  ImageCapture(groupeID: _current_grp)),);})),
                  onChanged: (val) {
-                   
-                  setState(() => text = val);
-                },
-                       
-  ), 
+                 setState(() => text = val);},), 
+ /*Appel de la méthode envoyer message*/
 trailing:  IconButton(onPressed:() async {      
-     ChatService(uid: currentGroupe.toString() ).envoyer_mesg(currentGroupe.toString(),text, _current_user,_current_userId,null);
-     },
-     icon: Icon(Icons.send,color: Colors.greenAccent ),
-                      
-    ),
-   ), 
-       )), ]
-      )
-         
-          ),
-        
-          );
-          
-    
-        }
-        );
-         
+     ChatService(uid: currentGroupe.toString() ).envoyer_mesg(currentGroupe.toString(),text, _current_user,_current_userId,null);},
+     icon: Icon(Icons.send,color: Colors.greenAccent ),),),)),])),);});
       }
-/*Groupes*/
+
+/*Affichage des groupes*/
 _onGroupButtonPressed(String currentUser){
     showModalBottomSheet(context: context, builder:(context){
      return Container(
         color: const Color(0xff737373),
         width: (MediaQuery.of(context).size.width) * 0.360,
       height: (MediaQuery.of(context).size.height) * 0.535,
-
       child:Container(
       decoration: BoxDecoration(
        color: const Color(0xffffffff),
       borderRadius:  BorderRadius.only(
           topLeft:  const Radius.circular(30) ,
-          topRight:  const Radius.circular(30) ,
-        ),
-      ),
-      
+          topRight:  const Radius.circular(30),),),
        child: Stack(children: [
  PositionedDirectional(
     top: (MediaQuery.of(context).size.height) * 0.035,
@@ -1916,25 +1561,19 @@ _onGroupButtonPressed(String currentUser){
           fontWeight: FontWeight.w500,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 19.0
-      ),
-      textAlign: TextAlign.left                
-      )),
-  ),
-  
-     
+          fontSize: 19.0),
+      textAlign: TextAlign.left )),),
      Container( 
      padding: EdgeInsets.only(
-       
      top: (MediaQuery.of(context).size.height) * 0.075,
      bottom: (MediaQuery.of(context).size.height) * 0.02,
      left: (MediaQuery.of(context).size.width) * 0.04,
-     right: (MediaQuery.of(context).size.width) * 0.04,
-       ),
+     right: (MediaQuery.of(context).size.width) * 0.04,),
      child: StreamBuilder(
      stream: Firestore.instance.collection('utilisateur').document(_current_userId).collection('ListeGroupe').snapshots(),
      builder: (context,snapshot){
-     if (!snapshot.hasData) return const Text("aucun groupe",
+  /*Si la liste des groupes est vide affichage du message*/
+     if (!snapshot.hasData) return const Text("Vous ne faîtes partie d'aucun groupe\n Attendez que vos amis vous ajoutentn\n Vous pouvez toujours un créer et les inviter",
       style: const TextStyle(
       color:  const Color(0xff3d3d3d),
       fontWeight: FontWeight.w400,
@@ -1942,77 +1581,44 @@ _onGroupButtonPressed(String currentUser){
       fontStyle:  FontStyle.normal,
       fontSize: 17.0
   ),
-  textAlign: TextAlign.left 
-     
-     
-     );
+  textAlign: TextAlign.left );
    return  ListView.builder(
      itemExtent: 80.0,
      itemCount:snapshot.data.documents.length,
     itemBuilder: (ctx,index )=> (
     _buildlistItem(ctx,snapshot.data.documents[index])),
-      );
-    
-     }
-         
-      )
-    
-       
-      ) , 
-       PositionedDirectional(
-
-
-
+      );})
+    ), 
+    PositionedDirectional(
     top: (MediaQuery.of(context).size.height) * 0.44,
     start: (MediaQuery.of(context).size.width) * 0.8,
     child: 
-        SizedBox(
-      
+    SizedBox(
       child:FloatingActionButton(heroTag: 'btn6',onPressed:()=>creeGroupe(),
          child: Icon(Icons.add,
          size: 40,
          ),
          backgroundColor: const Color(0xffff5722),
-         focusColor: Colors.white,
-         ),
-        ),
-  ),
-      
-      ]
-      )
-         
-          ),
-        
-          );
-          
-    
+         focusColor: Colors.white,),),),])),);});
         }
-        );
-         
-      }
-  afficher_alerte(){
 
+/*Affichage du message d'alerte concernant la restriction des droits d'utilisateur*/
+ afficher_alerte(){
  showDialog(context: context, builder:(context){
   return AlertDialog(
   title : Text('Alerte'),
   shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(20.0))
-),
+    borderRadius: BorderRadius.all(Radius.circular(20.0))),
   content: Text("Vous n'avez pas le droit de lancer cette fonctionalité car vous n'êtes pas l'administrateur de ce groupe."),
   actions: <Widget>[
     MaterialButton(
       elevation: 5.0,
       child: Text('OK'),
       onPressed:() {
-        Navigator.of(context).pop();
-      },
-     )
-  ],
-
-  );
- });
-
- }
+      Navigator.of(context).pop();
+      },)],);});
+}
+ /*Affichage de la liste des groupes*/
      _buildlistItem(BuildContext ctx,DocumentSnapshot document) {
        DocumentReference ref = Firestore.instance.collection('groupe').document(_current_grp);
       return(  StreamBuilder<DocumentSnapshot>(
@@ -2020,40 +1626,34 @@ _onGroupButtonPressed(String currentUser){
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if ((snapshot.hasData)&& (document['id']!='10000000')) {
            Map<String, dynamic> documentFields = snapshot.data.data;
-//bool isSwitched=documentFields['statu'];
-           var listTile = ListTile(
+           return  ListTile(
 title:Row (
-       
         crossAxisAlignment: CrossAxisAlignment.start,
-       
         children : <Widget>[
        Text(
+      /*Affichage du nom du groupe*/
       documentFields['nom'].toString(),
       style: const TextStyle(
           color:  const Color(0xff3d3d3d),
           fontWeight: FontWeight.w400,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
+          fontSize: 17.0),
+      textAlign: TextAlign.left),
       Spacer(flex:1,),
      SizedBox(
         width: (MediaQuery.of(context).size.width) * 0.14,
        height: (MediaQuery.of(context).size.height) * 0.045,
+       /*Affichage de la destination du groupe*/
             child: Text(  "à : "+ documentFields['destination'],
                         style: const TextStyle(
                             color:  const Color(0xff52bf90),
                             fontWeight: FontWeight.w400,
                             fontFamily: "Roboto",
                             fontStyle:  FontStyle.normal,
-                            fontSize: 14.0
-                        ),
-                        textAlign: TextAlign.left,
-                        ),
-     ),
-     ]),
+                            fontSize: 14.0),
+                        textAlign: TextAlign.left,),),]),
+      /*Affichage de l'administrateur du groupe*/
      subtitle :   Text(
                       "Admin : "+ documentFields['admin'].toString(),
                       style: const TextStyle(
@@ -2061,126 +1661,18 @@ title:Row (
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left                
-                      ),
-
-
-    /*title:Row (
-       
-        crossAxisAlignment: CrossAxisAlignment.start,
-       
-        children : <Widget>[
-       Column(
-         mainAxisAlignment: MainAxisAlignment.start,
-         children: <Widget>[
-
-           Text(
-      documentFields['nom'],
-      style: const TextStyle(
-              color:  const Color(0xff3d3d3d),
-              fontWeight: FontWeight.w400,
-              fontFamily: "Roboto",
-              fontStyle:  FontStyle.normal,
-              fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
-      
-     SizedBox(
-      height: (MediaQuery.of(context).size.height) * 0.06,
-      child : Text(
-                      "Admin : "+ documentFields['admin'],
-                      style: const TextStyle(
-                          color:  const Color(0xde3d3d3d),
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left                
-                      ),),
-         ],
-       ),
-      Spacer(flex:1,),
-      Column (
-        children: <Widget>[ 
-
-     SizedBox(
-       width: 70, 
-       height: 30,
-            child: Text(  "à : "+ documentFields['destination'],
-                        style: const TextStyle(
-                            color:  const Color(0xff52bf90),
-                            fontWeight: FontWeight.w400,
-                            fontFamily: "Roboto",
-                            fontStyle:  FontStyle.normal,
-                            fontSize: 14.0
-                        ),
-                        textAlign: TextAlign.left,
-                        ),
-     ),
-        /*       Switch(
-            value: isSwitched,
-            onChanged: (value) async{
-              setState(() {
-                isSwitched = value;
-                print(isSwitched);
-              });
-              await ref.updateData({"statu": !(documentFields['statu'])});
-            },
-            activeTrackColor: Colors.lightGreenAccent,
-            activeColor: Colors.green,
-          ),*/
-                      ],),
-                      
-                      ]),*/
-
-     /*subtitle :   Text(
-                      "Admin : "+ documentFields['admin'],
-                      style: const TextStyle(
-                          color:  const Color(0xde3d3d3d),
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left                
-                      ),*/
-        trailing:    Column(
-          
+                          fontSize: 14.0),
+                      textAlign: TextAlign.left),
+     trailing:    Column(
            children: <Widget>[
-             /*Switch(
-            value: isSwitched,
-            onChanged: (value) {
-              if (_current_grp_adminID == _current_userId){
-              setState(() {
-                isSwitched = value;
-                print(isSwitched);
-                
-              });
-               ref.updateData({"statu": isSwitched});} else afficher_alerte();
-            },
-            activeTrackColor: Colors.lightGreenAccent,
-            activeColor: Colors.green,
-          ),*/
+      /*Bouton quitter groupe*/
              IconButton(onPressed:()=> _quittergroupe(document.documentID,documentFields['uid']),
                              icon: Icon(
                             Icons.exit_to_app,
-                             color:  const Color(0xffff5722),
-                            ),
-                          
-                             ),
-           ],
-         ),
+                             color:  const Color(0xffff5722),),),],),
                        onTap:() async{
-
-                          if (_current_grp != null) {
-                 await _fcm.unsubscribeFromTopic("groupe/$_current_grp/Markers");
-
-                 _current_grp = document['id'].toString();
-
+                _fcm.unsubscribeFromTopic("groupe/$_current_grp/Markers");
+                _current_grp = document['id'].toString();
                 await Firestore.instance
                     .collection("groupe")
                     .document(_current_grp)
@@ -2188,6 +1680,7 @@ title:Row (
                     .then((value) {
                   _current_grp_admin = value.data["admin"];
                   _current_grp_destinaton = value.data["destination"];
+                  _current_grp_name=  value.data["nom"];
                   pass["admin"] = value.data["admin"];
                   pass["destination"] = value.data["destination"];
                   pass["groupe"] = value.data["nom"];
@@ -2200,63 +1693,55 @@ title:Row (
                     .then((value) {
                   _current_grp_adminID = value.documents[0].data["uid"];
                 });
-
-                 await _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
-                  
+                  _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
                   for (int j = 0; j< allMarkers.length; j++){
                     allMarkers.removeAt(0); 
-                  }
-
-
-               //      allMarkers.clear(); 
+                  }//      allMarkers.clear(); 
                setState(() {
            allMarkers.removeWhere((item) => item != null);
-           print(allMarkers.length); 
-                 _child=_mapWidget();
-              });
-                   
-                         }
-                       });
-           return  listTile; }else{
+                 _child=_mapWidget();});},);  
+                 }
+                 else{
                         return SizedBox(height: 1,); 
                       }
-                      })
-      ); //
+                      }));
                     }
 
+
+/*Méthode quitter groupe*/                    
 _quittergroupe(docId,docgrpID) {
-  // Suppression du groupe de la liste des groupes de l'utilisateur
-  Firestore.instance.collection('utilisateur')
-    .document(_current_userId)
-    .collection('ListeGroupe')
-    .document(docId)
-    .delete()
-    .catchError((e){
-    print(e);}); 
-  // Pour récupérer le document qui contient l'utilisateur courant dans la liste des membres de ce groupe
-  Firestore.instance
-    .collection("groupe").document(docgrpID).collection('ListeMembre')
-    .where("user", isEqualTo: _current_userId)
-    .getDocuments()
-    .then((value) {
-  _supp = value.documents[0].documentID; 
-  // Supprimer cet utilisateur de la liste des membres             
-  Firestore.instance.collection("groupe")
-    .document(docgrpID)
-    .collection('ListeMembre')
-    .document(_supp)
-    .delete()
-    .catchError((e){
-    print(e);});});   
-  }
+            Firestore.instance.
+            collection('utilisateur')
+            .document(_current_userId)
+            .collection('ListeGroupe')
+            .document(docId)
+            .delete()
+            .catchError((e){
+              print(e);});
+              Firestore.instance
+                    .collection("groupe").document(docgrpID).collection('ListeMembre')
+                    .where("user", isEqualTo: _current_userId)
+                    .getDocuments()
+                    .then((value) {
+                  _supp = value.documents[0].documentID;
+                  Firestore.instance
+                  .collection("groupe")
+                  .document(docgrpID)
+                  .collection('ListeMembre')
+                  .document(_supp)
+                  .delete()
+                  .catchError((e){
+                   print(e);
+                   }); 
+                 });   
+               }
 
 
+/*Méthode Création d'un groupe*/
 void creeGroupe(){
   int _id = random.nextInt(10000);
     showModalBottomSheet(context: context, builder:(context){
-        
      return Container(
-
         color: const Color(0xff737373),
        width: (MediaQuery.of(context).size.width) * 0.360,
       height: (MediaQuery.of(context).size.height) * 0.535,
@@ -2265,16 +1750,14 @@ void creeGroupe(){
        color: const Color(0xffffffff),
         borderRadius:  BorderRadius.only(
           topLeft:  const Radius.circular(30) ,
-          topRight:  const Radius.circular(30) ,
-        ),
-        ),
+          topRight:  const Radius.circular(30) ,),),
       child : Stack(
               children: <Widget>[ 
                  PositionedDirectional(
     top: (MediaQuery.of(context).size.height) * 0.035,
     start: (MediaQuery.of(context).size.width) * 0.1,
     child: 
-        SizedBox(
+    SizedBox(
       width: (MediaQuery.of(context).size.width) * 0.4,
       height: (MediaQuery.of(context).size.height) * 0.03,
       child: Text(
@@ -2284,14 +1767,9 @@ void creeGroupe(){
           fontWeight: FontWeight.w500,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 19.0
-      ),
-      textAlign: TextAlign.left                
-      )),
-  ),
-                
-                
-                Container(
+          fontSize: 19.0),
+      textAlign: TextAlign.left)),),
+          Container(
           padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height) * 0.01, horizontal:(MediaQuery.of(context).size.width) * 0.1),
           child : Form(
             key : _formKey,
@@ -2301,25 +1779,23 @@ void creeGroupe(){
                 SizedBox(height: (MediaQuery.of(context).size.height) * 0.03),
                 TextFormField(
                   decoration: const InputDecoration(
-                   hintText: '   Nom du groupe',
-                    ),
+                   hintText: '   Nom du groupe',),
+                  /*Validation de l'entrée*/
                   validator: (val) => val.isEmpty ? 'Donner un nom ' : null,
                   onChanged: (val) {
-                    setState(() => nom = val);
-                    
+                  setState(() => nom = val);
                   },
                 ),
                 SizedBox(height: (MediaQuery.of(context).size.height) * 0.015),
               Material(
                       elevation: 2.5,
-                      //borderRadius: BorderRadius.circular(30.0),
                       borderRadius: BorderRadius.zero,
                       color: Colors.white,
                       shadowColor: Colors.white,
                        child: FlatButton(
-                         focusColor: Colors.white,
-                         highlightColor: Colors.white,
-                       onPressed:   _handlePressButton,
+                        focusColor: Colors.white,
+                        highlightColor: Colors.white,
+                        onPressed:   _handlePressButton,
   child: Container(
                       alignment: Alignment.center,
                       height: (MediaQuery.of(context).size.height) * 0.05,
@@ -2331,7 +1807,6 @@ void creeGroupe(){
                               Container(
                                 child: Row(
                                   children: <Widget>[
-                                  
                                     SizedBox(
                                       height: (MediaQuery.of(context).size.height) * 0.03,
                                       width: (MediaQuery.of(context).size.width) * 0.4,  
@@ -2343,25 +1818,12 @@ void creeGroupe(){
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
                           fontSize: 16.0
-                      ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
+                      ),),),],))],),
                            Icon(
-                                      Icons.search,
-                                      size: 18.0,
-                                      color: Colors.deepOrange,
-                                    ),
-                        ],
-                      ),
-                  ),
-                  color: Colors.white,
-                ),
-                    ),
+                                Icons.search,
+                                size: 18.0,
+                                color: Colors.deepOrange,),],),),
+                  color: Colors.white,),),
                 SizedBox(height: (MediaQuery.of(context).size.height) * 0.015),
                 /*Heure de depart*/ 
                  Material(
@@ -2379,7 +1841,6 @@ void creeGroupe(){
                           ),
                           showTitleActions: true, onConfirm: (time) {
                         print('confirm $time');
-                        
                         _time = '${time.hour} : ${time.minute} : ${time.second}';
                         setState(() {});
                       }, currentTime: DateTime.now(), locale: LocaleType.en);
@@ -2396,7 +1857,6 @@ void creeGroupe(){
                               Container(
                                 child: Row(
                                   children: <Widget>[
-                                  
                                     Text(
                                       " $_time",
                                       style: TextStyle(
@@ -2404,27 +1864,13 @@ void creeGroupe(){
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-                          fontSize: 16.0
-                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
+                          fontSize: 16.0),),],),)],),
                            Icon(
-                                      Icons.access_time,
-                                      size: 18.0,
-                                      color: Colors.deepOrange,
-                                    ),
-                        ],
-                      ),
-                  ),
-                  color: Colors.white,
-                ),
-                    ), 
+                                Icons.access_time,
+                                size: 18.0,
+                                color: Colors.deepOrange,),],),),
+                  color: Colors.white,),), 
                     /*HEURE DE DEPART */
-             
                 Row(
                    children: <Widget>[
                      SizedBox(height: (MediaQuery.of(context).size.height) * 0.09,),
@@ -2435,29 +1881,20 @@ void creeGroupe(){
                        child: FloatingActionButton(
                          backgroundColor: Color(0xffff5722),
                          heroTag: 'btn10000',
-                         child: Icon(Icons.add, 
-
-                          size: 30,),
-                         
-                         
-                         onPressed: () async {
-                            pass["admin"] = _current_user;
-                  pass["destination"] = destination;
-                  pass["groupe"] = nom;
-                  pass["groupeID"] = _id;
-                           showSearch(context: context, delegate: UserSeach(pass));}
-                        ),
-                     ),
-                    ],      
-                ),
-                
+                  /*Bouton ajouter membre*/
+                      child: Icon(Icons.add, 
+                      size: 30,),
+                      onPressed: () async {
+                      pass["admin"] = _current_user;
+                      pass["destination"] = destination;
+                      pass["groupe"] = nom;
+                      pass["groupeID"] = _id;
+                  /*Recherche des utilisateurs*/
+                  showSearch(context: context, delegate: UserSeach(pass));}),),],),
                  Row(
                    children: <Widget>[
                      SizedBox(width:(MediaQuery.of(context).size.width) * 0.6,),
-                     Text('Ajouter des\n membres'),
-                   ],
-                 ),
-                
+                     Text('Ajouter des\n membres'),],),
                 SizedBox(height:(MediaQuery.of(context).size.height) * 0.02),
                 Material(
                   borderRadius: BorderRadius.circular(30.0),
@@ -2478,58 +1915,41 @@ void creeGroupe(){
                     ),
                   ),
                   onPressed: () async {
+                    /*Une fois la saisie des champs validée on appelle la méhtode de création de groupes*/
                     if(_formKey.currentState.validate()){ 
-                     
-                      
                       CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user,destination, _time, listMembre, nom,_current_userId);
                       CreationGroupeServises(uid: _id.toString()).marquer_Alerte(_id.toString(), destination, lang, latt, _current_userId, "destination");
-
+                    /*Á la création du groupe un marqueur s'affiche sur la map indiquant la destination*/
                    allMarkers.add(new Marker(
                            position: new LatLng(latt,lang),
-                            markerId: MarkerId('destination'),
-                            icon:destinationIcon, 
-                            onTap: ()=> _markerDestinationPressed(_current_userId,destination),
+                           markerId: MarkerId('destination'),
+                           icon:destinationIcon, 
+                           onTap: ()=> _markerDestinationPressed(_current_userId,destination),
                 ));    
                 setState(() {
-                                 
-
-                  
                    _child=_mapWidget();
                 });
-                    }
-                  }
-                ),
-                ), 
-              ],
-            ),
-          ),
-        ),],
-      ),
-      )
-     );
+                    }}),),],),),),],),));});
     }
-    );
-    
-  }
+
+ /*Méthode changer destination*/   
    changer_destination(){
      DocumentReference ref = Firestore.instance.collection('groupe').document(_current_grp);
      print(_current_userId);
      print(_current_grp_adminID);
+  /*On vérifie d'abord si l'utilisateur courant est administrateur du groupe*/
    if(_current_userId==_current_grp_adminID){
     showModalBottomSheet(context: context, builder:(context){
      return Container(
-        color: const Color(0xff737373),
+       color: const Color(0xff737373),
        width: (MediaQuery.of(context).size.width) * 0.360,
-      height: (MediaQuery.of(context).size.height) * 0.535,
-      child:Container(
-      decoration: BoxDecoration(
+       height: (MediaQuery.of(context).size.height) * 0.535,
+       child:Container(
+       decoration: BoxDecoration(
        color: const Color(0xffffffff),
-      borderRadius:  BorderRadius.only(
+       borderRadius:  BorderRadius.only(
           topLeft:  const Radius.circular(30) ,
-          topRight:  const Radius.circular(30) ,
-        ),
-      ),
-      
+          topRight:  const Radius.circular(30) ,),),
        child: Stack(children: [
   // ✏️ Headline 6 
   PositionedDirectional(
@@ -2546,10 +1966,8 @@ void creeGroupe(){
           fontWeight: FontWeight.w500,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 19.0
-      ),
-      textAlign: TextAlign.left                
-      )),
+          fontSize: 19.0),
+      textAlign: TextAlign.left)),
   ),
      
      Container( 
@@ -2560,11 +1978,8 @@ void creeGroupe(){
         mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               SizedBox(height:(MediaQuery.of(context).size.height) * 0.01),
-            
-           
                     Material(
                       elevation: 2.5,
-                      //borderRadius: BorderRadius.circular(30.0),
                       borderRadius: BorderRadius.zero,
                       color: Colors.white,
                       shadowColor: Colors.white,
@@ -2583,7 +1998,6 @@ void creeGroupe(){
                               Container(
                                 child: Row(
                                   children: <Widget>[
-                                  
                                     SizedBox(
                                       height: (MediaQuery.of(context).size.height) * 0.03,
                                       width: (MediaQuery.of(context).size.width) * 0.4,  
@@ -2595,33 +2009,18 @@ void creeGroupe(){
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
                           fontSize: 16.0
-                      ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
+                      ),),),],),)],),
                            Icon(
-                                      Icons.search,
-                                      size: 18.0,
-                                      color: Colors.deepOrange,
-                                    ),
-                        ],
-                      ),
-                  ),
-                  color: Colors.white,
-                ),
-                    ),
-                  
+                                Icons.search,
+                                size: 18.0,
+                                color: Colors.deepOrange,),],),),
+                  color: Colors.white,),),
                   ])),),
        PositionedDirectional(
     top: (MediaQuery.of(context).size.height) * 0.3,
     start: (MediaQuery.of(context).size.width) * 0.3,
     child: 
         SizedBox(
-      
       child:Material(
                   borderRadius: BorderRadius.circular(30.0),
                   color: Colors.deepOrange,
@@ -2641,31 +2040,14 @@ void creeGroupe(){
                     ),
                   ),
         onPressed:()=>{ if(_formKey.currentState.validate()){ 
-         
-    ref.updateData({"destination": lieu})         
-                    
-                  }},
-         
-                  ),
-        ),
-  ), 
-  ),
-       ],),
-         
-          ),
-        
-          );
-          
-    
-        }
-        );
-         
-      }              
+    /*Updater la destination dans la base de données*/     
+    ref.updateData({"destination": lieu})}},),),), ),],),),);});
+        }              
        else{
-      afficher_alerte();
-
- }
+      afficher_alerte();}
   }
+
+/*Message de confirmation de l'ajout d'une pause*/
   void _onBreakConfirmationPressed(){
     showDialog(context: context, builder:(context){
   return AlertDialog(
@@ -2681,11 +2063,7 @@ void creeGroupe(){
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(20.0))
 ),
-/* content: Stack(children: [
-  
-      
-      ]
-      ),*/
+
   actions: <Widget>[
     Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -2705,8 +2083,7 @@ void creeGroupe(){
                             fontSize: 16.0
                         ),
                       ),
-                      onPressed: () {
-                        print('adding'); 
+                      onPressed: () { 
                         allMarkers.add(new Marker(
                          position: new LatLng(latt,lang),
                           markerId: MarkerId('pause'),
@@ -2715,7 +2092,6 @@ void creeGroupe(){
               setState(() {
                  _child=_mapWidget();
               });
-              print('done');
               Navigator.of(context).pop();
                       }
                   ),
@@ -2736,15 +2112,10 @@ void creeGroupe(){
                       ),
                       onPressed: () {Navigator.of(context).pop();}
                   ),
-                 SizedBox(width: (MediaQuery.of(context).size.width) * 0.1),
-                ],),
-  ],
+                 SizedBox(width: (MediaQuery.of(context).size.width) * 0.1),],),],);});
+             }
 
-  );
- });
-  
-         
-  }
+  /*Méthode de l'ajout d'un point de repos*/           
   void _onBreakButtonPressed(){
     showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -2775,12 +2146,8 @@ void creeGroupe(){
           fontWeight: FontWeight.w500,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 19.0
-      ),
-      textAlign: TextAlign.left                
-      )),
-  ),
-     
+          fontSize: 19.0),
+      textAlign: TextAlign.left)),),
      Container( 
      padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height) * 0.1, horizontal:(MediaQuery.of(context).size.width) * 0.1),
           key: _formKey,
@@ -2798,8 +2165,6 @@ void creeGroupe(){
                        focusColor: Colors.white,
                        highlightColor: Colors.white,
                      onPressed:   _handlePressButton,
-
-                   
                 child: Container(
                     alignment: Alignment.center,
                     height: (MediaQuery.of(context).size.height) * 0.05,
@@ -2811,7 +2176,6 @@ void creeGroupe(){
                             Container(
                               child: Row(
                                 children: <Widget>[
-                                
                                   SizedBox(
                                     height: (MediaQuery.of(context).size.height) * 0.03,
                                     width: (MediaQuery.of(context).size.width) * 0.5,  
@@ -2822,28 +2186,15 @@ void creeGroupe(){
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-                          fontSize: 16.0
-                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
+                          fontSize: 16.0),),),],),)],),
                          Icon(
-                                    Icons.search,
-                                    size: 18.0,
-                                    color: Colors.deepOrange,
-                                  ),
-                      ],
-                    ),
-                ),
+                              Icons.search,
+                              size: 18.0,
+                              color: Colors.deepOrange,),],),),
                 color: Colors.white,
               ),
                   ),
                   SizedBox(height: (MediaQuery.of(context).size.height) * 0.012),
-                
                   Material(
                     elevation: 2.5,
                     borderRadius: BorderRadius.circular(30.0),
@@ -2859,7 +2210,6 @@ void creeGroupe(){
                         ),
                         showTitleActions: true, onConfirm: (time) {
                       print('confirm $time');
-                      
                       _time = '${time.hour} : ${time.minute} : ${time.second}';
                       setState(() {});
                     }, currentTime: DateTime.now(), locale: LocaleType.en);
@@ -2876,7 +2226,6 @@ void creeGroupe(){
                             Container(
                               child: Row(
                                 children: <Widget>[
-                                
                                   Text(
                                     " $_time",
                                     style: TextStyle(
@@ -2884,25 +2233,13 @@ void creeGroupe(){
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-                          fontSize: 16.0
-                      ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
+                          fontSize: 16.0),),],),)],),
                          Icon(
-                                    Icons.access_time,
-                                    size: 18.0,
-                                    color: Colors.deepOrange,
-                                  ),
-                      ],
-                    ),
-                ),
-                color: Colors.white,
-              ),
-                  ), 
+                              Icons.access_time,
+                              size: 18.0,
+                              color: Colors.deepOrange,
+                              ),],),),
+                color: Colors.white,),), 
                    SizedBox(height: (MediaQuery.of(context).size.height) * 0.04),
                   Material(
                     borderRadius: BorderRadius.circular(30.0),
@@ -2919,39 +2256,18 @@ void creeGroupe(){
                               fontWeight: FontWeight.w500,
                               fontFamily: "Roboto",
                               fontStyle:  FontStyle.normal,
-                              fontSize: 16.0
-                          ),
-                        ),
-                        onPressed: ()=> _onBreakConfirmationPressed(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-       
-      ),
-       
-       
-      
-      ]
-      )
+                              fontSize: 16.0),),
+                        onPressed: ()=> _onBreakConfirmationPressed(),),),],),),),),])),);});
          
-          ),
-        
-          );
-          
-    
-        }
-        );
-         
-      }
+                     }
         Stream<DocumentSnapshot> provideDocumentFieldStream(String collection,String document ) {
     return Firestore.instance
         .collection(collection)
         .document(document)
         .snapshots();
 }
+
+
  void custom_lunch(command)async{
   if(await canLaunch(command) ){
     await launch(command);
@@ -2960,12 +2276,9 @@ void creeGroupe(){
     print('i could nt lunch $command');
   }
 }
-void onMembreButtonPressed(){
 
-  
-    String text ;
-  String _current_user;
-  String _current_userId;
+/*Affichage de la liste des membres du groupe*/
+void onMembreButtonPressed(){
     final user = Provider.of<User>(context);
     showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -3002,50 +2315,35 @@ void onMembreButtonPressed(){
       textAlign: TextAlign.left                
       )),
   ),
-     
      Container( 
-      padding: EdgeInsets.only(
-       
+     padding: EdgeInsets.only(
      top: (MediaQuery.of(context).size.height) * 0.075,
      bottom: (MediaQuery.of(context).size.height) * 0.02,
      left: (MediaQuery.of(context).size.width) * 0.04,
-     right: (MediaQuery.of(context).size.width) * 0.04,
-       ),
+     right: (MediaQuery.of(context).size.width) * 0.04,),
      child: StreamBuilder(
      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('ListeMembre').snapshots(),
      builder: (context,snapshot){
-     if (!snapshot.hasData) return const Text("aucun membre",
-
+    /*Si la liste des membres est vide afficher un message*/
+     if (!snapshot.hasData) return const Text("Aucun membre, ajoutez ou suggérez des membres !",
       style: const TextStyle(
       color:  const Color(0xff3d3d3d),
       fontWeight: FontWeight.w400,
       fontFamily: "Roboto",
       fontStyle:  FontStyle.normal,
-      fontSize: 17.0
-  ),
-  textAlign: TextAlign.left 
-     
-     
-     );
+      fontSize: 17.0),
+  textAlign: TextAlign.left );
    return  ListView.builder(
      itemExtent: 80.0,
      itemCount:snapshot.data.documents.length,
-    itemBuilder: (ctx,index )=> (
-      
+     itemBuilder: (ctx,index )=> (
     _buildMemberlistItem(ctx,snapshot.data.documents[index])),
-      );
-    
-     }
-         )
-    
-       
-      ) , 
+      );})) , 
        PositionedDirectional(
     top: (MediaQuery.of(context).size.height) * 0.43,
     start: (MediaQuery.of(context).size.width) * 0.75,
     child: 
         SizedBox(
-      
       child:FloatingActionButton(heroTag: 'btn8',onPressed:() {
         if (currentUser.uid == _current_grp_adminID )
         { showSearch(context: context, delegate: UserSeach(pass)); }
@@ -3055,64 +2353,42 @@ void onMembreButtonPressed(){
          size: 40,
          ),
          backgroundColor: const Color(0xffff5722),
-         focusColor: Colors.white,
-         ),
-        ),
-  ), 
+         focusColor: Colors.white,),),), 
    PositionedDirectional(
     top: (MediaQuery.of(context).size.height) * 0.43,
     start: (MediaQuery.of(context).size.width) * 0.60,
     child: 
         SizedBox(
-      
       child:StreamBuilder<UserData>(
                   stream: DatabaseService(uid: user.uid).utilisateursDonnees,
                   builder: (context,snapshot){
                     if(snapshot.hasData){
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
-                      print('object');
-                      print(_current_grp);
                       return(  StreamBuilder<DocumentSnapshot>(
     stream: provideDocumentFieldStream("groupe",_current_grp),
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.hasData) {
            Map<String, dynamic> documentAdmin = snapshot.data.data;
-           print('object2');
-           print(documentAdmin['admin'].toString() ==null ?" ": documentAdmin['admin'].toString()         );
+           print(documentAdmin['admin'].toString() ==null ?" ": documentAdmin['admin'].toString());
            print(userData.identifiant);
-           
-           
           return
           FloatingActionButton(heroTag: 'btn10',onPressed:()=> { if (documentAdmin['admin']==userData.identifiant){creatAlertDialog(context),} else afficher_alerte(),},
-         child: Icon(Icons.notification_important,
-         size: 40,
-         ),
-         backgroundColor: const Color(0xffff5722),
-         focusColor: Colors.white,
-         );
-        
-          
-           } else return Container();
-    }));          
-                           }else{
+          child: Icon(Icons.notification_important,
+          size: 40,),
+          backgroundColor: const Color(0xffff5722),
+          focusColor: Colors.white,);
+           } else return Container();}));          
+              }else{
                       return Text('Loading');
                     }
                   }
-              ),
-        ),
-  ),]
-      )
-         
-          ),
-        
-          );
-          
-    
-        }
+              ),),),])),);}
         );
          
       }
+
+  /*Méthode Affichage des membres*/    
 _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
         final user = Provider.of<User>(context);
              
@@ -3123,6 +2399,7 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
 Map<String, dynamic> documentFields = snapshot.data.data;
         if(document['user']!=_current_userId){
              return  ListTile(
+      /*Affichage des photos des membres*/
      leading: (
                 Container(
                   width: (MediaQuery.of(context).size.width) * 0.13,
@@ -3132,12 +2409,8 @@ Map<String, dynamic> documentFields = snapshot.data.data;
                     image: DecorationImage(
                       fit: BoxFit.cover,
                       image: NetworkImage(
-                        '${documentFields['image_url']}'
-                      ),
-                    ),
-                  ),
-                )
-              ),  
+                        '${documentFields['image_url']}'),),),)),
+      /*Affichage des identifiants des membres*/  
     title: Text(
                 documentFields['identifiant'],
                       style: const TextStyle(
@@ -3145,24 +2418,14 @@ Map<String, dynamic> documentFields = snapshot.data.data;
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left                
-                      ),
+                          fontSize: 14.0),
+                      textAlign: TextAlign.left),
       trailing: IconButton(icon: Icon(Icons.place,
       color : const Color(0xff339899)), onPressed: ()=>{
       _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: 
         LatLng(documentFields['latitude'],documentFields['longitude']),
-        zoom: 16.0),)),
-      }),
-     onTap: ()=> _afficherMembre(documentFields),
-    
-       
-
-
-
-
-                      );
+        zoom: 16.0),)),}),
+     onTap: ()=> _afficherMembre(documentFields),);
         }else{
            return  ListTile(
      leading: (
@@ -3174,12 +2437,7 @@ Map<String, dynamic> documentFields = snapshot.data.data;
                     image: DecorationImage(
                       fit: BoxFit.cover,
                       image: NetworkImage(
-                        '${documentFields['image_url']}'
-                      ),
-                    ),
-                  ),
-                )
-              ),  
+                        '${documentFields['image_url']}'),),),)),  
     title: Text(
                 documentFields['identifiant'],
                       style: const TextStyle(
@@ -3202,29 +2460,20 @@ Map<String, dynamic> documentFields = snapshot.data.data;
                       ),
                       textAlign: TextAlign.left                
                       ),
+      /*Possibilité de localiser les membres du même groupe*/
       trailing: IconButton(icon: Icon(Icons.place,
       color : const Color(0xff339899)), onPressed: ()=>{
       _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: 
         LatLng(documentFields['latitude'],documentFields['longitude']),
         zoom: 16.0),)),
       }),
-     );
-        }  
-          
+     );}  
         }else{
           return Container();
-        }
-    }
-)
-       
-       
-       
-       
-       
-       
-     
-                  );
+        }}));
   }
+
+  /*Suggestions*/
   creatAlertDialog( BuildContext context){
  return showDialog(context: context, builder:(context){
   return AlertDialog(
@@ -3239,27 +2488,20 @@ Map<String, dynamic> documentFields = snapshot.data.data;
      child: StreamBuilder(
      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('suggestions').snapshots(),
      builder: (context,snapshot){
-     if (!snapshot.hasData){ return const Text("aucune suggestion",
+    /*Si la liste des suggestions est vide affichage du message*/
+     if (!snapshot.hasData){ return const Text("aucune suggestion, \nvous pouvez suggérer des utilisateurs à l'administrateur",
       style: const TextStyle(
       color:  const Color(0xff3d3d3d),
       fontWeight: FontWeight.w400,
       fontFamily: "Roboto",
       fontStyle:  FontStyle.normal,
-      fontSize: 17.0
-  ),
-  textAlign: TextAlign.left 
-     );}
+      fontSize: 17.0),
+  textAlign: TextAlign.left );}
   else{ return  ListView.builder(
      itemExtent: 80.0,
      itemCount:snapshot.data.documents.length,
-    itemBuilder: (ctx,index )=> (
-    buildSugglistItem(ctx,snapshot.data.documents[index],_current_grp)),
-      );}
-     }
-      ),
-      
-              
-       ),
+     itemBuilder: (ctx,index )=> (
+    buildSugglistItem(ctx,snapshot.data.documents[index],_current_grp)),);}}),),
   actions: <Widget>[
     MaterialButton(
       elevation: 5.0,
@@ -3269,10 +2511,8 @@ Map<String, dynamic> documentFields = snapshot.data.data;
       },
      )
   ],
-
   );
  });
-
  }
   /*Affichage membre du groupe*/
 _afficherMembre(Map<String, dynamic> document){
@@ -3309,12 +2549,9 @@ showModalBottomSheet(context: context, builder:(context){
                    child: SizedBox(
                      width: (MediaQuery.of(context).size.width) * 0.01,
                      height: (MediaQuery.of(context).size.height) * 0.1,
-                     
                      child: Image.network(document['image_url'].toString(),fit: BoxFit.contain,)),
-                     
                    ), 
                    SizedBox(height:(MediaQuery.of(context).size.height) * 0.02 ,),
-                
                 ListTile(
                   leading: Icon(Icons.person, color: Colors.greenAccent,),
                   title: Text(document['identifiant'] ,
@@ -3326,14 +2563,9 @@ showModalBottomSheet(context: context, builder:(context){
                           fontSize: 14.0
                       ),
                       textAlign: TextAlign.left
-                  
-                  
-                  
-                  
                   ),
-              
                 ),
-                
+              /*Affichage du nom et prénom de chaque membre*/
                 ListTile(
                   leading: Icon(Icons.person, color: Colors.greenAccent,),
                   title: Text(document['nom'] +" " + document['prenom'],
@@ -3345,8 +2577,8 @@ showModalBottomSheet(context: context, builder:(context){
                           fontSize: 14.0
                       ),
                       textAlign: TextAlign.left),
-              
                 ),
+              /*Affichage du numéro de téléphone*/
                  ListTile(
                   leading: Icon(Icons.phone, color: Colors.greenAccent,),
                   title: Text(document['numtel'],
@@ -3357,68 +2589,34 @@ showModalBottomSheet(context: context, builder:(context){
                           fontStyle:  FontStyle.normal,
                           fontSize: 14.0
                       ),
-                      textAlign: TextAlign.left),
-              
-                ),
-              
-  
-   
-   ]
-
-   ),
-               
-   ),
-    
-     
+                      textAlign: TextAlign.left),),]),),
      PositionedDirectional(
     top: (MediaQuery.of(context).size.height) * 0.4,
     start:(MediaQuery.of(context).size.width) * 0.37,
        child:  FlatButton(
           onPressed:()=>custom_lunch('tel:$phonenum'),
-                      
-         
           textColor: Colors.white,
-         
           child: Container(
             decoration: const BoxDecoration(
                borderRadius:  BorderRadius.all(Radius.circular(18)),
               gradient: LinearGradient(
                 colors: <Color>[
                   Color(0xFFFF5722),
-                  Color(0xFFFF7043),
-               
-                ],
-              ),
-            
-            ),
+                  Color(0xFFFF7043),],),),
             padding: const EdgeInsets.all(10.0),
+            /*Possiblité d'appeler un autre membre*/
             child: const Text(
               'Appeler',
                style: const TextStyle(
-                         
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
                           fontSize: 14.0
                       ),
-                      textAlign: TextAlign.left),
-          ),
-        ),
-    )
-      ]
-   ),
-   
-   )
-      
-      );
-      
-      
-
-
-});}
+                      textAlign: TextAlign.left),),),)]),));});}
 
  
-
+/*Invitations*/
 void list_invitations(BuildContext context, String userID){
    showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -3455,11 +2653,7 @@ void list_invitations(BuildContext context, String userID){
           fontSize: 19.0
       ),
       textAlign: TextAlign.left                
-      ),
-      
-      ),
-      
-  ),
+      ),),),
      
      Container( 
      padding: EdgeInsets.only(
@@ -3467,12 +2661,12 @@ void list_invitations(BuildContext context, String userID){
      top: (MediaQuery.of(context).size.height) * 0.075,
      bottom: (MediaQuery.of(context).size.height) * 0.02,
      left: (MediaQuery.of(context).size.width) * 0.04,
-     right: (MediaQuery.of(context).size.width) * 0.04,
-       ),
+     right: (MediaQuery.of(context).size.width) * 0.04,),
      child: StreamBuilder(
      stream: Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').snapshots(),
      builder: (context,snapshot){
-     if (!snapshot.hasData) return const Text("aucune invitation",
+    /*Si la liste des invitations est vide affichage du message*/
+     if (!snapshot.hasData) return const Text("aucune invitation, \nvous pouvez inviter d'autres utilisateurs si vous êtes administrateur",
       style: const TextStyle(
       color:  const Color(0xff3d3d3d),
       fontWeight: FontWeight.w400,
@@ -3480,36 +2674,13 @@ void list_invitations(BuildContext context, String userID){
       fontStyle:  FontStyle.normal,
       fontSize: 17.0
   ),
-  textAlign: TextAlign.left 
-     
-     
-     );
-   return  ListView.builder(
-     
+  textAlign: TextAlign.left );
+   return  ListView.builder( 
      itemExtent: 80.0,
      itemCount:snapshot.data.documents.length,
-    itemBuilder: (ctx,index )=> (
-    buildInvitationlistItem(ctx,snapshot.data.documents[index],userID)),
-      );
-    
-     }
-         
-      )
-
-      ) , 
-      ]
-      )
-         
-          ),
-        
-          );
-          
-    
-        }
-        );
-         
-      }
-     buildInvitationlistItem(BuildContext ctx,DocumentSnapshot document , String userID) {
+     itemBuilder: (ctx,index )=> (
+    buildInvitationlistItem(ctx,snapshot.data.documents[index],userID)),);})) , ])),);});}
+    buildInvitationlistItem(BuildContext ctx,DocumentSnapshot document , String userID) {
      return(ListTile(
     title:Row (
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3535,30 +2706,22 @@ void list_invitations(BuildContext context, String userID){
                             fontWeight: FontWeight.w400,
                             fontFamily: "Roboto",
                             fontStyle:  FontStyle.normal,
-                            fontSize: 14.0
-                        ),
-                        //textAlign: TextAlign.left,
-                        ),
-     ), 
-     
+                            fontSize: 14.0),
+                        //textAlign: TextAlign.left
+                  ),), 
+                    /*Refus d'une invitation*/
                       IconButton(onPressed:()=> _refuserInvitation(document.documentID,userID) /*_refuserInvitation(document.documentID)*/,
                          icon: Icon(
                         Icons.cancel,
                          color:  const Color(0xffff5722),
-                         size: 30,
-                        ),
-                      
-                         ),
+                         size: 30,),),
+                    /*Acceptation d'une invitation*/     
                          IconButton(onPressed:()=>  _accepterInvitation(document.documentID,document['groupeID'],userID),//a changer
                          icon: Icon(
                         Icons.check_circle,
                          color:  const Color(0xff13ef81),
                          size: 30,
-                        ),
-                      
-                         )
-                      ]
-                      ),
+                        ),)]),
      subtitle :   Text(
                       "Admin : "+ document['admin'],
                       style: const TextStyle(
@@ -3575,29 +2738,27 @@ void list_invitations(BuildContext context, String userID){
                   );
                     }//buildItem
 
+/*Parapètres du compte*/
  void _onParametrePressed(){
     showModalBottomSheet(context: context, builder:(context){
       final user = Provider.of<User>(context);
         String nom= 'Nom';
-       String email= 'Email';
-      String url='';//'https://www.cbronline.com/wp-content/uploads/2016/06/what-is-URL.jpg';
-      String prenom = 'Prénom';
-      String utilisateur = 'Pseudo';
-       String phoneNumber="Numéro de téléphone";
-       final FirebaseAuth _auth = FirebaseAuth.instance;
- 
+        String email= 'Email';
+        String url='';
+        String prenom = 'Prénom';
+        String utilisateur = 'Pseudo';
+        String phoneNumber="Numéro de téléphone";
+      final FirebaseAuth _auth = FirebaseAuth.instance;
      return Container(
-        color: const Color(0xff737373),
-       width: (MediaQuery.of(context).size.width) * 0.360,
+      color: const Color(0xff737373),
+      width: (MediaQuery.of(context).size.width) * 0.360,
       height: (MediaQuery.of(context).size.height) * 0.535,
-        child: Container(
-        decoration: BoxDecoration(
-       color: const Color(0xffffffff),
-        borderRadius:  BorderRadius.only(
+      child: Container(
+      decoration: BoxDecoration(
+      color: const Color(0xffffffff),
+      borderRadius:  BorderRadius.only(
           topLeft:  const Radius.circular(60) ,
-          topRight:  const Radius.circular(60) ,
-        ),
-        ),
+          topRight:  const Radius.circular(60) ,),),
       child: Stack(children: [
   PositionedDirectional(
     top: (MediaQuery.of(context).size.height) * 0.035,
@@ -3613,82 +2774,48 @@ void list_invitations(BuildContext context, String userID){
           fontWeight: FontWeight.w500,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 19.0
-      ),
-      textAlign: TextAlign.left                
-      )),
-  ),
-  
-     
-     Container( 
-    padding: EdgeInsets.only(
-       
+          fontSize: 19.0),
+      textAlign: TextAlign.left)),),
+    Container( 
+    padding: EdgeInsets.only(   
      top: (MediaQuery.of(context).size.height) * 0.075,
      bottom: (MediaQuery.of(context).size.height) * 0.02,
      left: (MediaQuery.of(context).size.width) * 0.04,
-     right: (MediaQuery.of(context).size.width) * 0.04,
-       ),
+     right: (MediaQuery.of(context).size.width) * 0.04,),
      child: ListView(children: [
                 SizedBox(
-                
                 child: Row(
              mainAxisAlignment: MainAxisAlignment.spaceAround,
              mainAxisSize: MainAxisSize.min,
-
-             
              children: <Widget>[
                Container(
                 color: Colors.white24,
                 height: (MediaQuery.of(context).size.height) * 0.03,
-                width: (MediaQuery.of(context).size.width) * 0.1,
-               ),
+                width: (MediaQuery.of(context).size.width) * 0.1,),
                Align(
                  alignment: Alignment.center,
-                
+                 /*Affichage de la photo de profil*/
                    child: ClipOval(
                    child: SizedBox(
                      width: (MediaQuery.of(context).size.width) * 0.16,
                      height: (MediaQuery.of(context).size.height) * 0.08,
-                     
-                     child: Image.network(_img,fit: BoxFit.fill,),
-                     /*child:Image(
-                  image: AssetImage('assets/avatar.png'),
-                  fit: BoxFit.contain,
-                ), */
-                   ),
-                   ),
-                 
+                     child: Image.network(_img,fit: BoxFit.fill,),),),
                ),
                Container(
                 color: Colors.white24,
                 height: (MediaQuery.of(context).size.height) * 0.03,
-                width: (MediaQuery.of(context).size.width) * 0.1,
-               ),
-                
-                     
-             
-             ]
-           ),
-              ),
-                
+                width: (MediaQuery.of(context).size.width) * 0.1,),]),),
                 ListTile(
                   leading: Icon(Icons.person, color: Colors.greenAccent,),
+                /*Affichage du nom et du prénom*/
                   title: Text(nom +" et " + prenom,
                    style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left
-                  
-                  
-                  
-                  
-                  ),
-              
-                ),
+                          fontSize: 14.0),
+                      textAlign: TextAlign.left),),
                 ListTile(
                   leading: Icon(Icons.person, color: Colors.greenAccent,),
                   title: Text(utilisateur,
@@ -3697,12 +2824,10 @@ void list_invitations(BuildContext context, String userID){
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left),
-              
-                ),
+                          fontSize: 14.0),
+                      textAlign: TextAlign.left),),
                  ListTile(
+                /*Affichage du numéro de téléphone*/   
                   leading: Icon(Icons.phone, color: Colors.greenAccent,),
                   title: Text(phoneNumber,
                    style: const TextStyle(
@@ -3710,12 +2835,10 @@ void list_invitations(BuildContext context, String userID){
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left),
-              
-                ),
+                          fontSize: 14.0),
+                      textAlign: TextAlign.left),),
                 ListTile(
+                /*Affichage de l'email de l'utilisateur*/
                   leading: Icon(Icons.mail, color: Colors.greenAccent,),
                   title: Text(email,
                    style: const TextStyle(
@@ -3723,24 +2846,13 @@ void list_invitations(BuildContext context, String userID){
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left),
-              
-                ),
-  
-   
-   ]
-
-   ),   
-   ),
+                          fontSize: 14.0),
+                      textAlign: TextAlign.left),),]),),
     
-     
-      StreamBuilder<UserData>(
+    StreamBuilder<UserData>(
                   stream: DatabaseService(uid: user.uid).utilisateursDonnees,
                   builder: (context,snapshot){
      if (!snapshot.hasData) {return Container();
- 
      }
       UserData userData=snapshot.data;
         phoneNumber=userData.numtel;
@@ -3750,27 +2862,19 @@ void list_invitations(BuildContext context, String userID){
         utilisateur=userData.identifiant;
         email=_email();
         return Container();
-   }
-     ),
-     
+   }),
+    /*Modifier les paramètres du compte*/ 
      PositionedDirectional(
     top: (MediaQuery.of(context).size.height) * 0.07,
     start:(MediaQuery.of(context).size.width) * 0.27,
        child:  FlatButton(
-         
          padding: EdgeInsets.only(top:(MediaQuery.of(context).size.height) * 0.35,left: (MediaQuery.of(context).size.width) * 0.06),
           onPressed: () {
-
              Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => 
-                        
-                        EditProfileView()),
-                      );
-                      
-          },
+                        EditProfileView()),);},
           textColor: Colors.white,
-         
           child: Container(
             decoration: const BoxDecoration(
                borderRadius:  BorderRadius.all(Radius.circular(18)),
@@ -3778,7 +2882,6 @@ void list_invitations(BuildContext context, String userID){
                 colors: <Color>[
                   Color(0xFFFF5722),
                   Color(0xFFFF7043),
-               
                 ],
               ),
             ),
@@ -3786,29 +2889,16 @@ void list_invitations(BuildContext context, String userID){
             child: const Text(
               'Modifier le profil',
                style: const TextStyle(
-                         
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
                           fontSize: 14.0
                       ),
-                      textAlign: TextAlign.left),
-          ),
-        ),
-    )
-      ]
-   ),
-   
-   )
-      
-      );
-      
-      
+                      textAlign: TextAlign.left),),),)]),));});
+           }
 
-    }
-     );
-}
-                 
+
+/*Gestion des suggestions*/
 buildSugglistItem(BuildContext ctx,DocumentSnapshot document,String idGroup) {
        return(  StreamBuilder<DocumentSnapshot>(
     stream: provideDocumentFieldStream("utilisateur",document['user']),
@@ -3816,25 +2906,8 @@ buildSugglistItem(BuildContext ctx,DocumentSnapshot document,String idGroup) {
         if (snapshot.hasData) {
            Map<String, dynamic> documentFields = snapshot.data.data;
            print(documentFields['identifiant']);
-         
           return ListView(
             children :<Widget>[ ListTile(
-              /*leading: (
-                Container(
-                  width: (MediaQuery.of(context).size.width) * 0.13,
-                  height: (MediaQuery.of(context).size.height) * 0.1,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(
-                        '${documentFields['image_url']}'
-                      ),
-                    ),
-                  ),
-                )
-              ),  */
-       
     title: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -3845,70 +2918,55 @@ buildSugglistItem(BuildContext ctx,DocumentSnapshot document,String idGroup) {
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left                
-                      ),
+                          fontSize: 14.0),
+                      textAlign: TextAlign.left),
+                      /*Accepter la suggestion*/
                        IconButton(onPressed:()=>_refuserSugg(idGroup,document.documentID), /*_refuserInvitation(document.documentID)*/
                          icon: Icon(
                         Icons.cancel,
                          color:  const Color(0xffff5722),
-                         size: 30,
-                        ),
+                         size: 30,),
                          ),
+                      /*Refuser la suggestion*/
                          IconButton(onPressed:()=>  _accepterSugg(document.documentID,idGroup,document['id']),//a changer
                          icon: Icon(
                         Icons.check_circle,
                          color:  const Color(0xff13ef81),
-                         size: 30,
-                        ),
-                         ),]),
-           
-           )]);
-   
-           } 
-           else { return Container();} }
-
-           ));
-
+                         size: 30,),),]),)]);
+                     } 
+           else { return Container();} }));
                     }
 
+/*Méthode refuser suggestions*/
 _refuserSugg(String groupId,String docId) {
    Firestore.instance.collection('groupe').document(groupId).collection('suggestions').document(docId).delete().catchError((e){
    print(e);}); }
 
+/*Méthode accepter suggestions*/
 _accepterSugg(String docId,String grpID,String userID) {
             //ajouter linvitation à la liste d'invi de cet utilisateur
             Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').document().setData({
                       'groupeID':_current_grp,
-                      'admin': 'ammalimouna', 
-                      'destination': 'Alger', 
-                      'groupe': 'Famille', 
+                      'admin': _current_grp_admin, 
+                      'destination': _current_grp_destinaton, 
+                      'groupe': _current_grp_name, 
             }).catchError((e){print(e);});
-            
             //supprimer l'invitation
             Firestore.instance.collection('groupe').document(grpID).collection('suggestions').document(docId).delete().catchError((e){
               print(e);});
           }         
    
-
+/*Updater la position du marqueur*/
 void updatePinOnMap(String id,String user) async {
-   
-   // create a new CameraPosition instance
-   // every time the location changes, so the camera
-   // follows the pin as it moves with an animation
-          CameraPosition cPosition = CameraPosition(
+  CameraPosition cPosition = CameraPosition(
    zoom: 16,
    tilt: 80,
    bearing: 30,
    target: LatLng(position.latitude,
       position.longitude),
    );
-   
 _controller.animateCamera(CameraUpdate.newCameraPosition(cPosition));
-   
    setState(() {
- 
       // updated position
       var pinPosition = LatLng(position.latitude,
      position.longitude);
@@ -3920,13 +2978,10 @@ _controller.animateCamera(CameraUpdate.newCameraPosition(cPosition));
          icon: maleIcon,
            infoWindow: InfoWindow(
                         title: (user),
-                        onTap:  ()=> _markerUserPressed(id),
-                    ),
-      ));
-   });
-}
+                        onTap:  ()=> _markerUserPressed(id),),));});
+ }
     
-}
+ }
 
 
 

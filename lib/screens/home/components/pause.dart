@@ -1,3 +1,5 @@
+/*Confirmation de l'ajout de point de repos*/
+
 import 'package:flutter/material.dart';
 
 class Pauseconfirmation  {
@@ -65,7 +67,8 @@ class Pauseconfirmation  {
                   MaterialButton(
                       minWidth: 100,
                       height: 36,
-                      child:
+                      child: 
+                      /* Confiramtion de l'ajout du point de repos*/
                       Text("OUI",
                         textAlign: TextAlign.center,
                         style: const TextStyle(
@@ -87,6 +90,7 @@ class Pauseconfirmation  {
                       minWidth: 100,
                       height: 36,
                       child:
+                      /*Annulation de l'ajout du point de repos*/ 
                       Text("NON",
                         textAlign: TextAlign.center,
                         style: const TextStyle(
@@ -97,30 +101,9 @@ class Pauseconfirmation  {
                             fontSize: 16.0
                         ),
                       ),
-                      onPressed: () {Navigator.of(context).pop();}
-                  ),
-                ),
-                ],),
-            
-              ],
-            ),
-          ),
-       
-      ))
-       
-      
-      ]
-      )
+                      onPressed: () {Navigator.of(context).pop();}),),],),],),),))]) ),);});
          
-          ),
-        
-          );
-          
-    
-        }
-        );
-         
-  }
+             }
   
   }
 

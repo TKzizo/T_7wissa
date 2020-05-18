@@ -1,3 +1,5 @@
+/*Page d'aide concernant la modification du profil*/
+
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,7 +8,7 @@ import 'package:myapp/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/screens/authenticate/forgot_pswd.dart';
-import 'package:myapp/services/auth.dart';
+
 
 
 class EditProfileView extends StatefulWidget {
@@ -92,7 +94,7 @@ Future<Null> _focusNodeListener() async {
             if (!snapshot.hasData){
               
           return Text(
-              'Chargement de données ..!',
+              'Chargement des données ..!',
                       style: const TextStyle(
                           color:  const Color(0xde000000),
                           fontWeight: FontWeight.w400,
@@ -133,7 +135,7 @@ Future<Null> _focusNodeListener() async {
                  
                  labelText: 'Nom *',
                     ),
-                validator: (val) => val.isEmpty ? 'Donner un nom ' : null,
+                validator: (val) => val.isEmpty ? 'Donnez un nom ' : null,
                 
                 onChanged: (val) {
                   setState(() => nom = val);
@@ -148,7 +150,7 @@ Future<Null> _focusNodeListener() async {
                
                  labelText: 'Prénom *',
                     ),
-                validator: (val) => val.isEmpty ? 'Donner un Prénom ' : null,
+                validator: (val) => val.isEmpty ? 'Donnez un Prénom ' : null,
                 onChanged: (val) {
                   setState(() => prenom = val);
                 },),
@@ -158,9 +160,9 @@ Future<Null> _focusNodeListener() async {
                  decoration: const InputDecoration(
                  icon: Icon(null),
                 
-                 labelText: 'Nom d utilisateur  *',
+                 labelText: "Nom d'utilisateur  *",
                     ),
-                validator: (val) => val.isEmpty ? 'Donner votre nom d utilisateur ' : null,
+                validator: (val) => val.isEmpty ? "Donnez votre nom d'utilisateur " : null,
                 onChanged: (val) {
                   setState(() => utilisateur = val);
                 },),
@@ -173,7 +175,7 @@ Future<Null> _focusNodeListener() async {
                  
                  labelText: 'Num de tél *',
                     ),
-                validator: (val) => val.isEmpty ? 'Donner votre nom d utilisateur ' : null,
+                validator: (val) => val.isEmpty ? "Donnez votre nom d'utilisateur " : null,
                 onChanged: (val) {
                   setState(() => phoneNumber = val);
                 },),
@@ -189,16 +191,13 @@ Future<Null> _focusNodeListener() async {
                  
                  labelText: 'Email *',
                     ),
-                validator: (val) => val.isEmpty ? 'Donner une adresse ' : null,
+                validator: (val) => val.isEmpty ? 'Donnez une adresse ' : null,
                 onChanged: (val) {
                   setState(() => email = val);
                 },);
-          
-          
-          
         }
         else {
-          return Text('Loading...');
+          return Text('Chargement...');
         }
       },
     ),
@@ -210,10 +209,9 @@ Future<Null> _focusNodeListener() async {
                  decoration: const InputDecoration(
                  icon: Icon(Icons.vpn_key,
                  color:  Colors.teal),
-                 hintText: 'entrer votre mot de passe',
+                 hintText: 'Entrez votre mot de passe',
                  labelText: 'Mot de passe actuel *',
                     ),
-                  //validator: (val) => val.length < 6 ? 'Mot de passe érroné' : null,
                     onChanged: (val) {
                       setState(() => password = val);
                     },),
@@ -223,7 +221,7 @@ Future<Null> _focusNodeListener() async {
                  decoration: const InputDecoration(
                  icon: Icon(Icons.remove_red_eye,
                  color:  Colors.teal),
-                 hintText: 'entrer votre nouveau mot de passe',
+                 hintText: 'Entrez votre nouveau mot de passe',
                  labelText: 'Nouveau mot de passe *',
                     ),
                
@@ -234,9 +232,8 @@ Future<Null> _focusNodeListener() async {
                        TextFormField(
                           
                          controller: _confirmPass,
-                  //Validation de l'entrée
+                  /*Validation de l'entrée*/
                   validator: (val){
-                              
                               if(val != _pass.text)
                                    return 'Not Match';
                               return null;
@@ -244,8 +241,7 @@ Future<Null> _focusNodeListener() async {
                  obscureText: true,
                  decoration: const InputDecoration(
                  icon: Icon(Icons.remove_red_eye,color:  Colors.teal),
-                 hintText: 'Confirmer votre nouveau mot de passe',
-                 
+                 hintText: 'Confirmez votre nouveau mot de passe',
                     ),
              
                     onChanged: (val) {
@@ -290,31 +286,8 @@ Future<Null> _focusNodeListener() async {
                     'prenom':prenom,
                     'identifiant':utilisateur,
                     'numtel':phoneNumber,
-                });
-                  //nom,prenom,utilisateur,phoneNumber
-                
-                 }
-                  //Navigator.pop(context);
-                },
-              ))
-               
-            ],
-          ),
-        ),  ])
+                });}},))],),),  ])
                ],
-             ),
-           );
-        
-       
-        
-         }
-          }
-        )
-        
-        
-        
-       
-        );
-  }
-  
-}
+             ),);}})
+        );}
+   }

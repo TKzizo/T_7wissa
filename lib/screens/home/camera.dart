@@ -1,18 +1,16 @@
+/* Envoi d'une photo*/
+
 import 'dart:async';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/services/chat.dart';
-import 'package:camera/camera.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:myapp/services/database.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player/video_player.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 
 class ImageCapture extends StatefulWidget {
@@ -21,26 +19,25 @@ class ImageCapture extends StatefulWidget {
   ImageCapture({this.groupeID});
   
  @override
-  createState() => _ImageCaptureState(groupeID: this.groupeID);
-  
-    
-   
+  createState() => _ImageCaptureState(groupeID: this.groupeID);   
 }
+
  class _ImageCaptureState extends State<ImageCapture> {
    final String groupeID;
   _ImageCaptureState({this.groupeID});
  File _imageFile;
+
+/*Sélectionner ou prendre une photo*/
 Future<void> _pickImage(ImageSource source)async{
  File selected = await ImagePicker.pickImage(source: source);
  setState(() {
    _imageFile = selected;
  });
-
 }
 
+/*Possiblité de reprendre la photo*/
 void _clear(){
-  setState(() => _imageFile =null
-    
+  setState(() => _imageFile =null   
   );
 }
 
@@ -48,8 +45,6 @@ void _clear(){
 
   @override
   Widget build(BuildContext context) {
-     
-    // TODO: implement build
     return Scaffold(
  appBar: AppBar(
         title: const Text('Envoyer une image '),
@@ -58,12 +53,10 @@ void _clear(){
    bottomNavigationBar: BottomAppBar(
     child :Row  (
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-     children :<Widget>[
-       
+     children :<Widget>[ 
        IconButton(
          icon:Icon(Icons.photo_camera,
-         color: Colors.greenAccent,)
-          ,
+         color: Colors.greenAccent,),
          onPressed:()=>_pickImage(ImageSource.camera) ,),
          IconButton(
          icon:Icon(Icons.photo_library,
@@ -74,6 +67,7 @@ void _clear(){
  ),
  body: ListView(
  children:<Widget>[
+/*Affichage de la photo choisie par l'utilisateur*/
   if(_imageFile != null)...[
    Image.file(_imageFile) ,
    Row(
@@ -84,18 +78,14 @@ void _clear(){
      ],
    ),
    Uploader(file:_imageFile,groupeID: groupeID,)
-
-
   ]
-
  ],
-
-
  ),
-
     );
   }
  }
+
+/*Uploade la photo dans la base de données*/
  class Uploader extends StatefulWidget{
    final String groupeID ;
    
@@ -122,16 +112,7 @@ void _clear(){
      return null;
    }
   }
- /* void setImageMsg(String url,String receivedId,String senderId)async{
-    Message _message ; 
 
-
-
-  }
-  void UploadImage (String receiverId,String senderId)async{
-    String url = await _startUpLoad();
-    SetImageMsg(url,receiverId,senderId);
-  }*/
   FirebaseUser currentUser;
 
   @override
@@ -149,15 +130,11 @@ void _clear(){
   }
   void uploadImage(
       ) async {
-    // Set some loading value to db and show it to user
-   /* imageUploadProvider.setToLoading();*/
-
-    // Get url from the image bucket
     String url = await _startUpLoad();
     
-    // Hide loading
+    /*Hide loading*/
     final user = Provider.of<User>(context);
-     String _current_user; 
+    String _current_user; 
     String _current_userId; 
     StreamBuilder<UserData>(
                   stream: DatabaseService(uid: user.uid).utilisateursDonnees,
@@ -175,41 +152,24 @@ void _clear(){
                       return Text('Loading');
                     }
                   });
-   /* imageUploadProvider.setToIdle();*/
-    ChatService(uid: groupeID.toString() ).envoyer_mesg(groupeID.toString(),null, _current_user,_current_userId,url);
-    
-   
+    ChatService(uid: groupeID.toString() ).envoyer_mesg(groupeID.toString(),null, _current_user,_current_userId,url); 
   }
    
   @override
   Widget build(BuildContext context) {
-  /*  _imageUploadProvider = Provider.of<ImageUploadProvider>(context);*/
-  /*  _imageUploadProvider.getViewState == ViewState.LOADING
-              ? Container(
-                  alignment: Alignment.centerRight,
-                  margin: EdgeInsets.only(right: 15),
-                  child: CircularProgressIndicator(),
-                )
-              : Container();*/
-    // TODO: implement build
+    /*Vérification si une photo a été bien choisie*/
     if (_uploadTask != null){
       return Container();
-
+    /*si oui, affichage d'un bouton envoyer*/
     }else{
       return FlatButton.icon(
-       label: Text('Send'),
+       label: Text('Envoyer'),
        icon: Icon(Icons.cloud_upload,
        color: Colors.greenAccent,),
        onPressed:(){
-        uploadImage();
-       
-        
+        uploadImage(); 
         }
-
       );
     }
   }
-
-
-
- }
+}

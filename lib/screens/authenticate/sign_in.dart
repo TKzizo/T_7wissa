@@ -1,3 +1,5 @@
+/*Page de Connexion*/
+
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/authenticate/forgot_pswd.dart';
 import 'package:myapp/services/auth.dart';
@@ -28,7 +30,6 @@ class _SignInState extends State<SignIn> {
     return Scaffold(
        resizeToAvoidBottomInset: true,
       body: Container(
-
         color: Colors.white,
         padding: EdgeInsets.symmetric(vertical: (MediaQuery.of(context).size.height) * 0.063, horizontal: (MediaQuery.of(context).size.width) * 0.05),
         child : SingleChildScrollView(
@@ -36,8 +37,6 @@ class _SignInState extends State<SignIn> {
           key: _formKey,
           
             child: Column(
-              //  crossAxisAlignment: CrossAxisAlignment.center,
-              //  mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 SizedBox(
                   height: (MediaQuery.of(context).size.height) * 0.4,
@@ -47,7 +46,6 @@ class _SignInState extends State<SignIn> {
                     fit: BoxFit.contain,
                   ),
                 ),
-                //SizedBox(height: 50.0),
                 /*Champs Email*/
                 Material(
                   elevation: 6.5,
@@ -72,7 +70,7 @@ class _SignInState extends State<SignIn> {
                         ),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
                     ),
-                    //Validation de l'entrée
+                    /*Validation de l'entrée*/
                     validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
                     onChanged: (val) {
                       setState(() => email = val);
@@ -105,7 +103,7 @@ class _SignInState extends State<SignIn> {
                         ),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
                     ),
-                    //Validation de l'entrée
+                    /*Validation de l'entrée*/
                     validator: (val) => val.length < 6 ? 'Mot de passe érroné' : null,
                     onChanged: (val) {
                       setState(() => password = val);
@@ -118,7 +116,6 @@ class _SignInState extends State<SignIn> {
                 /*Mot de passe oublié*/
                 SizedBox(height:(MediaQuery.of(context).size.height) * 0.01,),
                 Material(
-
                   child: FlatButton(
                     child:
                     Text("Mot de passe oublié ?",
@@ -142,7 +139,6 @@ class _SignInState extends State<SignIn> {
                     splashColor: const Color(0xffffffff),
                   ),
                 ),
-
                 /*Mot de passe oublié*/
 
                 /*CONNEXION*/
@@ -178,6 +174,7 @@ class _SignInState extends State<SignIn> {
                   ),
                 ),
                 /*CONNEXION*/
+
                 /*Mot de passe oublié*/
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -208,11 +205,9 @@ class _SignInState extends State<SignIn> {
                   ],
                 ),
                 SizedBox(height: (MediaQuery.of(context).size.height) * 0.023,),
-
-
                 /*Mot de passe oublié*/
-                //Message d'erreur à la connexion
-                
+
+                /*Message d'erreur à la connexion*/   
                 Text(
                   error,
                   style: TextStyle(color: Colors.red, fontSize: 14.0),
@@ -221,14 +216,12 @@ class _SignInState extends State<SignIn> {
                 _signInButton(),
               ],
             ),
-
-          
-
         ),),
       ),
     );
   }
 
+/* Bouton de connexion Google*/
   Widget _signInButton() {
     return OutlineButton(
       splashColor: Colors.grey,

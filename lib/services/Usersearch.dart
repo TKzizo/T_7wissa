@@ -1,9 +1,9 @@
+/*Invitations*/
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'dart:core';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:myapp/screens/home/map.dart';
+
 
 
 
@@ -54,7 +54,7 @@ class UserSeach extends SearchDelegate<String> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Icon(Icons.search),
-            Text(' Aucun utlisateur'),
+            Text(' Aucun utlisateur ne correspond à votre recherche'),
           ],
         ),
       );
@@ -238,7 +238,7 @@ Color  col = Colors.grey[350] ;
             },
             padding: EdgeInsets.all(20),
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            child: Text("Inviter '${widget.obj["identifiant"]}' au groupe",
+            child: Text("Invitez '${widget.obj["identifiant"]}' au groupe",
             style: TextStyle(
               color: Colors.black,
               fontSize: 15
@@ -248,7 +248,7 @@ Color  col = Colors.grey[350] ;
               child:Row(
                 children: <Widget>[
                     Icon(Icons.done ,size: 40, color: Colors.white,),
-                    Text("Invitation a été envoyée", style: TextStyle(fontSize: 20, color: Colors.white), )
+                    Text("Invitation envoyée", style: TextStyle(fontSize: 20, color: Colors.white), )
                 ],
                 ),
             ),

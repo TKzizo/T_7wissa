@@ -1,4 +1,4 @@
-import 'dart:async';
+/*Page d'aide*/
 
 import 'package:flutter/material.dart';
 import 'package:myapp/screens/home/acceuil.dart';
@@ -137,7 +137,7 @@ class _HelpPageState extends State<HelpPage> {
           
           subtitle:
            Text(
-                      'Trouvez les réponses à vos questions concernant l envoi et la réception de messages',
+                      "Trouvez les réponses à vos questions concernant l'envoi et la réception des messages",
                       style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,
@@ -196,19 +196,6 @@ class _HelpPageState extends State<HelpPage> {
                       ),
                       
          ),
-
-
-
-
-
         ]
-
-
-
-
-        ),
-        
-       
-        );
+        ),); }
   }
-}
