@@ -99,7 +99,7 @@ GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1
     super.initState();
     _loadCurrentUser(); 
   }
-/*Déclaration des diffirents*/
+/*Déclaration des diffirents marqueurs*/
   BitmapDescriptor pinLocationIcon;
   BitmapDescriptor panneIcon;
   BitmapDescriptor accidentIcon;
