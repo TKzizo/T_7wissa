@@ -78,7 +78,7 @@ String _time = "Not set";
   double vitesse;
 String text; 
 FirebaseUser currentUser;
-Widget _child; 
+StatefulWidget _child; 
 String _img='';
 String _current_grp = '10000000';
 
@@ -97,6 +97,7 @@ GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1
 
   @override
   void initState() {
+    
     setCustomMapPin();
     _getCurrentLocation();
     getPermission();
@@ -209,11 +210,11 @@ void setCustomMapPin() async {
       Firestore.instance.collection('utilisateur').document(userId).updateData({'vitesse': position.speed==null? 0.0: position.speed.toDouble(),'latitude': position.latitude==null? 0.0: position.latitude.toDouble(), 'longitude':position.longitude==null? 0.0: position.longitude.toDouble()});
   }
     List<Marker> allMarkers = []; 
-Widget _mapWidget() {
+StatefulWidget _mapWidget() {
        return StreamBuilder(
       stream: Firestore.instance.collection('groupe').document(_current_grp).collection('Markers').snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return Container(child : Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
+        if (!snapshot.hasData) return Text("");
         for (int i = 0; i < snapshot.data.documents.length; i++) {
           String icon= (snapshot.data.documents[i]['icon']).toString() ==null ?' ': (snapshot.data.documents[i]['icon']).toString();
           print("icon");  
@@ -365,7 +366,7 @@ Widget _mapWidget() {
     );
   }
 List<String> allUsers = []; 
-Widget _eachUserMarker(){
+StatefulWidget _eachUserMarker(){
      return StreamBuilder(
       stream: Firestore.instance.collection('utilisateur').snapshots(),
       builder: (context, snapshot) {
@@ -396,7 +397,7 @@ Widget _eachUserMarker(){
     );
 }
   
- Widget  userListeMarkers(){
+ StatefulWidget  userListeMarkers(){
     return   StreamBuilder(
       stream: Firestore.instance.collection('groupe').document(_current_grp).collection('ListeMembre').snapshots(),
       builder: (context, snapshot){
@@ -409,7 +410,7 @@ Widget _eachUserMarker(){
 
     );
   }
-Widget map(){ 
+StatefulWidget map(){ 
     return    GoogleMap(
                 markers: Set.from(allMarkers),
                 initialCameraPosition: CameraPosition(
