@@ -1,4 +1,4 @@
-/*Page d'aide concernant la modification du profil*/
+/*Page concernant la modification du profil*/
 
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,7 +18,7 @@ class EditProfileView extends StatefulWidget {
 
 class _EditProfileViewState extends State<EditProfileView> {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-  //champs
+  /*champs*/
   String nom= '';
   String email= '';
   String password='';
@@ -36,7 +36,7 @@ class _EditProfileViewState extends State<EditProfileView> {
    FocusNode _focusNode = new FocusNode();
   void _loadCurrentUser()async {
    await FirebaseAuth.instance.currentUser().then((FirebaseUser user) {
-      setState(() { // call setState to rebuild the view
+      setState(() { /*Call setState to rebuild the view*/
         this.currentUser = user;
       });
     });
@@ -191,6 +191,7 @@ Future<Null> _focusNodeListener() async {
                  
                  labelText: 'Email *',
                     ),
+                 /*Validation de l'entrée*/  
                 validator: (val) => val.isEmpty ? 'Donnez une adresse ' : null,
                 onChanged: (val) {
                   setState(() => email = val);
@@ -279,7 +280,7 @@ Future<Null> _focusNodeListener() async {
                 textColor: themeData.secondaryHeaderColor,
                 child: new Text('Sauvegarder'),
                  onPressed: () async {
-            
+/*Méthode qui modifie les informations dans la database*/            
           if(_formKey.currentState.validate() )
                 {   await Firestore.instance.collection('utilisateur').document(user.uid).updateData({
                     'nom':nom,
