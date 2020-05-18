@@ -39,7 +39,7 @@ import 'package:flutter/src/rendering/box.dart';
 import 'package:flutter/src/rendering/shifted_box.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:myapp/services/MessageHandler.dart';
-
+import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -81,6 +81,7 @@ FirebaseUser currentUser;
 Widget _child; 
 String _img='';
 String _current_grp = '10000000';
+
 String  _current_grp_adminID;
 String  _current_grp_admin;
 String _current_grp_destinaton;
@@ -88,6 +89,7 @@ String _current_grp_name;
 String alerte='';
 String placetogo=''; 
  FirebaseMessaging _fcm = FirebaseMessaging();
+ 
 Map<String,dynamic> pass = new Map();
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1WEO5BYB2oPmo");
    
@@ -96,10 +98,12 @@ GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1
   @override
   void initState() {
     setCustomMapPin();
+    _getCurrentLocation();
     getPermission();
+   
     super.initState();
     _loadCurrentUser();
-
+    
   }
   BitmapDescriptor pinLocationIcon;
    BitmapDescriptor panneIcon;
@@ -110,7 +114,7 @@ GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1
    BitmapDescriptor pauseIcon;
    BitmapDescriptor radarIcon;
    BitmapDescriptor routeIcon;
-   BitmapDescriptor maleIcon;
+   BitmapDescriptor maleIcon; 
    BitmapDescriptor femaleIcon; 
    BitmapDescriptor destinationIcon; 
 
@@ -157,10 +161,6 @@ void setCustomMapPin() async {
       return "no current user";
     }
   }
-
-
-
-
     Future<void> getPermission() async {
     PermissionStatus permission = await PermissionHandler()
         .checkPermissionStatus(PermissionGroup.location);
@@ -192,8 +192,8 @@ void setCustomMapPin() async {
         showToast('Access Granted');
         _getCurrentLocation();
     }
+
   }
-  
    void _getCurrentLocation() async {
     Position res = await Geolocator().getCurrentPosition();
     setState(() {
@@ -203,8 +203,6 @@ void setCustomMapPin() async {
     }
     );
     }
-
-
   void updateuserLocation(String userId){
     _getCurrentLocation();
     //
@@ -645,9 +643,11 @@ void _markerDestinationPressed(String userId, String placetogo){
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
                       return    Container( 
+
      padding: EdgeInsets.symmetric(vertical:0.0,horizontal :(MediaQuery.of(context).size.height) * 0.02),
       child: SingleChildScrollView(
             child: Column(
+
               children: <Widget>[
                  Image(
                     image: AssetImage('assets/pause.png'),
@@ -709,7 +709,7 @@ void _markerDestinationPressed(String userId, String placetogo){
   }
 
 /************************************************** */
-  void _markerUserPressed(String userId){
+ void _markerUserPressed(String userId){
      showDialog(context: context, builder:(context){
        String icone=''; 
   return AlertDialog(
@@ -845,133 +845,6 @@ void _markerDestinationPressed(String userId, String placetogo){
 
 
 
-
-  /********************************** */
-/*void _markerUserPressed(String userId){
-     showDialog(context: context, builder:(context){
-  return AlertDialog(
-    elevation: 1,
-    shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(20.0))
-),
-  title :  Text('Informations sur votre partenaire de route ',
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color:  Colors.deepOrange,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.normal,
-                                fontSize: 19.0
-                            ),),
-  content: Stack(children: [
-    
-    StreamBuilder<UserData>(
-                  stream: DatabaseService(uid:userId).utilisateursDonnees,
-                  builder: (context,snapshot){
-                    if(snapshot.hasData){
-                      UserData userData=snapshot.data;
-                      print(userData.identifiant);
-                      return    Container( 
-     padding: EdgeInsets.symmetric(vertical:0.0,horizontal :20.0),
-      child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                ClipOval(
-                   child: SizedBox(
-                     width: 120.0,
-                     height: 120.0,
-                     
-                     child: Image.network(userData.image_url.toString(),fit: BoxFit.fill,),
-                     
-                   ),
-                   ),
-                  SizedBox(height: 10,), 
-               
-                    Text('Votre partenaire de route',
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color:  Colors.black,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.normal,
-                                fontSize: 17.0
-                            ),),
-                            SizedBox(width: 7,),
-                              Text(userData.identifiant,
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color:  Colors.teal,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.normal,
-                                fontSize: 17.0
-                            ),),
-                             SizedBox(width: 7,),
-                            
-                            
-                  
-                
-                 SizedBox(height: 20,), 
-               
-                    Text('Roule à une vitesse de : ',
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color:  Colors.black,
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "Roboto",
-                                fontStyle:  FontStyle.normal,
-                                fontSize: 17.0
-                            ),),
-                            SizedBox(width: 12,),
-                              SizedBox(
-                                width: 40,height: 20,
-                                                              child: Text(userData.vitesse.toString(),
-                    textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                  color:  Colors.deepOrange,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: "Roboto",
-                                  fontStyle:  FontStyle.italic,
-                                  fontSize: 17.0
-                            ),),
-                              ),
-                                
-              ],
-            ),
-          ),
-       
-      );
-                    }else{
-                           
-                      return Column(
-                        children: <Widget>[
-                          SizedBox(height: 60,), 
-                          PlaceholderLines(count: 3, animate: true, color: Colors.grey,align: TextAlign.center, minOpacity: 0.2, maxOpacity: 0.4, ),
-                        ],
-                      );
-                    }
-                  }
-              ),
-       
-      
-      ]
-      ),
-   actions: <Widget>[
-    MaterialButton(
-      elevation: 5.0,
-      child: Text('OK'),
-      onPressed:() {
-        Navigator.of(context).pop();
-      },
-     )
-  ],
-
-  );
- });
-    
-        
-         
-  }*/
   
    void showToast(message){
     Fluttertoast.showToast(
@@ -1021,6 +894,13 @@ Future<void> _handlePressButton() async {
    
     displayPrediction(p);
   }
+void subscribe() async{
+   _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
+}
+
+
+
+
 /*METHODES RECHERCHES ET AUTOCOMPLETE*/ 
 
 
@@ -1064,8 +944,8 @@ Future<void> _handlePressButton() async {
         children: <Widget>[
           StreamBuilder<UserData>(
                   stream: DatabaseService(uid: user.uid).utilisateursDonnees,
-                  builder: (context,snapshot){
-                    if(snapshot.hasData){
+                  builder: (context,snapshot)  {
+                    if(snapshot.hasData)  {
                       _current_userId = user.uid;
                       
                       UserData userData=snapshot.data;
@@ -1073,6 +953,7 @@ Future<void> _handlePressButton() async {
                       _current_user=userData.identifiant; 
                       updateuserLocation(_current_userId);
                   updatePinOnMap(_current_userId,_current_user);
+                   subscribe();
                       return  Text(
                           '');
                     }else{
@@ -1207,22 +1088,15 @@ Future<void> _handlePressButton() async {
                   builder: (context,snapshot){
                     if(snapshot.hasData){
                       _current_userId = user.uid;
-                      
                       UserData userData=snapshot.data;
                       _img = userData.image_url;
-                      print(userData.identifiant);
-                      print(_img);
-
                       return   Align(
                  alignment: Alignment.center,
-                
                    child: ClipOval(
                    child: SizedBox(
                      width: (MediaQuery.of(context).size.width) * 0.3,
                      height: (MediaQuery.of(context).size.height) * 0.16,
-                     
-                     child: Image.network(_img,fit: BoxFit.fill,),
-                     
+                     child: Image.network(_img,fit: BoxFit.fill,),  
                    ),
                    ),
                  
@@ -1287,8 +1161,12 @@ Future<void> _handlePressButton() async {
                   leading: Icon(Icons.settings, color: Colors.greenAccent),
                   title: Text('Paramètres du compte'),
                   onTap: () async {
-                    Navigator.of(context).pop();
-                    _onParametrePressed();
+                     Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => 
+                        
+                        EditProfileView()),
+                      );
 
                   },
                 ),
@@ -1334,7 +1212,6 @@ Future<void> _handlePressButton() async {
   _refuserInvitation(docId,userID) {
               Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').document(docId).delete().catchError((e){
               print(e);});
-              
 
             }
 
@@ -2022,7 +1899,7 @@ _onGroupButtonPressed(String currentUser){
         if ((snapshot.hasData)&& (document['id']!='10000000')) {
            Map<String, dynamic> documentFields = snapshot.data.data;
 //bool isSwitched=documentFields['statu'];
-           var listTile = ListTile(
+           return  ListTile(
 title:Row (
        
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2176,9 +2053,10 @@ title:Row (
            ],
          ),
                        onTap:() async{
+                          
 
-                          if (_current_grp != null) {
-                 await _fcm.unsubscribeFromTopic("groupe/$_current_grp/Markers");
+                          
+                  _fcm.unsubscribeFromTopic("groupe/$_current_grp/Markers");
 
                  _current_grp = document['id'].toString();
 
@@ -2189,7 +2067,7 @@ title:Row (
                     .then((value) {
                   _current_grp_admin = value.data["admin"];
                   _current_grp_destinaton = value.data["destination"];
-                  _current_grp_name=value.data["nom"];
+                  _current_grp_name=  value.data["nom"];
                   pass["admin"] = value.data["admin"];
                   pass["destination"] = value.data["destination"];
                   pass["groupe"] = value.data["nom"];
@@ -2203,7 +2081,7 @@ title:Row (
                   _current_grp_adminID = value.documents[0].data["uid"];
                 });
 
-                 await _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
+                  _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
                   
                   for (int j = 0; j< allMarkers.length; j++){
                     allMarkers.removeAt(0); 
@@ -2217,42 +2095,34 @@ title:Row (
                  _child=_mapWidget();
               });
                    
-                         }
-                       });
-           return  listTile; }else{
+                         },
+                      ) ;  }else{
                         return SizedBox(height: 1,); 
                       }
                       })
       ); //
                     }
-
 _quittergroupe(docId,docgrpID) {
-  // Suppression du groupe de la liste des groupes de l'utilisateur
-  Firestore.instance.collection('utilisateur')
-    .document(_current_userId)
-    .collection('ListeGroupe')
-    .document(docId)
-    .delete()
-    .catchError((e){
-    print(e);}); 
-  // Pour récupérer le document qui contient l'utilisateur courant dans la liste des membres de ce groupe
-  Firestore.instance
-    .collection("groupe").document(docgrpID).collection('ListeMembre')
-    .where("user", isEqualTo: _current_userId)
-    .getDocuments()
-    .then((value) {
-  _supp = value.documents[0].documentID; 
-  // Supprimer cet utilisateur de la liste des membres             
-  Firestore.instance.collection("groupe")
-    .document(docgrpID)
-    .collection('ListeMembre')
-    .document(_supp)
-    .delete()
-    .catchError((e){
-    print(e);});});   
-  }
 
+            Firestore.instance.collection('utilisateur').document(_current_userId).collection('ListeGroupe').document(docId).delete().catchError((e){
+              print(e);});
+              print('supp'); 
+              Firestore.instance
+                    .collection("groupe").document(docgrpID).collection('ListeMembre')
+                    .where("user", isEqualTo: _current_userId)
+                    .getDocuments()
+                    .then((value) {
+                  _supp = value.documents[0].documentID;
+                  
+                  Firestore.instance.collection("groupe").document(docgrpID).collection('ListeMembre').document(_supp).delete().catchError((e){
+              print(e);})    ; 
 
+                });   
+                  
+            /*Firestore.instance.collection('groupe').document(docId).collection('ListeMembre').document().catchError((e){
+              print(e);});
+              print('supp');*/
+            }
 void creeGroupe(){
   int _id = random.nextInt(10000);
     showModalBottomSheet(context: context, builder:(context){
@@ -2482,7 +2352,7 @@ void creeGroupe(){
                   onPressed: () async {
                     if(_formKey.currentState.validate()){ 
                      
-                      
+                       
                       CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user,destination, _time, listMembre, nom,_current_userId);
                       CreationGroupeServises(uid: _id.toString()).marquer_Alerte(_id.toString(), destination, lang, latt, _current_userId, "destination");
 
@@ -3882,7 +3752,7 @@ _refuserSugg(String groupId,String docId) {
 _accepterSugg(String docId,String grpID,String userID) {
             //ajouter linvitation à la liste d'invi de cet utilisateur
             Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').document().setData({
-                       'groupeID':_current_grp,
+                      'groupeID':_current_grp,
                       'admin': _current_grp_admin, 
                       'destination': _current_grp_destinaton, 
                       'groupe': _current_grp_name, 
