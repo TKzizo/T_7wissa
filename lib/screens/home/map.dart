@@ -1515,6 +1515,7 @@ void _onMessageButtonPressed(String currentGroupe){
       height: (MediaQuery.of(context).size.height) * 0.08,
       child:
        ListTile(
+      /*Envoi d'un message écrit*/   
    title:  TextField(
       keyboardType: TextInputType.multiline,
       maxLength: null,
@@ -1573,14 +1574,13 @@ _onGroupButtonPressed(String currentUser){
      stream: Firestore.instance.collection('utilisateur').document(_current_userId).collection('ListeGroupe').snapshots(),
      builder: (context,snapshot){
   /*Si la liste des groupes est vide affichage du message*/
-     if (!snapshot.hasData) return const Text("Vous ne faîtes partie d'aucun groupe\n Attendez que vos amis vous ajoutentn\n Vous pouvez toujours un créer et les inviter",
+     if (!snapshot.hasData) return const Text("Vous ne faîtes partie d'aucun groupe\n Attendez que vos amis vous ajoutent\n Vous pouvez toujours créer un groupe et les inviter",
       style: const TextStyle(
       color:  const Color(0xff3d3d3d),
       fontWeight: FontWeight.w400,
       fontFamily: "Roboto",
       fontStyle:  FontStyle.normal,
-      fontSize: 17.0
-  ),
+      fontSize: 15.0,
   textAlign: TextAlign.left );
    return  ListView.builder(
      itemExtent: 80.0,
@@ -1919,7 +1919,7 @@ void creeGroupe(){
                     if(_formKey.currentState.validate()){ 
                       CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user,destination, _time, listMembre, nom,_current_userId);
                       CreationGroupeServises(uid: _id.toString()).marquer_Alerte(_id.toString(), destination, lang, latt, _current_userId, "destination");
-                    /*Á la création du groupe un marqueur s'affiche sur la map indiquant la destination*/
+                    /*Á la création du groupe un marqueur s'affiche sur la map indiquant la destination de celui-ci*/
                    allMarkers.add(new Marker(
                            position: new LatLng(latt,lang),
                            markerId: MarkerId('destination'),
@@ -2042,7 +2042,8 @@ void creeGroupe(){
         onPressed:()=>{ if(_formKey.currentState.validate()){ 
     /*Updater la destination dans la base de données*/     
     ref.updateData({"destination": lieu})}},),),), ),],),),);});
-        }              
+        }
+     /*Si l'utilisateur n'est pas administrateur*/
        else{
       afficher_alerte();}
   }
@@ -2267,13 +2268,10 @@ void creeGroupe(){
         .snapshots();
 }
 
-
+/*Récupère la donnée en entrée et redirige vers la page correspondante*/
  void custom_lunch(command)async{
   if(await canLaunch(command) ){
     await launch(command);
-  }
-  else{
-    print('i could nt lunch $command');
   }
 }
 
@@ -2331,7 +2329,7 @@ void onMembreButtonPressed(){
       fontWeight: FontWeight.w400,
       fontFamily: "Roboto",
       fontStyle:  FontStyle.normal,
-      fontSize: 17.0),
+      fontSize: 15.0),
   textAlign: TextAlign.left );
    return  ListView.builder(
      itemExtent: 80.0,
@@ -2397,6 +2395,7 @@ _buildMemberlistItem(BuildContext ctx,DocumentSnapshot document) {
     builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if ((snapshot.hasData)&&(document['user']!='membreDefaut')) {
 Map<String, dynamic> documentFields = snapshot.data.data;
+    /*Vérification si utilisateur courrant*/      
         if(document['user']!=_current_userId){
              return  ListTile(
       /*Affichage des photos des membres*/
@@ -2489,7 +2488,7 @@ Map<String, dynamic> documentFields = snapshot.data.data;
      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('suggestions').snapshots(),
      builder: (context,snapshot){
     /*Si la liste des suggestions est vide affichage du message*/
-     if (!snapshot.hasData){ return const Text("aucune suggestion, \nvous pouvez suggérer des utilisateurs à l'administrateur",
+     if (!snapshot.hasData){ return const Text("Aucune suggestion, \nvous pouvez suggérer des utilisateurs à l'administrateur",
       style: const TextStyle(
       color:  const Color(0xff3d3d3d),
       fontWeight: FontWeight.w400,
@@ -2666,14 +2665,13 @@ void list_invitations(BuildContext context, String userID){
      stream: Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').snapshots(),
      builder: (context,snapshot){
     /*Si la liste des invitations est vide affichage du message*/
-     if (!snapshot.hasData) return const Text("aucune invitation, \nvous pouvez inviter d'autres utilisateurs si vous êtes administrateur",
+     if (!snapshot.hasData) return const Text("Aucune invitation, \nvous pouvez inviter d'autres utilisateurs si vous êtes administrateur",
       style: const TextStyle(
       color:  const Color(0xff3d3d3d),
       fontWeight: FontWeight.w400,
       fontFamily: "Roboto",
       fontStyle:  FontStyle.normal,
-      fontSize: 17.0
-  ),
+      fontSize: 15.0),
   textAlign: TextAlign.left );
    return  ListView.builder( 
      itemExtent: 80.0,
@@ -2937,21 +2935,21 @@ buildSugglistItem(BuildContext ctx,DocumentSnapshot document,String idGroup) {
            else { return Container();} }));
                     }
 
-/*Méthode refuser suggestions*/
+/*Méthode refuser suggestions (effacer le membre de la liste des suggestions*/
 _refuserSugg(String groupId,String docId) {
    Firestore.instance.collection('groupe').document(groupId).collection('suggestions').document(docId).delete().catchError((e){
    print(e);}); }
 
 /*Méthode accepter suggestions*/
 _accepterSugg(String docId,String grpID,String userID) {
-            //ajouter linvitation à la liste d'invi de cet utilisateur
+            /*ajouter l'invitation à la liste d'invitations de cet utilisateur*/
             Firestore.instance.collection('utilisateur').document(userID).collection('Invitations').document().setData({
                       'groupeID':_current_grp,
                       'admin': _current_grp_admin, 
                       'destination': _current_grp_destinaton, 
                       'groupe': _current_grp_name, 
             }).catchError((e){print(e);});
-            //supprimer l'invitation
+            /*supprimer le membre de la liste des suggestions*/
             Firestore.instance.collection('groupe').document(grpID).collection('suggestions').document(docId).delete().catchError((e){
               print(e);});
           }         
