@@ -23,6 +23,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:myapp/services/creationGroupe.dart';
 import 'package:myapp/services/chat.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../services/MessageHandler.dart';
 import 'modifierProfil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -81,7 +82,7 @@ FirebaseUser currentUser;
 StatefulWidget _child; 
 String _img='';
 String _current_grp = '10000000';
-
+MsgHandler msgHandler;
 String  _current_grp_adminID;
 String  _current_grp_admin;
 String _current_grp_destinaton;
@@ -896,16 +897,10 @@ Future<void> _handlePressButton() async {
    
     displayPrediction(p);
   }
-<<<<<<< HEAD
-
 
 void subscribe() async{
-   _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
+   _fcm.subscribeToTopic(_current_grp);
 }
-=======
-/*void subscribe() async{
-   _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
-}*/
 
 
 
@@ -921,7 +916,6 @@ void subscribe() async{
 /*COMPOSANTS*/ 
 
 
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
  
 /*Composants*/ 
   Widget build(BuildContext context) {
@@ -940,7 +934,7 @@ void subscribe() async{
         elevation: 3.0,
         actions: <Widget>[
               IconButton(icon: Icon(Icons.notifications_active), onPressed:() {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MsgHandler()));
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => msgHandler);
               } )
             ],
         title: Text('Accueil'),
@@ -962,11 +956,8 @@ void subscribe() async{
                       _current_user=userData.identifiant; 
                       updateuserLocation(_current_userId);
                   updatePinOnMap(_current_userId,_current_user);
-<<<<<<< HEAD
                   subscribe();
-=======
-                   //subscribe();
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
+
                       return  Text(
                           '');
                     }else{
@@ -2001,18 +1992,8 @@ title:Row (
                             Icons.exit_to_app,
                              color:  const Color(0xffff5722),),),],),
                        onTap:() async{
-<<<<<<< HEAD
-                _fcm.unsubscribeFromTopic("groupe/$_current_grp/Markers");
+
                 _current_grp = document['id'].toString();
-=======
-                          
-
-                          
-                  //_fcm.unsubscribeFromTopic("groupe/$_current_grp/Markers");
-
-                 _current_grp = document['id'].toString();
-
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
                 await Firestore.instance
                     .collection("groupe")
                     .document(_current_grp)
@@ -2033,13 +2014,7 @@ title:Row (
                     .then((value) {
                   _current_grp_adminID = value.documents[0].data["uid"];
                 });
-<<<<<<< HEAD
-                  _fcm.subscribeToTopic("groupe/$_current_grp/Markers");
-=======
-
-                  //_fcm.subscribeToTopic("groupe/$_current_grp/Markers");
-                  
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
+                  _fcm.subscribeToTopic(_current_grp);
                   for (int j = 0; j< allMarkers.length; j++){
                     allMarkers.removeAt(0); 
                   }//      allMarkers.clear(); 

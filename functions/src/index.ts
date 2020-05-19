@@ -16,13 +16,13 @@ export const sentToTopic = functions.firestore
         const payload: admin.messaging.MessagingPayload = { 
             notification: {
              
-                title: mark.icon,
-                body: mark.text,
+                title: `Groupe: "${mark.groupe}"`,
+                body:`Membre: "${mark.sender}" \n"${mark.icon}", ${mark.text}`,
                 clickAction: 'FLUTTER_NOTIFICATION_CLICK'
                
             }
         };
-        return fcm.sendToTopic(`groupe/${context.params.groupeID}/Markers`,payload);
+        return fcm.sendToTopic(context.params.groupeID,payload);
     }else {
         return null;
     }
