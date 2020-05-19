@@ -1,3 +1,5 @@
+/*Main du projet*/
+
 import 'package:myapp/screens/wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/services/auth.dart';

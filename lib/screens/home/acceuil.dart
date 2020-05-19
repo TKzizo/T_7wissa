@@ -1,4 +1,4 @@
-import 'dart:async';
+/*Page d'aide de l'acceuil de l'application*/
 
 import 'package:flutter/material.dart';
 
@@ -14,21 +14,15 @@ class _HomeHelpPageState extends State<HomeHelpPage> {
 
   @override
   Widget build(BuildContext context) {
-   
-
-    
         return new Scaffold(
           resizeToAvoidBottomInset: true,
             appBar: new AppBar(title: const Text('Page d’acceuil '), 
              backgroundColor:  Color(0xFFFF5722),
-              
-           
             ),
-         
             body: ListView(
             children :<Widget>[
               ExpansionTile(
-    
+/*Informations concernant la map*/
       title: Text(
                           'La map',
                           style: const TextStyle(
@@ -42,8 +36,6 @@ class _HomeHelpPageState extends State<HomeHelpPage> {
                           ),
       children: <Widget> [Text(
                           '\n      Sur cette map vous allez trouver\n      votre position, et la position de vos\n      partenaires de route appartenant au même\n      groupe.\n',
-
-
                           style: const TextStyle(
                               color:  const Color(0xde3d3d3d),
                               fontWeight: FontWeight.w400,
@@ -54,9 +46,8 @@ class _HomeHelpPageState extends State<HomeHelpPage> {
                           textAlign: TextAlign.left                
                           ),
        ] ),
-         
                ExpansionTile(
-    
+/*Informations concernant les groupes*/    
       title: Text(
                           'Les groupes',
                           style: const TextStyle(
@@ -82,9 +73,8 @@ class _HomeHelpPageState extends State<HomeHelpPage> {
                           textAlign: TextAlign.left                
                           ),
        ] ),
-  
        ExpansionTile(
-    
+/*Informations concerant les membres*/    
       title: Text(
                           'Les membres de chaque groupe',
                           style: const TextStyle(
@@ -98,8 +88,6 @@ class _HomeHelpPageState extends State<HomeHelpPage> {
                           ),
       children: <Widget> [Text(
                           '\n  Pour voir la liste des membres \n  1-Choisissez un  groupe\n  2-Cliquez sur l’icône qui represente une liste\n   en bas de votre page\n   Dans cette section vous pouvez voir tous\n   les membres de ce groupe \n',
-
-
                           style: const TextStyle(
                               color:  const Color(0xde3d3d3d),
                               fontWeight: FontWeight.w400,
@@ -110,15 +98,15 @@ class _HomeHelpPageState extends State<HomeHelpPage> {
                           textAlign: TextAlign.left                
                           ),],),
         ExpansionTile(
-    
+/*Informations concernant les notifications*/    
       title: Text(
                           'Les notifications',
-                          style: const TextStyle(
-                              color:  const Color(0xff000000),
-                              fontWeight: FontWeight.w400,
-                              fontFamily: "Roboto",
-                              fontStyle:  FontStyle.normal,
-                              fontSize: 18.0
+                           style: const TextStyle(
+                           color:  const Color(0xff000000),
+                           fontWeight: FontWeight.w400,
+                           fontFamily: "Roboto",
+                           fontStyle:  FontStyle.normal,
+                           fontSize: 18.0
                           ),
                           textAlign: TextAlign.left                
                           ),
@@ -146,19 +134,8 @@ class _HomeHelpPageState extends State<HomeHelpPage> {
                         fit: BoxFit.contain,
                       ),
                     ),
-
-
-
-
-
         ]
-
-
-
-
         ),
-        
-       
         );
   }
 }

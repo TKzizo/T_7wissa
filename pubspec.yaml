@@ -58,10 +58,7 @@ dependencies:
   mobile_popup: ^1.2.0
   firebase_core: any 
   get_it : any 
-flutter_icons:
- android: "launcher_icon" 
- ios: true
- image_path: "assets/logo.png"
+
 
 
 

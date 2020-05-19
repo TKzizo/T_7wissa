@@ -1,52 +1,39 @@
+/*Modification de la photo de profile*/
+
 import 'dart:async';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/services/chat.dart';
-import 'package:camera/camera.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-
 import 'package:image_picker/image_picker.dart';
-
-
 import 'package:myapp/services/database.dart';
-
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player/video_player.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 
 class ProfilPicture extends StatefulWidget {
  @override
-  createState() => _ProfilPictureState();
-    
-   
+  createState() => _ProfilPictureState();  
 }
- class _ProfilPictureState extends State<ProfilPicture> {
- File _imageFile;
+
+class _ProfilPictureState extends State<ProfilPicture> {
+File _imageFile;
 Future<void> _pickImage(ImageSource source)async{
  File selected = await ImagePicker.pickImage(source: source);
  setState(() {
    _imageFile = selected;
  });
-
 }
 
 void _clear(){
-  setState(() => _imageFile =null
-    
+  setState(() => _imageFile =null 
   );
 }
 
 
-
   @override
   Widget build(BuildContext context) {
-     
-    // TODO: implement build
     return Scaffold(
  appBar: AppBar(
         title: const Text('Modifier la photo de profil '),
@@ -71,6 +58,7 @@ void _clear(){
  ),
  body: ListView(
  children:<Widget>[
+ /*Affichage de la photo choisie par l'utilisateur*/
   if(_imageFile != null)...[
    Image.file(_imageFile) ,
    Row(
@@ -81,18 +69,14 @@ void _clear(){
      ],
    ),
    Uploader(file:_imageFile)
-
-
   ]
-
  ],
-
-
  ),
-
     );
   }
  }
+
+/*Upload la nouvelle photo dans la base de données*/
  class Uploader extends StatefulWidget{
   final File file;
    Uploader({Key key,this.file }):super(key : key);
@@ -131,25 +115,23 @@ void _clear(){
       });
     });
   }
+
   void uploadImage(
       ) async {
-    // Set some loading value to db and show it to user
-   /* imageUploadProvider.setToLoading();*/
-    // Get url from the image bucket
+    /*Get url from the image bucket*/
     String url = await _startUpLoad();
-    // Hide loading
+   
     final user = Provider.of<User>(context);
-    String _current_userId; 
+    String _current_userId;
+
+    /*Récupère l'id de l'utilisateur courant*/ 
     StreamBuilder<UserData>(
                   stream: DatabaseService(uid: user.uid).utilisateursDonnees,
                   builder: (context,snapshot){
                     if(snapshot.hasData){ 
                       UserData userData=snapshot.data;
                       print(userData.identifiant);
-                      
-                       
                       _current_userId= userData.uid; 
-                      
                       return  Text(
                           userData.identifiant);
                     }else{
@@ -157,24 +139,17 @@ void _clear(){
                       return Text('Loading');
                     }
                   });
-   /* imageUploadProvider.setToIdle();*/
+
+  /* Fontion qui ajoute l'image dans la DataBase*/
    DatabaseService(uid:_current_userId.toString()).addPhoto(url);
   }
    
   @override
   Widget build(BuildContext context) {
-  /*  _imageUploadProvider = Provider.of<ImageUploadProvider>(context);*/
-  /*  _imageUploadProvider.getViewState == ViewState.LOADING
-              ? Container(
-                  alignment: Alignment.centerRight,
-                  margin: EdgeInsets.only(right: 15),
-                  child: CircularProgressIndicator(),
-                )
-              : Container();*/
-    // TODO: implement build
+    /* Vérification si une photo a été bien choisie*/
     if (_uploadTask != null){
       return Container();
-
+    /*si oui, affichage d'un bouton modifier*/
     }else{
       return FlatButton.icon(
        label: Text('Modifier'),
@@ -182,15 +157,8 @@ void _clear(){
        color: Colors.greenAccent,),
        onPressed:(){
         uploadImage();
-        //Navigator.pop(context);
-       
-        
         }
-
       );
     }
   }
-
-
-
- }
+}

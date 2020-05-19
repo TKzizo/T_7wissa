@@ -1,3 +1,5 @@
+/*Page formulaire d'inscription*/
+
 import 'package:flutter/material.dart';
 import 'package:myapp/services/auth.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -24,7 +26,7 @@ class _RegisterFormState extends State<RegisterForm> {
   final TextEditingController _pass = TextEditingController();
   final TextEditingController _confirmPass = TextEditingController();
 
-  // Champs du fomulaire (infomations relatives à un nouveau utilisateurs) 
+  // Champs du fomulaire (infomations relatives à un nouveau utilisateur) 
   String nom= '';
   String email= '';
   String password='';
@@ -32,7 +34,7 @@ class _RegisterFormState extends State<RegisterForm> {
   String utilisateur = '';
   String phoneNumber;
 
-  int _currentStep=0; //Controle du steper 
+  int _currentStep=0; //Contrôle du steper 
   String error ='';
 
 
@@ -148,6 +150,8 @@ class _RegisterFormState extends State<RegisterForm> {
   }
   List<Step> _mySteps(){
     List<Step> _steps= [
+
+      /*Prémière étape d'inscription*/
       Step(
         title: AutoSizeText('Etape 1 '),
         subtitle: AutoSizeText('Infos basiques'),
@@ -173,7 +177,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         hintText: "Nom",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
                   ),
-                  //Validation de l'entrée 
+                  /*Validation de l'entrée*/ 
                   validator: (val) => val.isEmpty ? 'Entrez votre nom' : null,
                   onChanged: (val) {
                   setState(() => nom = val);
@@ -182,7 +186,7 @@ class _RegisterFormState extends State<RegisterForm> {
               ), 
             
               SizedBox(height: (MediaQuery.of(context).size.height) * 0.02),
-              /*Champs Prenom*/ 
+              /*Champs Prénom*/ 
               Material(
                 elevation: 4,
                  borderRadius: BorderRadius.circular(30.0),
@@ -203,7 +207,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         hintText: "Prenom",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
                   ),
-                  //Validation de l'entrée 
+                  /*Validation de l'entrée*/ 
                   validator: (val) => val.isEmpty ? 'Entrez votre prénom' : null,
                   onChanged: (val) {
                   setState(() => prenom = val);
@@ -211,7 +215,7 @@ class _RegisterFormState extends State<RegisterForm> {
               ),
               ), 
                  SizedBox(height: (MediaQuery.of(context).size.height) * 0.02),
-              /*Champs Numtle*/ 
+              /*Champs Numtel*/ 
               Material(
                 elevation: 4,
                  borderRadius: BorderRadius.circular(30.0),
@@ -233,7 +237,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         hintText: "Email",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
                   ),
-                  //Validation de l'entrée 
+                  /*Validation de l'entrée*/
                   validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
                   onChanged: (val) {
                   setState(() => email = val);
@@ -241,7 +245,7 @@ class _RegisterFormState extends State<RegisterForm> {
               ),
               ), 
                  SizedBox(height: (MediaQuery.of(context).size.height) * 0.02),
-              /*Champs Numtle*/ 
+              /*Champs Numtel*/ 
               Material(
                 elevation: 4,
                  borderRadius: BorderRadius.circular(30.0),
@@ -263,17 +267,18 @@ class _RegisterFormState extends State<RegisterForm> {
                         hintText: "Numéro de téléphone",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
                   ),
-                  //Validation de l'entrée 
+                  /*Validation de l'entrée*/ 
                   validator: (val) => val.isEmpty ? 'Entrez votre numéro de téléphone' : null,
                   onChanged: (val) {
                   setState(() => phoneNumber = val);
                 },
               ),
-              ),
-              //SizedBox(height: (MediaQuery.of(context).size.height) * 0.02,), 
+              ), 
         ],), 
         isActive: _currentStep >=0, 
         state: _getState(1), ),
+
+        /*Deuxième étape d'inscription*/
         Step(
         title: AutoSizeText('Etape 2'),
         subtitle: AutoSizeText('Infos du compte'),
@@ -300,7 +305,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         hintText: "Nom d'utilisateur",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
                   ),
-                  //Validation de l'entrée 
+                  /*Validation de l'entrée*/ 
                   validator: (val) => val.isEmpty ? 'Entrez un nom d''utilisateur'  : null,
                   onChanged: (val) {
                   setState(() => utilisateur = val);
@@ -335,7 +340,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         ),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0), )
                   ),
-                  //Validation de l'entrée
+                  /*Validation de l'entrée*/
                 controller: _pass,
                 validator: (val) => val.length < 6 ? 'Mot de passe invalide' : null,
                 onChanged: (val) {
@@ -370,7 +375,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
                   ),
                   controller: _confirmPass,
-                  //Validation de l'entrée
+                  /*Validation de l'entrée*/
                   validator: (val){
                               if(val.isEmpty)
                                    return 'Empty';
@@ -381,17 +386,14 @@ class _RegisterFormState extends State<RegisterForm> {
                 onChanged: (val) {
                   setState(() => password = val);
                 },
-                
               ),
               ),
             /*Champs Confirmation Mot de passe*/ 
-        
-          //SizedBox(height: 72,),
-          ],),
+            ],),
           state: _getState(2),
-        isActive: _currentStep >=1, 
-         
-        ),
+        isActive: _currentStep >=1, ),
+
+        /*Troisième étape d'inscription*/
         Step(
         title: AutoSizeText('Etape 3 '),
         subtitle: AutoSizeText('Validation'),
@@ -412,15 +414,14 @@ class _RegisterFormState extends State<RegisterForm> {
                         fit: BoxFit.contain,
                       ),
                     ),
-                              
-
           ],
           ),
-      
         isActive: _currentStep >=2,  ),
     ]; 
     return _steps; 
   }
+  
+  /* Récupère le numéro de l'étape et vérifie si toutes les étapes ont été faites*/
   StepState _getState(int i) {
     if (_currentStep >= i)
       return StepState.complete;

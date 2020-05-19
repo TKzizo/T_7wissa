@@ -1,4 +1,4 @@
-import 'dart:async';
+/*Page d'aide concernant la messagerie*/
 
 import 'package:flutter/material.dart';
 
@@ -29,7 +29,7 @@ class _MessageHelpPageState extends State<MessageHelpPage> {
             children :<Widget>[ ExpansionTile(
     
       title: Text(
-                          'Comment accéder à la messagerie d’un groupe?',
+                          'Comment accéder à la messagerie d’un groupe ?',
                           style: const TextStyle(
                               color:  const Color(0xff000000),
                               fontWeight: FontWeight.w400,
@@ -56,7 +56,7 @@ class _MessageHelpPageState extends State<MessageHelpPage> {
               ExpansionTile(
     
       title: Text(
-                          'Comment envoyer un message prédéfini?',
+                          'Comment envoyer un message prédéfini ?',
                           style: const TextStyle(
                               color:  const Color(0xff000000),
                               fontWeight: FontWeight.w400,
@@ -67,7 +67,7 @@ class _MessageHelpPageState extends State<MessageHelpPage> {
                           textAlign: TextAlign.left                
                           ),
       children: <Widget> [Text(
-                          '\n    1-Faites glisser vers le haut la liste qui se trouve\n      en bas de votre page.\n    2-Choisissez un message parmi la liste de\n      messages prédéfinis.\n    3-Cliquez sur l’icône à gauche pour envoyer.\n',
+                          '\n    1-Faîtes glisser vers le haut la liste qui se trouve\n      en bas de votre page.\n    2-Choisissez un message parmi la liste de\n      messages prédéfinis.\n    3-Cliquez sur l’icône à gauche pour envoyer.\n',
 
 
                           style: const TextStyle(
@@ -84,7 +84,7 @@ class _MessageHelpPageState extends State<MessageHelpPage> {
                ExpansionTile(
     
       title: Text(
-                          'Comment envoyer un message écrit manuellement?',
+                          'Comment envoyer un message écrit manuellement ?',
                           style: const TextStyle(
                               color:  const Color(0xff000000),
                               fontWeight: FontWeight.w400,
@@ -95,7 +95,7 @@ class _MessageHelpPageState extends State<MessageHelpPage> {
                           textAlign: TextAlign.left                
                           ),
       children: <Widget> [Text(
-                          '\n       1-Cliquez sur l’icône qui représente un \n        message.\n      2-Tapez votre message en bas.\n      3-Envoyez—le en appuyant sur l icône à\n        gauche.\n',
+                          "\n       1-Cliquez sur l’icône qui représente un \n        message.\n      2-Tapez votre message en bas.\n      3-Envoyez—le en appuyant sur l'icône à\n        gauche.\n",
 
 
                           style: const TextStyle(
@@ -112,7 +112,7 @@ class _MessageHelpPageState extends State<MessageHelpPage> {
        ExpansionTile(
     
       title: Text(
-                          'Comment envoyer une photo?',
+                          'Comment envoyer une photo ?',
                           style: const TextStyle(
                               color:  const Color(0xff000000),
                               fontWeight: FontWeight.w400,
@@ -142,21 +142,5 @@ class _MessageHelpPageState extends State<MessageHelpPage> {
                        image: AssetImage('assets/illustrationMessagerie.png'),
                         fit: BoxFit.contain,
                       ),
-                    ),
-        
-
-
-
-
-
-        ]
-
-
-
-
-        ),
-        
-       
-        );
-  }
+                    ),]),);}
 }

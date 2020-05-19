@@ -1,4 +1,4 @@
-
+/*Définition de l'id du user*/
 class User {
   final String uid; 
   
@@ -6,6 +6,7 @@ class User {
    
 }
 
+/*Les attributs de la classe UserData*/
 class UserData{
   final String uid; 
   final String nom; 

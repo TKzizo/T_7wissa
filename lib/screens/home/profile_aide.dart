@@ -1,4 +1,4 @@
-import 'dart:async';
+/*Page d'aide concernant le profil*/
 
 import 'package:flutter/material.dart';
 
@@ -41,7 +41,7 @@ class _ProfileHelpPageState extends State<ProfileHelpPage> {
                           textAlign: TextAlign.left                
                           ),
       children: <Widget> [Text(
-                          '\n      Si vous connaissez votre mot de passe actuel,\n      vous pouvez le modifier en accèdant à vos\n      paramètres profil public.\n      Votre mot de passe ne doit pas correspondre\n      à votre adresse email, à votre numéro de\n      téléphone ni à votre date d’anniversaire.\n',
+                          '\n      Si vous connaissez votre mot de passe actuel,\n      vous pouvez le modifier en accédant à vos\n      paramètres profil public.\n      Votre mot de passe ne doit pas correspondre\n      à votre adresse email, à votre numéro de\n      téléphone ni à votre date d’anniversaire.\n',
 
 
                           style: const TextStyle(
@@ -69,7 +69,7 @@ class _ProfileHelpPageState extends State<ProfileHelpPage> {
                           textAlign: TextAlign.left                
                           ),
       children: <Widget> [Text(
-                          '\n      Pour accéder à vos paramètres\n      1-Cliquez sur l’icône  en haut de votre page\n      d’acceuil \n      2-Dans cette liste vous trouverez le bouton\n      "Paramères du compte"\n      3-Cliquez sur le bouton pour afficher vos\n    informations\n',
+                          '\n      Pour accéder à vos paramètres\n      1-Cliquez sur l’icône  en haut de votre page\n      d’accueil \n      2-Dans cette liste vous trouverez le bouton\n      "Paramères du compte"\n      3-Cliquez sur le bouton pour afficher vos\n    informations\n',
 
 
                           style: const TextStyle(
@@ -97,7 +97,7 @@ class _ProfileHelpPageState extends State<ProfileHelpPage> {
                           textAlign: TextAlign.left                
                           ),
       children: <Widget> [Text(
-                          '\n  Pour modifier vos informations\n  1-Accèdez à vos paramètres\n  2-Cliquez sur le bouton "Modifier"\n  Dans cette section vous pouvez modifier\n  votre nom, prénom, nom d’utilisateur...\n',
+                          '\n  Pour modifier vos informations\n  1-Accédez à vos paramètres\n  2-Cliquez sur le bouton "Modifier"\n  Dans cette section vous pouvez modifier\n  votre nom, prénom, nom d’utilisateur...\n',
 
 
                           style: const TextStyle(
@@ -144,20 +144,6 @@ class _ProfileHelpPageState extends State<ProfileHelpPage> {
                         fit: BoxFit.contain,
                       ),
                     ), 
-        
-
-
-
-
-
-        ]
-
-
-
-
-        ),
-        
-       
-        );
+        ]),);
   }
-}
+ }

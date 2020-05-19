@@ -1,15 +1,15 @@
+/*Suggestions*/
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'dart:core';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:myapp/screens/home/map.dart';
 
 
 
+/*Recherche d'utilisateurs*/
 class UserSearch extends SearchDelegate<String> {
   //the hint text in search bar
-  final searchFieldLabel = "Chercher un utilisateur";
+  final searchFieldLabel = "Cherchez un utilisateur";
   //json that we pass to show results to add the user to groupe
   var obj;
   var document;
@@ -55,7 +55,7 @@ class UserSearch extends SearchDelegate<String> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Icon(Icons.search),
-            Text(' Aucun utlisateur'),
+            Text(' Aucun utlisateur ne correspond à votre recherche'),
           ],
         ),
       );
@@ -72,6 +72,7 @@ class UserSearch extends SearchDelegate<String> {
       if (url.data.documents[index]["image_url"] == "") {
         return Icon(Icons.person);
       } else {
+        /*Afficher la photo de l'utilisateur qu'on recherche*/
         return CircleAvatar(
           backgroundImage: NetworkImage(url.data.documents[index]["image_url"]),
         );
@@ -224,11 +225,8 @@ Color  col = Colors.grey[350] ;
           children: <Widget>[
             botton = ay ?  RaisedButton(onPressed:() {
 
-              Firestore.instance.collection('groupe').document((widget.dom["groupeID"]).toString()).collection('suggestion').document().setData({
-                      'groupeID':widget.dom["groupeID"].toString(),
-                      'admin': widget.dom["admin"].toString(), 
-                      'destination': widget.dom["destination"], 
-                      'groupe': widget.dom["groupe"].toString(),                      
+              Firestore.instance.collection('groupe').document((widget.dom["groupeID"]).toString()).collection('suggestions').document().setData({
+                     'user': widget.obj['uid'],                   
                   });
                setState(() {
                 col = green;
@@ -238,7 +236,7 @@ Color  col = Colors.grey[350] ;
             },
             padding: EdgeInsets.all(20),
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            child: Text("Suggerrer '${widget.obj["identifiant"]}' a l'admin",
+            child: Text("Suggérrez '${widget.obj["identifiant"]}' à l'administrateur",
             style: TextStyle(
               color: Colors.black,
               fontSize: 15
@@ -248,7 +246,7 @@ Color  col = Colors.grey[350] ;
               child:Row(
                 children: <Widget>[
                     Icon(Icons.done ,size: 40, color: Colors.white,),
-                    Text("Suggestion a été envoyée", style: TextStyle(fontSize: 20, color: Colors.white), )
+                    Text("Suggestion envoyée", style: TextStyle(fontSize: 20, color: Colors.white), )
                 ],
                 ),
             ),
