@@ -40,7 +40,7 @@ final CollectionReference utilisateurCollection = Firestore.instance.collection(
       return null;
     } 
   }
-  Future marquer_Alerte(String id, String text,double longitude,double latitude, String senderId, String icon ) async{
+  Future marquer_Alerte(String id, String text,double longitude,double latitude, String senderId, String icon, String groupe,String sender ) async{
     try {
        groupeCollection.document(id).collection('Markers').document().setData
       ({
@@ -49,6 +49,8 @@ final CollectionReference utilisateurCollection = Firestore.instance.collection(
         'longitude':longitude, 
         'latitude': latitude, 
         'icon': icon, 
+        'groupe': groupe,
+        'sender' : sender,
       });
     } catch (error) {
       print(error.toString()); 

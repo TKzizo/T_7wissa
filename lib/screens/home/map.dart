@@ -35,11 +35,7 @@ import 'package:myapp/services/Suggestion.dart';
 import 'page_aide.dart'; 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:myapp/services/MessageHandler.dart';
-<<<<<<< HEAD
-
-=======
 import 'package:flutter_custom_dialog/flutter_custom_dialog.dart';
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -82,7 +78,7 @@ FirebaseUser currentUser;
 StatefulWidget _child; 
 String _img='';
 String _current_grp = '10000000';
-MsgHandler msgHandler;
+var msgHandler=new MsgHandler();
 String  _current_grp_adminID;
 String  _current_grp_admin;
 String _current_grp_destinaton;
@@ -104,16 +100,11 @@ GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1
     getPermission();
    
     super.initState();
-<<<<<<< HEAD
-    _loadCurrentUser(); 
-=======
     _loadCurrentUser();
     
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
   }
 /*Déclaration des diffirents marqueurs*/
   BitmapDescriptor pinLocationIcon;
-<<<<<<< HEAD
   BitmapDescriptor panneIcon;
   BitmapDescriptor accidentIcon;
   BitmapDescriptor animauxIcon;
@@ -127,20 +118,6 @@ GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyAZRocDA5-kIiOwosJclZ1
   BitmapDescriptor destinationIcon; 
 
 /*Affectation des Marqueurs*/
-=======
-   BitmapDescriptor panneIcon;
-   BitmapDescriptor accidentIcon;
-   BitmapDescriptor animauxIcon;
-   BitmapDescriptor barrageIcon;
-   BitmapDescriptor aideIcon;
-   BitmapDescriptor pauseIcon;
-   BitmapDescriptor radarIcon;
-   BitmapDescriptor routeIcon;
-   BitmapDescriptor maleIcon; 
-   BitmapDescriptor femaleIcon; 
-   BitmapDescriptor destinationIcon; 
-
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
 void setCustomMapPin() async {
       pinLocationIcon = await BitmapDescriptor.fromAssetImage(
       ImageConfiguration(size:Size(-12,-12)),
@@ -238,7 +215,6 @@ void setCustomMapPin() async {
     //
       Firestore.instance.collection('utilisateur').document(userId).updateData({'vitesse': position.speed==null? 0.0: position.speed.toDouble(),'latitude': position.latitude==null? 0.0: position.latitude.toDouble(), 'longitude':position.longitude==null? 0.0: position.longitude.toDouble()});
   }
-<<<<<<< HEAD
 
   List<Marker> allMarkers = []; 
 
@@ -248,14 +224,6 @@ Widget _mapWidget() {
       stream: Firestore.instance.collection('groupe').document(_current_grp).collection('Markers').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return Text('');
-=======
-    List<Marker> allMarkers = []; 
-StatefulWidget _mapWidget() {
-       return StreamBuilder(
-      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('Markers').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return Text("");
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
         for (int i = 0; i < snapshot.data.documents.length; i++) {
           String icon= (snapshot.data.documents[i]['icon']).toString() ==null ?' ': (snapshot.data.documents[i]['icon']).toString();
           print("icon");  
@@ -409,13 +377,9 @@ StatefulWidget _mapWidget() {
   }
 
 List<String> allUsers = []; 
-<<<<<<< HEAD
 
 /*Affichage des marqueurs des membres du même groupe*/
 Widget _eachUserMarker(){
-=======
-StatefulWidget _eachUserMarker(){
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
      return StreamBuilder(
       stream: Firestore.instance.collection('utilisateur').snapshots(),
       builder: (context, snapshot) {
@@ -445,25 +409,8 @@ StatefulWidget _eachUserMarker(){
     );
 }
   
-<<<<<<< HEAD
 /*Affichage de la map*/
 Widget map(){ 
-=======
- StatefulWidget  userListeMarkers(){
-    return   StreamBuilder(
-      stream: Firestore.instance.collection('groupe').document(_current_grp).collection('ListeMembre').snapshots(),
-      builder: (context, snapshot){
-        if (!snapshot.hasData) return Container(child: Loading(indicator: BallPulseIndicator(), size:50,color: Colors.deepOrange),);
-        for (int i = 0; i < snapshot.data.documents.length; i++) { 
-          allUsers.add((snapshot.data.documents[i]['user']).toString() ==null ?" ": (snapshot.data.documents[i]['user']).toString());              
-        }  
-    return  _eachUserMarker(); 
-      },
-
-    );
-  }
-StatefulWidget map(){ 
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
     return    GoogleMap(
                 markers: Set.from(allMarkers),
                 initialCameraPosition: CameraPosition(
@@ -934,7 +881,7 @@ void subscribe() async{
         elevation: 3.0,
         actions: <Widget>[
               IconButton(icon: Icon(Icons.notifications_active), onPressed:() {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) => msgHandler);
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) { return msgHandler;}) );
               } )
             ],
         title: Text('Accueil'),
@@ -1147,10 +1094,6 @@ void subscribe() async{
                         MaterialPageRoute(builder: (context) => 
                         EditProfileView()),
                       );
-<<<<<<< HEAD
-=======
-
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
                   },
                 ),
                 ListTile(
@@ -1295,17 +1238,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
                           fontSize:12.0
                       ),
                       textAlign: TextAlign.left                
-<<<<<<< HEAD
                       ),));
-=======
-                      ),
-
-
-
-
-                      )
-                  );
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
                   }
                 }
 
@@ -1378,7 +1311,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
  leading: Icon(Icons.help,color: Color(0xFFFF5722),),
  /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async { 
-   CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "j'ai besoin d'aide !", position.longitude, position.latitude, _current_userId, "aide");
+   CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "j'ai besoin d'aide !", position.longitude, position.latitude, _current_userId, "aide",_current_grp_name,_current_user);
      allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
@@ -1402,7 +1335,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
   /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async { 
    /*Affichage des marqueurs de l'alerte*/ 
-    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "je suis en panne !", position.longitude, position.latitude, _current_userId, "panne");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "je suis en panne !", position.longitude, position.latitude, _current_userId, "panne",_current_grp_name,_current_user);
      allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
@@ -1425,7 +1358,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
    leading: Icon(Icons.flash_on,color: Color(0xFFFF5722),),
    /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Un accident!", position.longitude, position.latitude, _current_userId, "accident");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Un accident!", position.longitude, position.latitude, _current_userId, "accident",_current_grp_name,_current_user);
     allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
@@ -1449,7 +1382,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
    /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async {     
      ChatService(uid: _current_grp.toString() ).envoyer_mesg(_current_grp,'Route endommagée ! ', _current_user,_current_userId,null);
-    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Route endommagée  !", position.longitude, position.latitude, _current_userId, "route");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Route endommagée  !", position.longitude, position.latitude, _current_userId, "route",_current_grp_name,_current_user);
     allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
@@ -1473,7 +1406,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
    leading: Icon(Icons.flag,color: Color(0xFFFF5722),),
    /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte barrage !", position.longitude, position.latitude, _current_userId, "barrage");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte barrage !", position.longitude, position.latitude, _current_userId, "barrage",_current_grp_name,_current_user);
     allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
@@ -1497,7 +1430,7 @@ _buildRecievedMessageslistItem(BuildContext ctx,DocumentSnapshot document) {
    leading: Icon(Icons.router,color: Color(0xFFFF5722),),
    /*Appel de la méthode envoyer message*/
  trailing:  IconButton(onPressed:() async {      
-    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte radar!", position.longitude, position.latitude, _current_userId, "radar");
+    CreationGroupeServises(uid: _current_grp.toString()).marquer_Alerte(_current_grp, "Alerte radar!", position.longitude, position.latitude, _current_userId, "radar",_current_grp_name,_current_user);
     allMarkers.add(new Marker(
               position: new LatLng(position.latitude,position.longitude),
                    markerId: MarkerId(_current_grp.toString()),
@@ -1643,133 +1576,11 @@ _onGroupButtonPressed(String currentUser){
       height: (MediaQuery.of(context).size.height) * 0.03,
       child: Text(
       "Groupes ",
-<<<<<<< HEAD
-=======
       style: const TextStyle(
           color:  const Color(0xde204f6f),
           fontWeight: FontWeight.w500,
           fontFamily: "Roboto",
           fontStyle:  FontStyle.normal,
-          fontSize: 19.0
-      ),
-      textAlign: TextAlign.left                
-      )),
-  ),
-  
-     
-     Container( 
-     padding: EdgeInsets.only(
-       
-     top: (MediaQuery.of(context).size.height) * 0.075,
-     bottom: (MediaQuery.of(context).size.height) * 0.02,
-     left: (MediaQuery.of(context).size.width) * 0.04,
-     right: (MediaQuery.of(context).size.width) * 0.04,
-       ),
-     child: StreamBuilder(
-     stream: Firestore.instance.collection('utilisateur').document(_current_userId).collection('ListeGroupe').snapshots(),
-     builder: (context,snapshot){
-     if (!snapshot.hasData) return const Text("aucun groupe",
-      style: const TextStyle(
-      color:  const Color(0xff3d3d3d),
-      fontWeight: FontWeight.w400,
-      fontFamily: "Roboto",
-      fontStyle:  FontStyle.normal,
-      fontSize: 17.0
-  ),
-  textAlign: TextAlign.left 
-     
-     
-     );
-   return  ListView.builder(
-     itemExtent: 80.0,
-     itemCount:snapshot.data.documents.length,
-    itemBuilder: (ctx,index )=> (
-    _buildlistItem(ctx,snapshot.data.documents[index])),
-      );
-    
-     }
-         
-      )
-    
-       
-      ) , 
-       PositionedDirectional(
-
-
-
-    top: (MediaQuery.of(context).size.height) * 0.44,
-    start: (MediaQuery.of(context).size.width) * 0.8,
-    child: 
-        SizedBox(
-      
-      child:FloatingActionButton(heroTag: 'btn6',onPressed:()=>creeGroupe(),
-         child: Icon(Icons.add,
-         size: 40,
-         ),
-         backgroundColor: const Color(0xffff5722),
-         focusColor: Colors.white,
-         ),
-        ),
-  ),
-      
-      ]
-      )
-         
-          ),
-        
-          );
-          
-    
-        }
-        );
-         
-      }
-  afficher_alerte(){
-
- showDialog(context: context, builder:(context){
-  return AlertDialog(
-  title : Text('Alerte'),
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(20.0))
-),
-  content: Text("Vous n'avez pas le droit de lancer cette fonctionalité car vous n'êtes pas l'administrateur de ce groupe."),
-  actions: <Widget>[
-    MaterialButton(
-      elevation: 5.0,
-      child: Text('OK'),
-      onPressed:() {
-        Navigator.of(context).pop();
-      },
-     )
-  ],
-
-  );
- });
-
- }
-     _buildlistItem(BuildContext ctx,DocumentSnapshot document) {
-       DocumentReference ref = Firestore.instance.collection('groupe').document(_current_grp);
-      return(  StreamBuilder<DocumentSnapshot>(
-    stream: provideDocumentFieldStream("groupe",document['id']),
-    builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if ((snapshot.hasData)&& (document['id']!='10000000')) {
-           Map<String, dynamic> documentFields = snapshot.data.data;
-//bool isSwitched=documentFields['statu'];
-           return  ListTile(
-title:Row (
-       
-        crossAxisAlignment: CrossAxisAlignment.start,
-       
-        children : <Widget>[
-       Text(
-      documentFields['nom'].toString(),
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
-      style: const TextStyle(
-          color:  const Color(0xde204f6f),
-          fontWeight: FontWeight.w500,
-          fontFamily: "Roboto",
-          fontStyle:  FontStyle.normal,
-<<<<<<< HEAD
           fontSize: 19.0),
       textAlign: TextAlign.left )),),
      Container( 
@@ -1848,146 +1659,37 @@ title:Row (
           fontStyle:  FontStyle.normal,
           fontSize: 17.0),
       textAlign: TextAlign.left),
-=======
-          fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
       Spacer(flex:1,),
      SizedBox(
         width: (MediaQuery.of(context).size.width) * 0.14,
        height: (MediaQuery.of(context).size.height) * 0.045,
-<<<<<<< HEAD
        /*Affichage de la destination du groupe*/
-=======
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
             child: Text(  "à : "+ documentFields['destination'],
                         style: const TextStyle(
                             color:  const Color(0xff52bf90),
                             fontWeight: FontWeight.w400,
                             fontFamily: "Roboto",
                             fontStyle:  FontStyle.normal,
-<<<<<<< HEAD
                             fontSize: 14.0),
                         textAlign: TextAlign.left,),),]),
       /*Affichage de l'administrateur du groupe*/
      subtitle :   Text(
                       "Admin : "+ documentFields['admin'].toString(),
                       style: const TextStyle(
-=======
-                            fontSize: 14.0
-                        ),
-                        textAlign: TextAlign.left,
-                        ),
-     ),
-     ]),
-     subtitle :   Text(
-                      "Admin : "+ documentFields['admin'].toString(),
-                      style: const TextStyle(
                           color:  const Color(0xde3d3d3d),
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left                
-                      ),
-
-
-    /*title:Row (
-       
-        crossAxisAlignment: CrossAxisAlignment.start,
-       
-        children : <Widget>[
-       Column(
-         mainAxisAlignment: MainAxisAlignment.start,
-         children: <Widget>[
-
-           Text(
-      documentFields['nom'],
-      style: const TextStyle(
-              color:  const Color(0xff3d3d3d),
-              fontWeight: FontWeight.w400,
-              fontFamily: "Roboto",
-              fontStyle:  FontStyle.normal,
-              fontSize: 17.0
-      ),
-      textAlign: TextAlign.left                
-      ),
-      
-     SizedBox(
-      height: (MediaQuery.of(context).size.height) * 0.06,
-      child : Text(
-                      "Admin : "+ documentFields['admin'],
-                      style: const TextStyle(
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
-                          color:  const Color(0xde3d3d3d),
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-<<<<<<< HEAD
                           fontSize: 14.0),
                       textAlign: TextAlign.left),
      trailing:    Column(
-=======
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left                
-                      ),),
-         ],
-       ),
-      Spacer(flex:1,),
-      Column (
-        children: <Widget>[ 
-
-     SizedBox(
-       width: 70, 
-       height: 30,
-            child: Text(  "à : "+ documentFields['destination'],
-                        style: const TextStyle(
-                            color:  const Color(0xff52bf90),
-                            fontWeight: FontWeight.w400,
-                            fontFamily: "Roboto",
-                            fontStyle:  FontStyle.normal,
-                            fontSize: 14.0
-                        ),
-                        textAlign: TextAlign.left,
-                        ),
-     ),
-        /*       Switch(
-            value: isSwitched,
-            onChanged: (value) async{
-              setState(() {
-                isSwitched = value;
-                print(isSwitched);
-              });
-              await ref.updateData({"statu": !(documentFields['statu'])});
-            },
-            activeTrackColor: Colors.lightGreenAccent,
-            activeColor: Colors.green,
-          ),*/
-                      ],),
-                      
-                      ]),*/
-
-     /*subtitle :   Text(
-                      "Admin : "+ documentFields['admin'],
-                      style: const TextStyle(
-                          color:  const Color(0xde3d3d3d),
-                          fontWeight: FontWeight.w400,
-                          fontFamily: "Roboto",
-                          fontStyle:  FontStyle.normal,
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left                
-                      ),*/
-        trailing:    Column(
-          
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
            children: <Widget>[
       /*Bouton quitter groupe*/
-             IconButton(onPressed:()=> _quittergroupe(document.documentID,documentFields['uid']),
+             IconButton(onPressed:(){ 
+              _fcm.unsubscribeFromTopic(_current_grp);
+               _quittergroupe(document.documentID,documentFields['uid']);
+             
+             },
                              icon: Icon(
                             Icons.exit_to_app,
                              color:  const Color(0xffff5722),),),],),
@@ -2031,6 +1733,7 @@ title:Row (
 
 /*Méthode quitter groupe*/                    
 _quittergroupe(docId,docgrpID) {
+            
             Firestore.instance.
             collection('utilisateur')
             .document(_current_userId)
@@ -2187,23 +1890,10 @@ void creeGroupe(){
                           fontStyle:  FontStyle.normal,
                           fontSize: 16.0),),],),)],),
                            Icon(
-<<<<<<< HEAD
                                 Icons.access_time,
                                 size: 18.0,
                                 color: Colors.deepOrange,),],),),
                   color: Colors.white,),), 
-=======
-                                      Icons.access_time,
-                                      size: 18.0,
-                                      color: Colors.deepOrange,
-                                    ),
-                        ],
-                      ),
-                  ),
-                  color: Colors.white,
-                ),
-                    ), 
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
                     /*HEURE DE DEPART */
                 Row(
                    children: <Widget>[
@@ -2252,7 +1942,7 @@ void creeGroupe(){
                     /*Une fois la saisie des champs validée on appelle la méhtode de création de groupes*/
                     if(_formKey.currentState.validate()){ 
                       CreationGroupeServises(uid: _id.toString() ).creerGroupe(_current_user,destination, _time, listMembre, nom,_current_userId);
-                      CreationGroupeServises(uid: _id.toString()).marquer_Alerte(_id.toString(), destination, lang, latt, _current_userId, "destination");
+                      CreationGroupeServises(uid: _id.toString()).marquer_Alerte(_id.toString(), destination, lang, latt, _current_userId, "destination",_current_grp_name,_current_user);
                     /*Á la création du groupe un marqueur s'affiche sur la map indiquant la destination de celui-ci*/
                    allMarkers.add(new Marker(
                            position: new LatLng(latt,lang),
@@ -3146,21 +2836,8 @@ void list_invitations(BuildContext context, String userID){
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-<<<<<<< HEAD
                           fontSize: 14.0),
                       textAlign: TextAlign.left),),
-=======
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left
-                  
-                  
-                  
-                  
-                  ),
-              
-                ),
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
                 ListTile(
                   leading: Icon(Icons.person, color: Colors.greenAccent,),
                   title: Text(utilisateur,
@@ -3169,19 +2846,10 @@ void list_invitations(BuildContext context, String userID){
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-<<<<<<< HEAD
                           fontSize: 14.0),
                       textAlign: TextAlign.left),),
                  ListTile(
                 /*Affichage du numéro de téléphone*/   
-=======
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left),
-              
-                ),
-                 ListTile(
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
                   leading: Icon(Icons.phone, color: Colors.greenAccent,),
                   title: Text(phoneNumber,
                    style: const TextStyle(
@@ -3189,16 +2857,8 @@ void list_invitations(BuildContext context, String userID){
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-<<<<<<< HEAD
                           fontSize: 14.0),
                       textAlign: TextAlign.left),),
-=======
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left),
-              
-                ),
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
                 ListTile(
                 /*Affichage de l'email de l'utilisateur*/
                   leading: Icon(Icons.mail, color: Colors.greenAccent,),
@@ -3208,22 +2868,8 @@ void list_invitations(BuildContext context, String userID){
                           fontWeight: FontWeight.w400,
                           fontFamily: "Roboto",
                           fontStyle:  FontStyle.normal,
-<<<<<<< HEAD
                           fontSize: 14.0),
                       textAlign: TextAlign.left),),]),),
-=======
-                          fontSize: 14.0
-                      ),
-                      textAlign: TextAlign.left),
-              
-                ),
-  
-   
-   ]
-
-   ),   
-   ),
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
     
     StreamBuilder<UserData>(
                   stream: DatabaseService(uid: user.uid).utilisateursDonnees,
@@ -3273,15 +2919,8 @@ void list_invitations(BuildContext context, String userID){
                       textAlign: TextAlign.left),),),)]),));});
            }
 
-<<<<<<< HEAD
 
 /*Gestion des suggestions*/
-=======
-    }
-     );
-}
-                 
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
 buildSugglistItem(BuildContext ctx,DocumentSnapshot document,String idGroup) {
        return(  StreamBuilder<DocumentSnapshot>(
     stream: provideDocumentFieldStream("utilisateur",document['user']),
@@ -3341,28 +2980,14 @@ _accepterSugg(String docId,String grpID,String userID) {
    
 /*Updater la position du marqueur*/
 void updatePinOnMap(String id,String user) async {
-<<<<<<< HEAD
   CameraPosition cPosition = CameraPosition(
-=======
-   
-   // create a new CameraPosition instance
-   // every time the location changes, so the camera
-   // follows the pin as it moves with an animation
-          CameraPosition cPosition = CameraPosition(
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
    zoom: 16,
    tilt: 80,
    bearing: 30,
    target: LatLng(position.latitude,
       position.longitude),
    );
-<<<<<<< HEAD
 _controller.animateCamera(CameraUpdate.newCameraPosition(cPosition));
-=======
-   
-_controller.animateCamera(CameraUpdate.newCameraPosition(cPosition));
-   
->>>>>>> 7ee0c388fa3ada98e41f28920a9614a5cb61792b
    setState(() {
  
       // updated position

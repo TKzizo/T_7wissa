@@ -18,6 +18,7 @@ export const sentToTopic = functions.firestore
              
                 title: `Groupe: "${mark.groupe}"`,
                 body:`Membre: "${mark.sender}" \n"${mark.icon}", ${mark.text}`,
+                ps : `${mark.icon}`,
                 clickAction: 'FLUTTER_NOTIFICATION_CLICK'
                
             }
