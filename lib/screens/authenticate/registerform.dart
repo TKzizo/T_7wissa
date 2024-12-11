@@ -1,5 +1,8 @@
+/*Page formulaire d'inscription*/
+
 import 'package:flutter/material.dart';
 import 'package:myapp/services/auth.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 
 
@@ -23,7 +26,7 @@ class _RegisterFormState extends State<RegisterForm> {
   final TextEditingController _pass = TextEditingController();
   final TextEditingController _confirmPass = TextEditingController();
 
-  // Champs du fomulaire (infomations relatives à un nouveau utilisateurs) 
+  // Champs du fomulaire (infomations relatives à un nouveau utilisateur) 
   String nom= '';
   String email= '';
   String password='';
@@ -31,13 +34,14 @@ class _RegisterFormState extends State<RegisterForm> {
   String utilisateur = '';
   String phoneNumber;
 
-  int _currentStep=0; //Controle du steper 
+  int _currentStep=0; //Contrôle du steper 
   String error ='';
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
        appBar: AppBar(
           backgroundColor: Colors.white,
@@ -47,12 +51,13 @@ class _RegisterFormState extends State<RegisterForm> {
             color:  Colors.black,
                       fontFamily: "Roboto",
                       fontStyle:  FontStyle.normal,
-                      fontSize: 17.0, ),
+                      fontSize: 20.0, ),
             ), 
         ),
       
      body: Center(
-       widthFactor: 35,
+       //widthFactor: 20,
+       
        child: Form(
           key: _formKey,
           child: Stepper(
@@ -60,54 +65,60 @@ class _RegisterFormState extends State<RegisterForm> {
                 steps: _mySteps(),
                 controlsBuilder: (BuildContext context,
                   {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        return Column(
                           children: <Widget>[
-                                Material(
+                            SizedBox(height: (MediaQuery.of(context).size.height) * 0.2,),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                
+                                    Material(
+                                        borderRadius: BorderRadius.circular(30.0),
+                                        color: Colors.deepOrange,
+                                        child: 
+                                        MaterialButton(
+                                        minWidth:(MediaQuery.of(context).size.width) * 0.3,
+                                        height: (MediaQuery.of(context).size.height) * 0.015,
+                                        child: 
+                                        Text("SUIVANT",
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                              color:  const Color(0xffffffff),
+                                              fontWeight: FontWeight.w500,
+                                              fontFamily: "Roboto",
+                                              fontStyle:  FontStyle.normal,
+                                              fontSize: 16.0
+                                          ),
+                                        ),
+                                        onPressed: onStepContinue,
+                                      ),
+                                      ),
+                                  SizedBox(width: (MediaQuery.of(context).size.width) * 0.02,),
+                                  Material(
                                     borderRadius: BorderRadius.circular(30.0),
-                                    color: Colors.deepOrange,
-                                    child: 
-                                    MaterialButton(
-                                    minWidth:125,
-                                    height: 1.2,
-                                    child: 
-                                    Text("SUIVANT",
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                          color:  const Color(0xffffffff),
-                                          fontWeight: FontWeight.w500,
-                                          fontFamily: "Roboto",
-                                          fontStyle:  FontStyle.normal,
-                                          fontSize: 16.0
+                                    color: Colors.grey[350],
+                                    child:  MaterialButton(
+                                         minWidth:(MediaQuery.of(context).size.width) * 0.3,
+                                        height: (MediaQuery.of(context).size.height) * 0.015,
+                                        child: 
+                                        Text("ANNULER",
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                              color:  const Color(0xffffffff),
+                                              fontWeight: FontWeight.w500,
+                                              fontFamily: "Roboto",
+                                              fontStyle:  FontStyle.normal,
+                                              fontSize: 16.0
+                                          ),
+                                        ),
+                                      onPressed: onStepCancel,  
                                       ),
-                                    ),
-                                    onPressed: onStepContinue,
                                   ),
-                                  ),
-                              SizedBox(width: 12,),
-                              Material(
-                                borderRadius: BorderRadius.circular(30.0),
-                                color: Colors.grey[350],
-                                child:  MaterialButton(
-                                    minWidth:125,
-                                    height: 1.2,
-                                    child: 
-                                    Text("ANNULER",
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                          color:  const Color(0xffffffff),
-                                          fontWeight: FontWeight.w500,
-                                          fontFamily: "Roboto",
-                                          fontStyle:  FontStyle.normal,
-                                          fontSize: 16.0
-                                      ),
-                                    ),
-                                  onPressed: onStepCancel,  
-                                  ),
-                              ),
+                              ],
+                            ),
                           ],
-                        );
+                );
       },
          currentStep: this._currentStep,
          onStepTapped: (step){
@@ -139,11 +150,14 @@ class _RegisterFormState extends State<RegisterForm> {
   }
   List<Step> _mySteps(){
     List<Step> _steps= [
+
+      /*Prémière étape d'inscription*/
       Step(
-        title: Text('Etape 1 '),
+        title: AutoSizeText('Etape 1 '),
+        subtitle: AutoSizeText('Infos basiques'),
         content:Column(children: <Widget>[
           /*Champs Nom*/ 
-          SizedBox(height: 50) ,
+          SizedBox(height: (MediaQuery.of(context).size.height) * 0.05) ,
               Material(
                 elevation: 4,
                  borderRadius: BorderRadius.circular(30.0),
@@ -163,7 +177,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         hintText: "Nom",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
                   ),
-                  //Validation de l'entrée 
+                  /*Validation de l'entrée*/ 
                   validator: (val) => val.isEmpty ? 'Entrez votre nom' : null,
                   onChanged: (val) {
                   setState(() => nom = val);
@@ -171,8 +185,8 @@ class _RegisterFormState extends State<RegisterForm> {
               ),
               ), 
             
-              SizedBox(height: 12),
-              /*Champs Prenom*/ 
+              SizedBox(height: (MediaQuery.of(context).size.height) * 0.02),
+              /*Champs Prénom*/ 
               Material(
                 elevation: 4,
                  borderRadius: BorderRadius.circular(30.0),
@@ -193,15 +207,15 @@ class _RegisterFormState extends State<RegisterForm> {
                         hintText: "Prenom",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
                   ),
-                  //Validation de l'entrée 
+                  /*Validation de l'entrée*/ 
                   validator: (val) => val.isEmpty ? 'Entrez votre prénom' : null,
                   onChanged: (val) {
                   setState(() => prenom = val);
                 },
               ),
               ), 
-                 SizedBox(height: 12),
-              /*Champs Numtle*/ 
+                 SizedBox(height: (MediaQuery.of(context).size.height) * 0.02),
+              /*Champs Numtel*/ 
               Material(
                 elevation: 4,
                  borderRadius: BorderRadius.circular(30.0),
@@ -223,15 +237,15 @@ class _RegisterFormState extends State<RegisterForm> {
                         hintText: "Email",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
                   ),
-                  //Validation de l'entrée 
+                  /*Validation de l'entrée*/
                   validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
                   onChanged: (val) {
                   setState(() => email = val);
                 },
               ),
               ), 
-                 SizedBox(height: 12),
-              /*Champs Numtle*/ 
+                 SizedBox(height: (MediaQuery.of(context).size.height) * 0.02),
+              /*Champs Numtel*/ 
               Material(
                 elevation: 4,
                  borderRadius: BorderRadius.circular(30.0),
@@ -253,22 +267,24 @@ class _RegisterFormState extends State<RegisterForm> {
                         hintText: "Numéro de téléphone",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
                   ),
-                  //Validation de l'entrée 
+                  /*Validation de l'entrée*/ 
                   validator: (val) => val.isEmpty ? 'Entrez votre numéro de téléphone' : null,
                   onChanged: (val) {
                   setState(() => phoneNumber = val);
                 },
               ),
-              ),
-              SizedBox(height: 20,), 
+              ), 
         ],), 
         isActive: _currentStep >=0, 
         state: _getState(1), ),
+
+        /*Deuxième étape d'inscription*/
         Step(
-        title: Text('Etape 2'),
+        title: AutoSizeText('Etape 2'),
+        subtitle: AutoSizeText('Infos du compte'),
         content:Column(children: <Widget>[
            /*Champs nom d'utilisateur*/ 
-             SizedBox(height: 50),
+             SizedBox(height:(MediaQuery.of(context).size.height) * 0.05),
               Material(
                 elevation: 4,
                  borderRadius: BorderRadius.circular(30.0),
@@ -289,7 +305,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         hintText: "Nom d'utilisateur",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0)),
                   ),
-                  //Validation de l'entrée 
+                  /*Validation de l'entrée*/ 
                   validator: (val) => val.isEmpty ? 'Entrez un nom d''utilisateur'  : null,
                   onChanged: (val) {
                   setState(() => utilisateur = val);
@@ -298,7 +314,7 @@ class _RegisterFormState extends State<RegisterForm> {
               ),
               
             /*Champs Email*/ 
-              SizedBox(height: 12.0),
+              SizedBox(height: (MediaQuery.of(context).size.height) * 0.02),
             /*Champs Mot de passe*/ 
               Material(
                 elevation: 4,
@@ -324,7 +340,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         ),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0), )
                   ),
-                  //Validation de l'entrée
+                  /*Validation de l'entrée*/
                 controller: _pass,
                 validator: (val) => val.length < 6 ? 'Mot de passe invalide' : null,
                 onChanged: (val) {
@@ -333,7 +349,7 @@ class _RegisterFormState extends State<RegisterForm> {
               ),
               ),
             /*Champs Mot de passe*/
-            SizedBox(height: 12),
+            SizedBox(height:(MediaQuery.of(context).size.height) * 0.02),
             /*Champs Confirmation Mot de passe*/ 
               Material(
                 elevation: 4,
@@ -359,7 +375,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
                   ),
                   controller: _confirmPass,
-                  //Validation de l'entrée
+                  /*Validation de l'entrée*/
                   validator: (val){
                               if(val.isEmpty)
                                    return 'Empty';
@@ -370,19 +386,17 @@ class _RegisterFormState extends State<RegisterForm> {
                 onChanged: (val) {
                   setState(() => password = val);
                 },
-                
               ),
               ),
             /*Champs Confirmation Mot de passe*/ 
-        
-          SizedBox(height: 72,),
-          ],),
+            ],),
           state: _getState(2),
-        isActive: _currentStep >=1, 
-         
-        ),
+        isActive: _currentStep >=1, ),
+
+        /*Troisième étape d'inscription*/
         Step(
-        title: Text('Etape 3 '),
+        title: AutoSizeText('Etape 3 '),
+        subtitle: AutoSizeText('Validation'),
           content:Column(children: <Widget>[
               Text('Un mail de confirmation vous a été envoyé ! ',
               textAlign: TextAlign.center,
@@ -393,22 +407,21 @@ class _RegisterFormState extends State<RegisterForm> {
                       fontSize: 19.0
                ),),
               SizedBox(
-                      height: 250,
-                      width: 250,
+                      height: (MediaQuery.of(context).size.height) * 0.3,
+                      width: (MediaQuery.of(context).size.width) * 0.6,
                       child: Image(
                        image: AssetImage('assets/icone.png'),
                         fit: BoxFit.contain,
                       ),
                     ),
-                              SizedBox(height: 0,),
-
           ],
           ),
-      
         isActive: _currentStep >=2,  ),
     ]; 
     return _steps; 
   }
+  
+  /* Récupère le numéro de l'étape et vérifie si toutes les étapes ont été faites*/
   StepState _getState(int i) {
     if (_currentStep >= i)
       return StepState.complete;

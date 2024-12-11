@@ -1,14 +1,19 @@
+/*Invitations*/
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'dart:core';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+
+
 
 class UserSeach extends SearchDelegate<String> {
   //the hint text in search bar
   final searchFieldLabel = "Chercher un utilisateur";
   //json that we pass to show results to add the user to groupe
   var obj;
+  var document;
+  UserSeach(this.document);
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -41,14 +46,15 @@ class UserSeach extends SearchDelegate<String> {
 //addd spinenr
     if (obj != null) {
       return Confirmation(
-        obj: obj);
+        obj: obj,
+        dom: document);
     } else {
       return Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Icon(Icons.search),
-            Text(' Aucun utlisateur'),
+            Text(' Aucun utlisateur ne correspond à votre recherche'),
           ],
         ),
       );
@@ -142,8 +148,9 @@ class UserSeach extends SearchDelegate<String> {
 
 class Confirmation extends StatefulWidget {
  final obj;
+ final dom;
  
- const Confirmation ({ Key key, this.obj }): super(key: key);
+ const Confirmation ({ Key key, this.obj ,this.dom}): super(key: key);
 
   @override
   _ConfirmationState createState() => _ConfirmationState();
@@ -152,7 +159,7 @@ class Confirmation extends StatefulWidget {
 class _ConfirmationState extends State<Confirmation> {
 dynamic botton ;
 bool ay = true ;
-Color green = Colors.green;
+Color green = Colors.teal;
 Color  col = Colors.grey[350] ;
 
 
@@ -215,12 +222,13 @@ Color  col = Colors.grey[350] ;
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             botton = ay ?  RaisedButton(onPressed:() {
-
+              
               Firestore.instance.collection('utilisateur').document((widget.obj["uid"]).toString()).collection('Invitations').document().setData({
-                      'groupeID':'1315',
-                      'admin': 'ammalimouna', 
-                      'destination': 'Alger', 
-                      'groupe': 'Famille',                      
+                     'groupeID':widget.dom["groupeID"].toString(),
+                      'admin': widget.dom["admin"].toString(), 
+                      'destination': widget.dom["destination"].toString(), 
+                      'groupe': widget.dom["groupe"].toString(),                  
+                      
                   });
                setState(() {
                 col = green;
@@ -230,7 +238,7 @@ Color  col = Colors.grey[350] ;
             },
             padding: EdgeInsets.all(20),
             shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
-            child: Text("Inviter '${widget.obj["identifiant"]}' au group",
+            child: Text("Invitez '${widget.obj["identifiant"]}' au groupe",
             style: TextStyle(
               color: Colors.black,
               fontSize: 15
@@ -240,7 +248,7 @@ Color  col = Colors.grey[350] ;
               child:Row(
                 children: <Widget>[
                     Icon(Icons.done ,size: 40, color: Colors.white,),
-                    Text("Invitation a ete envoyer", style: TextStyle(fontSize: 30, color: Colors.white), )
+                    Text("Invitation envoyée", style: TextStyle(fontSize: 20, color: Colors.white), )
                 ],
                 ),
             ),
@@ -251,61 +259,3 @@ Color  col = Colors.grey[350] ;
     );
   }
 }
-
-/* Row(
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                CircleAvatar(
-                  backgroundImage: NetworkImage(obj["image_url"]),
-                )
-              ],
-            ),
-            SizedBox(
-              width: 15,
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                SizedBox(height:5),
-                Text.rich(
-                  TextSpan(
-                    text: obj["identifiant"],
-                  ),
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 5),
-                Text.rich(
-                  TextSpan(
-                    text: obj["nom"],
-                ),
-                style: TextStyle(
-                  fontSize: 15,
-                ),
-                ),
-                SizedBox(height: 95),
-                RaisedButton.icon(icon: Icon(Icons.add), label: Text("Ajouter au groupe"),onPressed: (){
-                  
-                  Firestore.instance.collection('utilisateur').document((obj["uid"]).toString()).collection('Invitations').document().setData({
-                      'groupeID':'1314',
-                      'admin': 'ammalimouna', 
-                      'destination': 'Alger', 
-                      'groupe': 'Famille', 
-                      
-           
-                      
-                  });
-                  },)
-              ],
-            ),
-          ],
-        ),*/

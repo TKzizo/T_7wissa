@@ -15,14 +15,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "770002267347-75g5s8uctfmea5upim7goanoaneovn0b.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.mounasquad.myapp",
-            "certificate_hash": "0d4d08e0e1d6ddb93e14373644732277b96c88f0"
-          }
-        },
-        {
           "client_id": "770002267347-5bder3kic6h3sqg9ad4d3e7m8kk3v5h5.apps.googleusercontent.com",
           "client_type": 3
         }

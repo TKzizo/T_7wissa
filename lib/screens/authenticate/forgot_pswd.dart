@@ -1,3 +1,5 @@
+/*Page Mot de Passe oublié*/
+
 import 'package:flutter/material.dart';
 import 'package:myapp/services/auth.dart';
 
@@ -90,14 +92,14 @@ class _ForgotpswdState extends State<Forgotpswd> {
                         ),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
                   ),
-                  //Validation de l'entrée 
+                  /*Validation de l'entrée*/ 
                   validator: (val) => val.isEmpty ? 'Entrez votre email' : null,
                   onChanged: (val) {
                   setState(() => email = val);
                 },
               ),
               ), 
-            /*ENVOIE*/ 
+            /*ENVOI*/ 
               SizedBox(height: 30.0),
               Material(
                 borderRadius: BorderRadius.circular(30.0),
@@ -130,6 +132,8 @@ class _ForgotpswdState extends State<Forgotpswd> {
       ),
     );
   }
+
+  /*L'envoi du mail de confirmation de l'oubli du mot de passe*/
   void _onBreakConfirmationPressed(){
       showModalBottomSheet(context: context, builder:(context){
      return Container(
@@ -154,7 +158,7 @@ class _ForgotpswdState extends State<Forgotpswd> {
       width: 1000,
       height: 26,
       child: Text(
-      "Ajouter un point de repos ",
+      "Changer votre mot de passe",
       style: const TextStyle(
           color:  const Color(0xde204f6f),
           fontWeight: FontWeight.w500,
@@ -245,18 +249,9 @@ class _ForgotpswdState extends State<Forgotpswd> {
           ),
        
       ))
-       
-      
       ]
-      )
-         
-          ),
-        
-          );
-          
-    
-        }
-        );
-         
+      )),);
+    }
+    );
   }
 }
